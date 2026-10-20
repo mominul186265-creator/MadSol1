@@ -1,0 +1,6 @@
+{
+  "name": "MadSol - Madrasa Solution",
+  "description": "Smart Solution for Modern Madrasas (আধুনিক মাদ্রাসার স্মার্ট ব্যবস্থাপনা) - Premium Madrasa Management SaaS Platform",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
