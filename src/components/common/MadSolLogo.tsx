@@ -40,27 +40,16 @@ export const MadSolLogo: React.FC<MadSolLogoProps> = ({
       onClick={onClick}
       className={`flex items-center gap-2.5 sm:gap-3 select-none ${className}`}
     >
-      {/* Modern geometric octagon badge with emerald & gold */}
+      {/* User's uploaded custom app logo / brand icon */}
       {showIcon && (
         <div
-          className={`relative ${iconSizes[size]} shrink-0 rounded-xl bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-950 flex items-center justify-center shadow-sm border border-emerald-600/30 overflow-hidden ${iconClassName}`}
+          className={`relative ${iconSizes[size]} shrink-0 rounded-xl overflow-hidden shadow-xs border border-emerald-600/30 bg-emerald-950 flex items-center justify-center ${iconClassName}`}
         >
-          {/* Subtle geometric star overlay */}
-          <svg
-            className="w-full h-full p-1.5 text-amber-400"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            {/* Islamic inspired architectural arch / book / star geometry */}
-            <path d="M12 2L15 8L21 9L17 14L18 20L12 17L6 20L7 14L3 9L9 8L12 2Z" fill="currentColor" fillOpacity="0.15" />
-            <path d="M12 7V17" stroke="currentColor" strokeWidth="2" />
-            <path d="M7 12H17" stroke="currentColor" strokeWidth="2" />
-            <circle cx="12" cy="12" r="2.5" fill="#f59e0b" stroke="none" />
-          </svg>
+          <img
+            src="/MadSol_App_Icon_.png"
+            alt="MadSol Icon"
+            className="w-full h-full object-cover"
+          />
         </div>
       )}
 
