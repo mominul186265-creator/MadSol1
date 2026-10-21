@@ -18,10 +18,8 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
-  Sparkles,
   UserPlus,
 } from 'lucide-react';
-import { RoleSlug } from '../../types/step1';
 
 interface LoginScreenProps {
   onSuccess?: () => void;
@@ -33,8 +31,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
   const { resolvedTheme, toggleTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [identifier, setIdentifier] = useState('superadmin@madsol.app');
-  const [password, setPassword] = useState('admin123');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,12 +82,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     }
   };
 
-  // Quick helper to fill test accounts for smooth assessment
-  const handleQuickRole = (email: string, pass: string) => {
-    setIdentifier(email);
-    setPassword(pass);
-    setError('');
-  };
+
 
   return (
     <div className="min-h-screen w-full relative flex flex-col justify-between bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden font-sans">
@@ -163,74 +156,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             </p>
           </div>
 
-          {/* 3 Core Roles Direct Selector */}
-          <div className="mb-6 p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-800">
-            <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2 flex items-center justify-between">
-              <span className="flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                ব্যবহারকারীর ধরন নির্বাচন করুন:
-              </span>
-              <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold lowercase">
-                (১ ক্লিকে অটোফিল)
-              </span>
-            </div>
 
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                {
-                  id: 'role-dir',
-                  num: '১',
-                  label: 'সুপার এডমিন / মুহতামিম',
-                  sub: 'প্রধান প্রশাসনিক অ্যাপ',
-                  email: 'superadmin@madsol.app',
-                  pass: 'admin123',
-                  color: 'emerald',
-                },
-                {
-                  id: 'role-tch',
-                  num: '২',
-                  label: 'সহকারী শিক্ষক',
-                  sub: 'শিক্ষক সাব-অ্যাপ',
-                  email: 'teacher@darululoom.edu.bd',
-                  pass: 'teacher123',
-                  color: 'teal',
-                },
-                {
-                  id: 'role-grd',
-                  num: '৩',
-                  label: 'অভিভাবক',
-                  sub: 'অভিভাবক সাব-অ্যাপ',
-                  email: 'guardian@gmail.com',
-                  pass: 'guardian123',
-                  color: 'blue',
-                },
-              ].map((r) => {
-                const isSelected = identifier === r.email;
-                return (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => handleQuickRole(r.email, r.pass)}
-                    className={`p-2 rounded-xl text-left transition-all border flex flex-col justify-between cursor-pointer ${
-                      isSelected
-                        ? 'bg-white dark:bg-slate-900 border-emerald-500 shadow-md ring-2 ring-emerald-500/20'
-                        : 'bg-white/60 dark:bg-slate-900/60 border-slate-200/80 dark:border-slate-700/60 hover:bg-white dark:hover:bg-slate-900'
-                    }`}
-                  >
-                    <span className="text-[10px] font-extrabold text-emerald-800 dark:text-emerald-400 leading-none mb-1">
-                      {r.num}.
-                    </span>
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-100 leading-tight">
-                      {r.label}
-                    </span>
-                    <span className="text-[10px] text-slate-400 mt-1 block leading-tight">
-                      {r.sub}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -340,80 +266,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             </button>
           </div>
 
-          {/* Quick Test Drive Roles - Highlighting the 3 primary roles */}
-          <div className="mt-7 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                {language === 'bn' ? 'অনুমতি টেস্ট ড্রাইভ: ৩টি নির্ধারিত ভূমিকা' : 'Test Drive: 3 Core Roles'}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 leading-snug">
-              {language === 'bn'
-                ? 'যেকোনো রোলে ক্লিক করে দ্রুত লগইন করুন ও অনুমতি ব্যবস্থা পরীক্ষা করুন:'
-                : 'Click any role to test authorization and app access:'}
-            </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2.5">
-              {[
-                {
-                  role: 'director',
-                  labelBn: '👑 ১. মুহতামিম / প্রধান পরিচালক',
-                  labelEn: '👑 1. Muhtamim / Super Admin',
-                  email: 'superadmin@madsol.app',
-                  pass: 'admin123',
-                  descBn: 'শিক্ষক ও অভিভাবককে অনুমতি দেন',
-                  descEn: 'Authorizes teachers & guardians',
-                  color: 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200',
-                },
-                {
-                  role: 'teacher',
-                  labelBn: '👨‍🏫 ২. সহকারী শিক্ষক',
-                  labelEn: '👨‍🏫 2. Assistant Teacher',
-                  email: 'teacher@darululoom.edu.bd',
-                  pass: 'teacher123',
-                  descBn: 'অভিভাবকদের অনুমতি দেন',
-                  descEn: 'Authorizes guardians',
-                  color: 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200',
-                },
-                {
-                  role: 'guardian',
-                  labelBn: '👨‍👩‍👦 ৩. অভিভাবক',
-                  labelEn: '👨‍👩‍👦 3. Guardian',
-                  email: 'guardian@gmail.com',
-                  pass: 'guardian123',
-                  descBn: 'অনুমোদিত ব্যবহারকারী',
-                  descEn: 'Authorized end-user',
-                  color: 'border-amber-500 bg-amber-50/50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200',
-                },
-              ].map((item) => {
-                const isSelected = identifier === item.email;
-                return (
-                  <button
-                    key={item.role}
-                    id={`quick-role-${item.role}`}
-                    type="button"
-                    onClick={() => handleQuickRole(item.email, item.pass)}
-                    className={`p-2.5 rounded-2xl border text-[11px] transition-all text-left flex flex-col justify-between cursor-pointer ${
-                      isSelected
-                        ? `${item.color} shadow-xs ring-1 ring-emerald-500`
-                        : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-emerald-400'
-                    }`}
-                  >
-                    <span className="font-bold truncate">
-                      {language === 'bn' ? item.labelBn : item.labelEn}
-                    </span>
-                    <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-                      {language === 'bn' ? item.descBn : item.descEn}
-                    </span>
-                    <span className="text-[9px] font-mono text-emerald-600 dark:text-emerald-400 mt-1 font-semibold">
-                      {item.email.split('@')[0]} ({item.pass})
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Security Badge */}
           <div className="mt-6 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
