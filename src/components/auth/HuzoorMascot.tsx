@@ -21,6 +21,7 @@ interface HuzoorMascotProps {
   onMascotClick?: () => void;
   className?: string;
   customTip?: string;
+  slender?: boolean;
 }
 
 export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
@@ -30,6 +31,7 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
   onMascotClick,
   className = '',
   customTip,
+  slender = false,
 }) => {
   const isBn = language === 'bn';
   const [clickCount, setClickCount] = useState(0);
@@ -82,8 +84,36 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
 
     if (isPulling) {
       return isBn
-        ? 'হৈ হৈ! এইতো আপনার ফর্মটি টেনে নিয়ে আসছি... 🤲'
-        : 'Heave-ho! Bringing in your form right now... 🤲';
+        ? (slender ? 'টেনে আনছি... 🤲' : 'হৈ হৈ! এইতো আপনার ফর্মটি টেনে নিয়ে আসছি... 🤲')
+        : (slender ? 'Pulling in... 🤲' : 'Heave-ho! Bringing in your form right now... 🤲');
+    }
+
+    if (slender) {
+      switch (activeField) {
+        case 'identifier':
+          return isBn ? 'ইমেইল বা মোবাইল দিন 📱' : 'Enter mobile/email 📱';
+        case 'password':
+          return isBn ? 'চোখ বন্ধ! পাসওয়ার্ড গোপন 🙈' : 'Eyes shut! Secret 🙈';
+        case 'password-peek':
+          return isBn ? 'উঁকি দিচ্ছি! 👀' : 'Peeking! 👀';
+        case 'remember':
+          return isBn ? 'মনে রাখুন 👍' : 'Remember me 👍';
+        case 'submit':
+          return isBn ? 'বিসমিল্লাহ বলে চাপুন 🚀' : 'Click to login 🚀';
+        case 'signup':
+          return isBn ? 'নতুন সাইন আপ 🏛️' : 'New sign up 🏛️';
+        case 'madrasa-name':
+          return isBn ? 'মাদ্রাসার নাম 🕌' : 'Madrasa name 🕌';
+        case 'mobile':
+          return isBn ? 'মোবাইল নম্বর 📞' : 'Mobile number 📞';
+        case 'pin':
+          return isBn ? 'গোপন পিন দিন 🔑' : 'Enter PIN 🔑';
+        case 'role':
+          return isBn ? 'পদবী বেছে নিন 🎓' : 'Select role 🎓';
+        case 'idle':
+        default:
+          return isBn ? 'যেখানে ক্লিক করবেন দেখাব 👉' : 'Click any field 👉';
+      }
     }
 
     switch (activeField) {
@@ -170,7 +200,11 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
     <div className={`relative flex flex-col items-center select-none ${className}`}>
       {/* Interactive Speech Bubble */}
       <div
-        className={`relative z-20 mb-2 max-w-[240px] sm:max-w-[270px] bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 p-3 rounded-2xl shadow-lg border-2 ${
+        className={`relative z-20 ${
+          slender
+            ? 'mb-1 max-w-[125px] sm:max-w-[145px] p-1.5 px-2 rounded-xl text-[10px] leading-tight shadow-md border-[1.5px]'
+            : 'mb-2 max-w-[240px] sm:max-w-[270px] p-3 rounded-2xl shadow-lg border-2'
+        } bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 ${
           activeField === 'password'
             ? 'border-indigo-400 dark:border-indigo-500'
             : activeField === 'submit'
@@ -180,20 +214,22 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
         onClick={handleMascotTap}
         title={isBn ? 'হুজুরকে ট্যাপ করুন' : 'Tap mascot for tips'}
       >
-        <div className="flex items-start gap-2">
-          <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center shrink-0 text-emerald-700 dark:text-emerald-400 mt-0.5">
-            <MessageCircle className="w-3.5 h-3.5" />
+        <div className="flex items-start gap-1.5">
+          <div className={`${slender ? 'w-4 h-4' : 'w-5 h-5'} rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center shrink-0 text-emerald-700 dark:text-emerald-400 mt-0.5`}>
+            <MessageCircle className={slender ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} />
           </div>
-          <div className="flex-1">
-            <p className="text-[11px] sm:text-xs font-semibold leading-relaxed">
+          <div className="flex-1 min-w-0">
+            <p className={`${slender ? 'text-[9.5px] leading-tight font-bold text-slate-800 dark:text-slate-100' : 'text-[11px] sm:text-xs font-semibold leading-relaxed'}`}>
               {getSpeechText()}
             </p>
-            <div className="mt-1 flex items-center justify-between text-[9px] text-slate-400 font-medium">
-              <span>{isBn ? 'মাদসোল সহকারী' : 'MadSol Mascot'}</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                {isBn ? 'ট্যাপ করুন ✨' : 'Tap me ✨'}
-              </span>
-            </div>
+            {!slender && (
+              <div className="mt-1 flex items-center justify-between text-[9px] text-slate-400 font-medium">
+                <span>{isBn ? 'মাদসোল সহকারী' : 'MadSol Mascot'}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
+                  {isBn ? 'ট্যাপ করুন ✨' : 'Tap me ✨'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -216,7 +252,11 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
         {/* SVG Mascot Graphic */}
         <svg
           viewBox="0 0 200 240"
-          className="w-36 h-44 sm:w-44 sm:h-52 drop-shadow-xl"
+          className={
+            slender
+              ? 'w-16 h-28 sm:w-20 sm:h-34 drop-shadow-md'
+              : 'w-36 h-44 sm:w-44 sm:h-52 drop-shadow-xl'
+          }
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -557,10 +597,12 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
         </svg>
 
         {/* Small floating status badge under mascot */}
-        <div className="mt-1 flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-xs">
-          <Sparkles className="w-3 h-3 text-amber-500 animate-spin" />
-          <span>{isBn ? 'মুহতামিম কার্টুন সহকারী' : 'Huzoor Mascot Guide'}</span>
-        </div>
+        {!slender && (
+          <div className="mt-1 flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-xs">
+            <Sparkles className="w-3 h-3 text-amber-500 animate-spin" />
+            <span>{isBn ? 'মুহতামিম কার্টুন সহকারী' : 'Huzoor Mascot Guide'}</span>
+          </div>
+        )}
       </div>
     </div>
   );

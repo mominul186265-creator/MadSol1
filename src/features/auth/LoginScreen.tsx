@@ -21,7 +21,6 @@ import {
   EyeOff,
   UserPlus,
   Sparkles,
-  RotateCcw,
 } from 'lucide-react';
 
 interface LoginScreenProps {
@@ -39,7 +38,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
   // Mascot and Animation states
   const [activeField, setActiveField] = useState<MascotFocusField>('idle');
   const [isPulling, setIsPulling] = useState(true);
-  const [pullKey, setPullKey] = useState(0);
 
   // Form states
   const [identifier, setIdentifier] = useState('');
@@ -56,15 +54,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     setIsPulling(true);
     const timer = setTimeout(() => {
       setIsPulling(false);
-    }, 1400);
+    }, 1200);
     return () => clearTimeout(timer);
-  }, [pullKey]);
-
-  // Re-trigger pull animation
-  const handleRePull = () => {
-    setPullKey((prev) => prev + 1);
-    setActiveField('idle');
-  };
+  }, []);
 
   const handleTogglePassword = () => {
     const nextShow = !showPassword;
@@ -135,17 +127,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Re-Pull Cartoon Button */}
-          <button
-            type="button"
-            onClick={handleRePull}
-            title={isBn ? 'হুজুরকে দিয়ে আবার পেজটি টানিয়ে আনুন' : 'Pull page again with mascot'}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-amber-300 dark:border-amber-700/80 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-xs font-semibold hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors cursor-pointer"
-          >
-            <RotateCcw className={`w-3.5 h-3.5 ${isPulling ? 'animate-spin' : ''}`} />
-            <span className="hidden md:inline">{isBn ? 'আবার টানুন' : 'Pull Again'}</span>
-          </button>
-
           {/* Sign Up Button */}
           <button
             id="login-header-signup-btn"
@@ -187,60 +168,17 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         </div>
       </header>
 
-      {/* Main Interactive Stage: Huzoor Mascot Standing Beside & Pulling Form */}
-      <main className="relative z-10 flex-1 flex flex-col lg:flex-row items-center justify-center px-4 py-6 sm:py-10 max-w-5xl mx-auto w-full gap-6 lg:gap-10">
-        
-        {/* Huzoor Mascot Character Section (Stands beside on Desktop, Top on Mobile) */}
-        <div className="flex flex-col items-center shrink-0 z-20">
-          <HuzoorMascot
-            activeField={activeField}
-            isPulling={isPulling}
-            language={language}
-            onMascotClick={() => {
-              showToast(
-                isBn
-                  ? 'মুহতামিম কার্টুন সহকারী: যেকোনো ইনপুট ঘরে ক্লিক করুন, আমি নির্দেশ করব!'
-                  : 'Mascot Guide: Click on any input field and I will point the way!',
-                'info'
-              );
-            }}
-          />
-
-          {/* Mascot action badge */}
-          <div className="mt-2 text-center hidden lg:block">
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-              <Sparkles className="w-3 h-3 text-amber-500" />
-              {isBn ? 'যেখানে ক্লিক করবেন সেখানে দেখিয়ে দেব' : 'I point wherever you click'}
-            </span>
-          </div>
-        </div>
-
-        {/* Golden Silk Pulling Rope (Visual connection between Huzoor and Form Card during pull) */}
-        {isPulling && (
-          <div className="hidden lg:block relative w-16 -mr-4 z-30 pointer-events-none animate-rope-tug">
-            <svg viewBox="0 0 70 30" className="w-full h-8 overflow-visible">
-              <path
-                d="M 0 15 Q 35 2 70 15"
-                stroke="#f59e0b"
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeDasharray="5 3"
-                fill="none"
-              />
-            </svg>
-          </div>
-        )}
-
-        {/* Main Login Card - Pulled in with animation */}
+      {/* Main Interactive Stage */}
+      <main className="relative z-10 flex-1 flex items-center justify-center px-3 sm:px-6 py-6 sm:py-10 max-w-lg mx-auto w-full">
+        {/* Main Login Card */}
         <div
-          key={pullKey}
-          className={`w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/10 p-6 sm:p-8 relative z-10 transition-all duration-300 ${
+          className={`w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/10 p-4 sm:p-7 relative z-10 transition-all duration-300 ${
             isPulling ? 'animate-pull-in-card' : ''
           }`}
         >
           {/* Brand Header */}
-          <div className="flex flex-col items-center text-center mb-6">
-            <MadSolLogo size="lg" showTagline={false} className="mb-2.5" />
+          <div className="flex flex-col items-center text-center mb-5">
+            <MadSolLogo size="lg" showTagline={false} className="mb-2" />
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
               MadSol
             </h1>
@@ -254,8 +192,27 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Form area with Slender Huzoor Mascot placed on left side (At the red line mark) */}
+          <div className="flex items-start gap-2.5 sm:gap-4">
+            {/* Slender Huzoor Mascot Column */}
+            <div className="shrink-0 flex flex-col items-center pt-1.5 w-16 sm:w-20 select-none">
+              <HuzoorMascot
+                activeField={activeField}
+                language={language}
+                slender={true}
+                onMascotClick={() => {
+                  showToast(
+                    isBn
+                      ? 'মুহতামিম সহকারী: যেকোনো ঘরে ক্লিক করুন, আমি নির্দেশ করব!'
+                      : 'Mascot Guide: Click any field and I will point!',
+                    'info'
+                  );
+                }}
+              />
+            </div>
+
+            {/* Login Form on the right */}
+            <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-3.5">
             <div
               onFocus={() => setActiveField('identifier')}
               onClick={() => setActiveField('identifier')}
@@ -359,6 +316,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
               </Button>
             </div>
           </form>
+        </div>
 
           {/* New Account / Sign Up Banner */}
           <div
