@@ -137,3 +137,14 @@
   animation: ropeTugPulse 0.4s ease-in-out infinite;
 }
 
+/* Hide native browser password reveal and clear buttons to avoid double eye icons */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none !important;
+}
+
+input::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+}
+
+

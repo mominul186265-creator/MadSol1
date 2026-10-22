@@ -7,6 +7,7 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
   helperText?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  hidePasswordToggle?: boolean;
 }
 
 export const Input: React.FC<InputProps> = ({
@@ -15,6 +16,7 @@ export const Input: React.FC<InputProps> = ({
   helperText,
   leftIcon,
   rightIcon,
+  hidePasswordToggle = false,
   type = 'text',
   className = '',
   id,
@@ -54,11 +56,11 @@ export const Input: React.FC<InputProps> = ({
           } ${className}`}
           {...props}
         />
-        {isPassword ? (
+        {isPassword && !hidePasswordToggle && !rightIcon ? (
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none"
+            className="absolute right-3 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none cursor-pointer"
             aria-label={showPassword ? 'Hide password' : 'Show password'}
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

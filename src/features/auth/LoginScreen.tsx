@@ -5,7 +5,6 @@ import { Button } from '../../components/common/Button';
 import { IslamicPattern } from '../../components/common/IslamicPattern';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { SignUpModal } from './SignUpModal';
-import { HuzoorMascot, MascotFocusField } from '../../components/auth/HuzoorMascot';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -16,11 +15,9 @@ import {
   Globe,
   Sun,
   Moon,
-  ShieldCheck,
   Eye,
   EyeOff,
   UserPlus,
-  Sparkles,
 } from 'lucide-react';
 
 interface LoginScreenProps {
@@ -35,8 +32,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
   const isBn = language === 'bn';
 
-  // Mascot and Animation states
-  const [activeField, setActiveField] = useState<MascotFocusField>('idle');
   const [isPulling, setIsPulling] = useState(true);
 
   // Form states
@@ -59,11 +54,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
   }, []);
 
   const handleTogglePassword = () => {
-    const nextShow = !showPassword;
-    setShowPassword(nextShow);
-    if (activeField === 'password' || activeField === 'password-peek') {
-      setActiveField(nextShow ? 'password-peek' : 'password');
-    }
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,7 +68,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           ? 'ইমেইল বা মোবাইল এবং পাসওয়ার্ড প্রদান করুন।'
           : 'Please enter your email/mobile and password.'
       );
-      setActiveField('identifier');
       return;
     }
 
@@ -87,12 +77,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।'
           : 'Password must be at least 6 characters.'
       );
-      setActiveField('password');
       return;
     }
 
     setIsLoading(true);
-    setActiveField('submit');
     const result = await login(trimmedId, password, rememberMe);
     setIsLoading(false);
 
@@ -131,11 +119,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           <button
             id="login-header-signup-btn"
             type="button"
-            onClick={() => {
-              setActiveField('signup');
-              setIsSignUpModalOpen(true);
-            }}
-            onMouseEnter={() => setActiveField('signup')}
+            onClick={() => setIsSignUpModalOpen(true)}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
@@ -192,50 +176,22 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             </p>
           </div>
 
-          {/* Form area with Slender Huzoor Mascot placed on left side (At the red line mark) */}
-          <div className="flex items-start gap-2.5 sm:gap-4">
-            {/* Slender Huzoor Mascot Column */}
-            <div className="shrink-0 flex flex-col items-center pt-1.5 w-16 sm:w-20 select-none">
-              <HuzoorMascot
-                activeField={activeField}
-                language={language}
-                slender={true}
-                onMascotClick={() => {
-                  showToast(
-                    isBn
-                      ? 'মুহতামিম সহকারী: যেকোনো ঘরে ক্লিক করুন, আমি নির্দেশ করব!'
-                      : 'Mascot Guide: Click any field and I will point!',
-                    'info'
-                  );
-                }}
-              />
-            </div>
-
-            {/* Login Form on the right */}
-            <form onSubmit={handleSubmit} className="flex-1 min-w-0 space-y-3.5">
-            <div
-              onFocus={() => setActiveField('identifier')}
-              onClick={() => setActiveField('identifier')}
-              className="transition-transform duration-200 focus-within:scale-[1.01]"
-            >
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="transition-transform duration-200 focus-within:scale-[1.01]">
               <Input
                 id="login-identifier-input"
                 label={isBn ? 'ইমেইল অথবা মোবাইল নম্বর' : 'Email or Mobile Number'}
                 placeholder={isBn ? 'যেমন: superadmin@madsol.app বা 01711111111' : 'e.g. superadmin@madsol.app'}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                onBlur={() => setActiveField('idle')}
                 leftIcon={<Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                 autoComplete="username"
                 required
               />
             </div>
 
-            <div
-              className="relative transition-transform duration-200 focus-within:scale-[1.01]"
-              onFocus={() => setActiveField(showPassword ? 'password-peek' : 'password')}
-              onClick={() => setActiveField(showPassword ? 'password-peek' : 'password')}
-            >
+            <div className="relative transition-transform duration-200 focus-within:scale-[1.01]">
               <Input
                 id="login-password-input"
                 type={showPassword ? 'text' : 'password'}
@@ -243,9 +199,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                 placeholder={isBn ? 'গোপন পাসওয়ার্ড লিখুন' : 'Enter your password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onBlur={() => setActiveField('idle')}
                 leftIcon={<Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
                 autoComplete="current-password"
+                hidePasswordToggle={true}
                 required
               />
               <button
@@ -253,8 +209,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                 type="button"
                 tabIndex={-1}
                 onClick={handleTogglePassword}
-                className="absolute right-3 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
-                title={showPassword ? 'পাসওয়ার্ড লুকান' : 'পাসওয়ার্ড দেখুন'}
+                className="absolute right-3.5 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer p-1"
+                title={showPassword ? (isBn ? 'পাসওয়ার্ড লুকান' : 'Hide password') : (isBn ? 'পাসওয়ার্ড দেখুন' : 'Show password')}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -268,11 +225,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between text-xs sm:text-sm pt-1">
-              <label
-                className="flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-slate-300"
-                onMouseEnter={() => setActiveField('remember')}
-                onClick={() => setActiveField('remember')}
-              >
+              <label className="flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-slate-300">
                 <input
                   id="login-remember-me-checkbox"
                   type="checkbox"
@@ -286,43 +239,30 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
               <button
                 id="login-forgot-password-link"
                 type="button"
-                onClick={() => {
-                  setActiveField('submit');
-                  setIsForgotModalOpen(true);
-                }}
-                onMouseEnter={() => setActiveField('submit')}
+                onClick={() => setIsForgotModalOpen(true)}
                 className="font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 hover:underline focus:outline-none cursor-pointer"
               >
                 {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
               </button>
             </div>
 
-            <div
-              onMouseEnter={() => setActiveField('submit')}
-              onMouseLeave={() => setActiveField('idle')}
+            <Button
+              id="login-submit-btn"
+              type="submit"
+              variant="primary"
+              size="lg"
+              fullWidth
+              isLoading={isLoading}
+              className="mt-2 text-sm font-bold shadow-md shadow-emerald-700/20"
             >
-              <Button
-                id="login-submit-btn"
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                isLoading={isLoading}
-                className="mt-2 text-sm font-bold shadow-md shadow-emerald-700/20"
-              >
-                {isLoading
-                  ? (isBn ? 'যাচাই করা হচ্ছে...' : 'Signing in...')
-                  : (isBn ? 'লগইন করুন ➔' : 'Sign In ➔')}
-              </Button>
-            </div>
+              {isLoading
+                ? (isBn ? 'যাচাই করা হচ্ছে...' : 'Signing in...')
+                : (isBn ? 'লগইন করুন ➔' : 'Sign In ➔')}
+            </Button>
           </form>
-        </div>
 
           {/* New Account / Sign Up Banner */}
-          <div
-            className="mt-5 p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors hover:border-emerald-400"
-            onMouseEnter={() => setActiveField('signup')}
-          >
+          <div className="mt-5 p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors hover:border-emerald-400">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
                 <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -337,25 +277,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
             <button
               id="login-card-signup-btn"
               type="button"
-              onClick={() => {
-                setActiveField('signup');
-                setIsSignUpModalOpen(true);
-              }}
+              onClick={() => setIsSignUpModalOpen(true)}
               className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>{isBn ? 'নতুন মাদ্রাসার জন্য সাইন আপ করুন' : 'Sign Up for New Madrasa'}</span>
             </button>
-          </div>
-
-          {/* Security Badge */}
-          <div className="mt-5 flex items-center justify-center gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>
-              {isBn
-                ? 'SHA-256 সুরক্ষিত সল্টেড অথেনটিকেশন ইঞ্জিন'
-                : 'SHA-256 Salted Authentication Engine'}
-            </span>
           </div>
         </div>
       </main>
@@ -382,10 +309,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
       {/* Sign Up Modal */}
       <SignUpModal
         isOpen={isSignUpModalOpen}
-        onClose={() => {
-          setIsSignUpModalOpen(false);
-          setActiveField('idle');
-        }}
+        onClose={() => setIsSignUpModalOpen(false)}
         onSuccess={onSuccess}
       />
     </div>
