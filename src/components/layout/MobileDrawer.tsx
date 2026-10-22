@@ -1,9 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   X,
-  LayoutDashboard,
   GraduationCap,
-  Building2,
   LogOut,
   ShieldCheck,
   UserCheck,
@@ -94,15 +92,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     }
   };
 
-  // Section 1: Dashboard
-  const HOME_ITEM = {
-    id: 'drawer-nav-dashboard',
-    path: '/dashboard',
-    labelBn: 'ড্যাশবোর্ড',
-    labelEn: 'Dashboard',
-    icon: LayoutDashboard,
-    allowed: true,
-  };
+
 
   // Section 2: Special Sub-Apps (From Screenshot Block 1)
   const SPECIAL_APPS = [
@@ -214,14 +204,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       icon: CalendarCheck,
       allowed: user?.role_id !== 'guardian',
     },
-    {
-      id: 'drawer-nav-institution',
-      path: '/institution',
-      labelBn: 'প্রতিষ্ঠান ব্যবস্থাপনা',
-      labelEn: 'Institution',
-      icon: Building2,
-      allowed: user?.role_id === 'super_admin' || user?.role_id === 'institution_admin' || user?.role_id === 'principal',
-    },
   ];
 
   const renderNavCard = (item: {
@@ -302,15 +284,16 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           {/* Drawer Header */}
           <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between shrink-0">
             <MadSolLogo
-              size="sm"
-              showTagline={false}
+              size="lg"
+              showTagline={true}
               onClick={handleLogoClick}
               className="cursor-pointer active:scale-95 transition-transform"
+              iconClassName="!w-12 !h-12 rounded-2xl shadow-md ring-2 ring-emerald-500/30"
             />
             <button
               id="mobile-drawer-close-btn"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               aria-label="Close navigation"
             >
               <X className="w-5 h-5" />
@@ -339,26 +322,10 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             </div>
           )}
 
+
           {/* Navigation Items (Scrollable) */}
           <nav className="flex-1 p-3 space-y-4 overflow-y-auto min-h-0">
-            {/* 1. Dashboard */}
-            <div>
-              <button
-                id={HOME_ITEM.id}
-                onClick={() => {
-                  onNavigate(HOME_ITEM.path);
-                  onClose();
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  currentPath === HOME_ITEM.path
-                    ? 'bg-emerald-700 text-white shadow-md shadow-emerald-700/20'
-                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-              >
-                <LayoutDashboard className={`w-4 h-4 shrink-0 ${currentPath === HOME_ITEM.path ? 'text-white' : 'text-slate-500'}`} />
-                <span>{isBn ? HOME_ITEM.labelBn : HOME_ITEM.labelEn}</span>
-              </button>
-            </div>
+
 
             {/* 2. Special Sub-Apps (From Screenshot) */}
             <div className="space-y-2">

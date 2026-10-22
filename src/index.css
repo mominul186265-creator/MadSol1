@@ -99,3 +99,41 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.35);
 }
+
+/* Mascot Pull-in animations */
+@keyframes pullInCard {
+  0% {
+    transform: translateX(120px) rotate(4deg) scale(0.92);
+    opacity: 0;
+  }
+  40% {
+    transform: translateX(30px) rotate(-1.5deg) scale(0.98);
+    opacity: 0.85;
+  }
+  75% {
+    transform: translateX(-8px) rotate(0.8deg) scale(1.01);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pull-in-card {
+  animation: pullInCard 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes ropeTugPulse {
+  0%, 100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(1.05) translateY(-2px);
+  }
+}
+
+.animate-rope-tug {
+  animation: ropeTugPulse 0.4s ease-in-out infinite;
+}
+
