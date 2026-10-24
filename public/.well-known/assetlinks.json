@@ -9,5 +9,27 @@
         "53:62:5A:49:A2:CD:E9:B2:E7:BB:8F:87:39:9B:57:FC:F0:7D:0E:C2:0D:CD:94:59:8A:E4:82:A9:44:A6:0A:06"
       ]
     }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.madsol.app",
+      "sha256_cert_fingerprints": [
+        "29:2B:4C:B4:7E:35:39:7E:AA:2F:C9:12:D7:E1:EB:61:B4:6B:54:B7:9C:12:28:77:72:2D:05:55:98:70:65:E5",
+        "53:62:5A:49:A2:CD:E9:B2:E7:BB:8F:87:39:9B:57:FC:F0:7D:0E:C2:0D:CD:94:59:8A:E4:82:A9:44:A6:0A:06"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.madsol.madrasa",
+      "sha256_cert_fingerprints": [
+        "29:2B:4C:B4:7E:35:39:7E:AA:2F:C9:12:D7:E1:EB:61:B4:6B:54:B7:9C:12:28:77:72:2D:05:55:98:70:65:E5",
+        "53:62:5A:49:A2:CD:E9:B2:E7:BB:8F:87:39:9B:57:FC:F0:7D:0E:C2:0D:CD:94:59:8A:E4:82:A9:44:A6:0A:06"
+      ]
+    }
   }
 ]
