@@ -95,6 +95,7 @@ import {
   DAYS_OF_WEEK,
 } from '../types/step7';
 import { hashPasswordSync } from './crypto';
+import { safeStorage } from './safeStorage';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -2271,9 +2272,13 @@ class MadSolDatabase {
     this.init();
   }
 
+  private hasKey(key: string): boolean {
+    return safeStorage.getItem(key) !== null;
+  }
+
   private getItem<T>(key: string, fallback: T): T {
     try {
-      const data = localStorage.getItem(key);
+      const data = safeStorage.getItem(key);
       return data ? JSON.parse(data) : fallback;
     } catch {
       return fallback;
@@ -2282,7 +2287,7 @@ class MadSolDatabase {
 
   private setItem<T>(key: string, value: T): void {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      safeStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
       console.error(`Error writing to ${key}:`, e);
     }
@@ -2291,165 +2296,169 @@ class MadSolDatabase {
   public init(): void {
     if (typeof window === 'undefined') return;
 
-    const isInitialized = localStorage.getItem(STORAGE_KEYS.INITIALIZED);
-    if (!isInitialized) {
-      this.setItem(STORAGE_KEYS.ROLES, SEED_ROLES);
-      this.setItem(STORAGE_KEYS.PERMISSIONS, SEED_PERMISSIONS);
-      this.setItem(STORAGE_KEYS.ROLE_PERMISSIONS, SEED_ROLE_PERMISSIONS);
-      this.setItem(STORAGE_KEYS.INSTITUTIONS, SEED_INSTITUTIONS);
-      this.setItem(STORAGE_KEYS.USERS, SEED_USERS);
-      this.setItem(STORAGE_KEYS.SESSIONS, []);
-      this.setItem(STORAGE_KEYS.ACTIVITY_LOGS, SEED_ACTIVITY_LOGS);
-      this.setItem(STORAGE_KEYS.DEPARTMENTS, SEED_DEPARTMENTS);
-      this.setItem(STORAGE_KEYS.CLASSES, SEED_CLASSES);
-      this.setItem(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
-      this.setItem(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
-      this.setItem(STORAGE_KEYS.STUDENT_DOCS, SEED_STUDENT_DOCS);
-      this.setItem(STORAGE_KEYS.STUDENT_ACTIVITIES, SEED_STUDENT_ACTIVITIES);
-      this.setItem(STORAGE_KEYS.TEACHERS, SEED_TEACHERS);
-      this.setItem(STORAGE_KEYS.TEACHER_DESIGNATIONS, SEED_TEACHER_DESIGNATIONS);
-      this.setItem(STORAGE_KEYS.TEACHER_QUALIFICATIONS, SEED_TEACHER_QUALIFICATIONS);
-      this.setItem(STORAGE_KEYS.TEACHER_DOCS, SEED_TEACHER_DOCS);
-      this.setItem(STORAGE_KEYS.TEACHER_ACTIVITIES, SEED_TEACHER_ACTIVITIES);
-      this.setItem(STORAGE_KEYS.ATTENDANCE, SEED_ATTENDANCE);
-      this.setItem(STORAGE_KEYS.LEAVE_APPLICATIONS, SEED_LEAVE_APPLICATIONS);
-      this.setItem(STORAGE_KEYS.ACADEMIC_SESSIONS, SEED_ACADEMIC_SESSIONS);
-      this.setItem(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY, SEED_STUDENT_ACADEMIC_HISTORY);
-      this.setItem(STORAGE_KEYS.ACADEMIC_ACTIVITIES, []);
-      this.setItem(STORAGE_KEYS.ACADEMIC_SETTINGS, SEED_ACADEMIC_SETTINGS);
-      this.setItem(STORAGE_KEYS.SUBJECTS, SEED_SUBJECTS);
-      this.setItem(STORAGE_KEYS.SUBJECT_DEPARTMENTS, SEED_SUBJECT_DEPARTMENTS);
-      this.setItem(STORAGE_KEYS.CLASS_SUBJECTS, SEED_CLASS_SUBJECTS);
-      this.setItem(STORAGE_KEYS.TEACHER_ASSIGNMENTS, SEED_TEACHER_ASSIGNMENTS);
-      this.setItem(STORAGE_KEYS.SUBJECT_ACTIVITIES, []);
-      this.setItem(STORAGE_KEYS.TIME_SLOTS, SEED_TIME_SLOTS);
-      this.setItem(STORAGE_KEYS.CLASS_ROOMS, SEED_CLASS_ROOMS);
-      this.setItem(STORAGE_KEYS.ROUTINES, SEED_ROUTINES);
-      localStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
-    } else {
-      // Lazy migration for Step 2 if previously initialized in Step 1
-      if (!localStorage.getItem(STORAGE_KEYS.STUDENTS)) {
-        this.setItem(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.DEPARTMENTS)) {
-        this.setItem(STORAGE_KEYS.DEPARTMENTS, SEED_DEPARTMENTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.CLASSES)) {
-        this.setItem(STORAGE_KEYS.CLASSES, SEED_CLASSES);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.SECTIONS)) {
-        this.setItem(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.STUDENT_DOCS)) {
-        this.setItem(STORAGE_KEYS.STUDENT_DOCS, SEED_STUDENT_DOCS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.STUDENT_ACTIVITIES)) {
-        this.setItem(STORAGE_KEYS.STUDENT_ACTIVITIES, SEED_STUDENT_ACTIVITIES);
-      }
-      // Lazy migration for Step 3 (Teacher Management)
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHERS)) {
-        this.setItem(STORAGE_KEYS.TEACHERS, SEED_TEACHERS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHER_DESIGNATIONS)) {
-        this.setItem(STORAGE_KEYS.TEACHER_DESIGNATIONS, SEED_TEACHER_DESIGNATIONS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHER_QUALIFICATIONS)) {
-        this.setItem(STORAGE_KEYS.TEACHER_QUALIFICATIONS, SEED_TEACHER_QUALIFICATIONS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHER_DOCS)) {
-        this.setItem(STORAGE_KEYS.TEACHER_DOCS, SEED_TEACHER_DOCS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHER_ACTIVITIES)) {
-        this.setItem(STORAGE_KEYS.TEACHER_ACTIVITIES, SEED_TEACHER_ACTIVITIES);
-      }
-      // Lazy migration for Step 4 (Attendance & Leave Management)
-      if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
-        this.setItem(STORAGE_KEYS.ATTENDANCE, SEED_ATTENDANCE);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.LEAVE_APPLICATIONS)) {
-        this.setItem(STORAGE_KEYS.LEAVE_APPLICATIONS, SEED_LEAVE_APPLICATIONS);
-      }
-      // Lazy migration for Step 5 (Academic Management)
-      if (!localStorage.getItem(STORAGE_KEYS.ACADEMIC_SESSIONS)) {
-        this.setItem(STORAGE_KEYS.ACADEMIC_SESSIONS, SEED_ACADEMIC_SESSIONS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY)) {
-        this.setItem(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY, SEED_STUDENT_ACADEMIC_HISTORY);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.ACADEMIC_ACTIVITIES)) {
-        this.setItem(STORAGE_KEYS.ACADEMIC_ACTIVITIES, []);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.ACADEMIC_SETTINGS)) {
-        this.setItem(STORAGE_KEYS.ACADEMIC_SETTINGS, SEED_ACADEMIC_SETTINGS);
-      }
-      // Lazy migration for Step 6 (Subjects & Teacher Assignments)
-      if (!localStorage.getItem(STORAGE_KEYS.SUBJECTS)) {
-        this.setItem(STORAGE_KEYS.SUBJECTS, SEED_SUBJECTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.SUBJECT_DEPARTMENTS)) {
-        this.setItem(STORAGE_KEYS.SUBJECT_DEPARTMENTS, SEED_SUBJECT_DEPARTMENTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.CLASS_SUBJECTS)) {
-        this.setItem(STORAGE_KEYS.CLASS_SUBJECTS, SEED_CLASS_SUBJECTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.TEACHER_ASSIGNMENTS)) {
-        this.setItem(STORAGE_KEYS.TEACHER_ASSIGNMENTS, SEED_TEACHER_ASSIGNMENTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.SUBJECT_ACTIVITIES)) {
-        this.setItem(STORAGE_KEYS.SUBJECT_ACTIVITIES, []);
-      }
-      // Lazy migration for Step 7 (Class Routine & Timetable)
-      if (!localStorage.getItem(STORAGE_KEYS.TIME_SLOTS)) {
-        this.setItem(STORAGE_KEYS.TIME_SLOTS, SEED_TIME_SLOTS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.CLASS_ROOMS)) {
-        this.setItem(STORAGE_KEYS.CLASS_ROOMS, SEED_CLASS_ROOMS);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.ROUTINES)) {
-        this.setItem(STORAGE_KEYS.ROUTINES, SEED_ROUTINES);
-      }
-      // Ensure permissions have routine, subjects, academic, attendance, teachers & students permissions
-      const perms = this.getItem<DbPermission[]>(STORAGE_KEYS.PERMISSIONS, []);
-      if (
-        !perms.some((p) => p.slug === 'routine.view') ||
-        !perms.some((p) => p.slug === 'subjects.view') ||
-        !perms.some((p) => p.slug === 'academic.view') ||
-        !perms.some((p) => p.slug === 'attendance.view') ||
-        !perms.some((p) => p.slug === 'teachers.view') ||
-        !perms.some((p) => p.slug === 'students.view')
-      ) {
+    try {
+      const isInitialized = safeStorage.getItem(STORAGE_KEYS.INITIALIZED);
+      if (!isInitialized) {
+        this.setItem(STORAGE_KEYS.ROLES, SEED_ROLES);
         this.setItem(STORAGE_KEYS.PERMISSIONS, SEED_PERMISSIONS);
         this.setItem(STORAGE_KEYS.ROLE_PERMISSIONS, SEED_ROLE_PERMISSIONS);
-      }
-
-      // Ensure seed users have valid updated password hashes and purge removed users/roles (usr-002, usr-003, usr-005, usr-007)
-      const existingUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
-      const purgedUsers = existingUsers.filter(
-        (u) =>
-          u.id !== 'usr-002' &&
-          u.id !== 'usr-003' &&
-          u.id !== 'usr-005' &&
-          u.id !== 'usr-007' &&
-          u.role_id !== 'institution_admin' &&
-          u.role_id !== 'accountant' &&
-          u.role_id !== 'student' &&
-          u.email?.toLowerCase() !== 'director@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'principal@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'accountant@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'student@darululoom.edu.bd'
-      );
-      let usersNeedSync = purgedUsers.length !== existingUsers.length;
-      const syncedUsers = purgedUsers.map((u) => {
-        const seed = SEED_USERS.find((su) => su.email.toLowerCase() === u.email.toLowerCase());
-        if (seed && u.password_hash !== seed.password_hash) {
-          usersNeedSync = true;
-          return { ...u, password_hash: seed.password_hash };
+        this.setItem(STORAGE_KEYS.INSTITUTIONS, SEED_INSTITUTIONS);
+        this.setItem(STORAGE_KEYS.USERS, SEED_USERS);
+        this.setItem(STORAGE_KEYS.SESSIONS, []);
+        this.setItem(STORAGE_KEYS.ACTIVITY_LOGS, SEED_ACTIVITY_LOGS);
+        this.setItem(STORAGE_KEYS.DEPARTMENTS, SEED_DEPARTMENTS);
+        this.setItem(STORAGE_KEYS.CLASSES, SEED_CLASSES);
+        this.setItem(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
+        this.setItem(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
+        this.setItem(STORAGE_KEYS.STUDENT_DOCS, SEED_STUDENT_DOCS);
+        this.setItem(STORAGE_KEYS.STUDENT_ACTIVITIES, SEED_STUDENT_ACTIVITIES);
+        this.setItem(STORAGE_KEYS.TEACHERS, SEED_TEACHERS);
+        this.setItem(STORAGE_KEYS.TEACHER_DESIGNATIONS, SEED_TEACHER_DESIGNATIONS);
+        this.setItem(STORAGE_KEYS.TEACHER_QUALIFICATIONS, SEED_TEACHER_QUALIFICATIONS);
+        this.setItem(STORAGE_KEYS.TEACHER_DOCS, SEED_TEACHER_DOCS);
+        this.setItem(STORAGE_KEYS.TEACHER_ACTIVITIES, SEED_TEACHER_ACTIVITIES);
+        this.setItem(STORAGE_KEYS.ATTENDANCE, SEED_ATTENDANCE);
+        this.setItem(STORAGE_KEYS.LEAVE_APPLICATIONS, SEED_LEAVE_APPLICATIONS);
+        this.setItem(STORAGE_KEYS.ACADEMIC_SESSIONS, SEED_ACADEMIC_SESSIONS);
+        this.setItem(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY, SEED_STUDENT_ACADEMIC_HISTORY);
+        this.setItem(STORAGE_KEYS.ACADEMIC_ACTIVITIES, []);
+        this.setItem(STORAGE_KEYS.ACADEMIC_SETTINGS, SEED_ACADEMIC_SETTINGS);
+        this.setItem(STORAGE_KEYS.SUBJECTS, SEED_SUBJECTS);
+        this.setItem(STORAGE_KEYS.SUBJECT_DEPARTMENTS, SEED_SUBJECT_DEPARTMENTS);
+        this.setItem(STORAGE_KEYS.CLASS_SUBJECTS, SEED_CLASS_SUBJECTS);
+        this.setItem(STORAGE_KEYS.TEACHER_ASSIGNMENTS, SEED_TEACHER_ASSIGNMENTS);
+        this.setItem(STORAGE_KEYS.SUBJECT_ACTIVITIES, []);
+        this.setItem(STORAGE_KEYS.TIME_SLOTS, SEED_TIME_SLOTS);
+        this.setItem(STORAGE_KEYS.CLASS_ROOMS, SEED_CLASS_ROOMS);
+        this.setItem(STORAGE_KEYS.ROUTINES, SEED_ROUTINES);
+        safeStorage.setItem(STORAGE_KEYS.INITIALIZED, 'true');
+      } else {
+        // Lazy migration for Step 2 if previously initialized in Step 1
+        if (!this.hasKey(STORAGE_KEYS.STUDENTS)) {
+          this.setItem(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
         }
-        return u;
-      });
-      if (usersNeedSync) {
-        this.setItem(STORAGE_KEYS.USERS, syncedUsers);
+        if (!this.hasKey(STORAGE_KEYS.DEPARTMENTS)) {
+          this.setItem(STORAGE_KEYS.DEPARTMENTS, SEED_DEPARTMENTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.CLASSES)) {
+          this.setItem(STORAGE_KEYS.CLASSES, SEED_CLASSES);
+        }
+        if (!this.hasKey(STORAGE_KEYS.SECTIONS)) {
+          this.setItem(STORAGE_KEYS.SECTIONS, SEED_SECTIONS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.STUDENT_DOCS)) {
+          this.setItem(STORAGE_KEYS.STUDENT_DOCS, SEED_STUDENT_DOCS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.STUDENT_ACTIVITIES)) {
+          this.setItem(STORAGE_KEYS.STUDENT_ACTIVITIES, SEED_STUDENT_ACTIVITIES);
+        }
+        // Lazy migration for Step 3 (Teacher Management)
+        if (!this.hasKey(STORAGE_KEYS.TEACHERS)) {
+          this.setItem(STORAGE_KEYS.TEACHERS, SEED_TEACHERS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.TEACHER_DESIGNATIONS)) {
+          this.setItem(STORAGE_KEYS.TEACHER_DESIGNATIONS, SEED_TEACHER_DESIGNATIONS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.TEACHER_QUALIFICATIONS)) {
+          this.setItem(STORAGE_KEYS.TEACHER_QUALIFICATIONS, SEED_TEACHER_QUALIFICATIONS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.TEACHER_DOCS)) {
+          this.setItem(STORAGE_KEYS.TEACHER_DOCS, SEED_TEACHER_DOCS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.TEACHER_ACTIVITIES)) {
+          this.setItem(STORAGE_KEYS.TEACHER_ACTIVITIES, SEED_TEACHER_ACTIVITIES);
+        }
+        // Lazy migration for Step 4 (Attendance & Leave Management)
+        if (!this.hasKey(STORAGE_KEYS.ATTENDANCE)) {
+          this.setItem(STORAGE_KEYS.ATTENDANCE, SEED_ATTENDANCE);
+        }
+        if (!this.hasKey(STORAGE_KEYS.LEAVE_APPLICATIONS)) {
+          this.setItem(STORAGE_KEYS.LEAVE_APPLICATIONS, SEED_LEAVE_APPLICATIONS);
+        }
+        // Lazy migration for Step 5 (Academic Management)
+        if (!this.hasKey(STORAGE_KEYS.ACADEMIC_SESSIONS)) {
+          this.setItem(STORAGE_KEYS.ACADEMIC_SESSIONS, SEED_ACADEMIC_SESSIONS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY)) {
+          this.setItem(STORAGE_KEYS.STUDENT_ACADEMIC_HISTORY, SEED_STUDENT_ACADEMIC_HISTORY);
+        }
+        if (!this.hasKey(STORAGE_KEYS.ACADEMIC_ACTIVITIES)) {
+          this.setItem(STORAGE_KEYS.ACADEMIC_ACTIVITIES, []);
+        }
+        if (!this.hasKey(STORAGE_KEYS.ACADEMIC_SETTINGS)) {
+          this.setItem(STORAGE_KEYS.ACADEMIC_SETTINGS, SEED_ACADEMIC_SETTINGS);
+        }
+        // Lazy migration for Step 6 (Subjects & Teacher Assignments)
+        if (!this.hasKey(STORAGE_KEYS.SUBJECTS)) {
+          this.setItem(STORAGE_KEYS.SUBJECTS, SEED_SUBJECTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.SUBJECT_DEPARTMENTS)) {
+          this.setItem(STORAGE_KEYS.SUBJECT_DEPARTMENTS, SEED_SUBJECT_DEPARTMENTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.CLASS_SUBJECTS)) {
+          this.setItem(STORAGE_KEYS.CLASS_SUBJECTS, SEED_CLASS_SUBJECTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.TEACHER_ASSIGNMENTS)) {
+          this.setItem(STORAGE_KEYS.TEACHER_ASSIGNMENTS, SEED_TEACHER_ASSIGNMENTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.SUBJECT_ACTIVITIES)) {
+          this.setItem(STORAGE_KEYS.SUBJECT_ACTIVITIES, []);
+        }
+        // Lazy migration for Step 7 (Class Routine & Timetable)
+        if (!this.hasKey(STORAGE_KEYS.TIME_SLOTS)) {
+          this.setItem(STORAGE_KEYS.TIME_SLOTS, SEED_TIME_SLOTS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.CLASS_ROOMS)) {
+          this.setItem(STORAGE_KEYS.CLASS_ROOMS, SEED_CLASS_ROOMS);
+        }
+        if (!this.hasKey(STORAGE_KEYS.ROUTINES)) {
+          this.setItem(STORAGE_KEYS.ROUTINES, SEED_ROUTINES);
+        }
+        // Ensure permissions have routine, subjects, academic, attendance, teachers & students permissions
+        const perms = this.getItem<DbPermission[]>(STORAGE_KEYS.PERMISSIONS, []);
+        if (
+          !perms.some((p) => p.slug === 'routine.view') ||
+          !perms.some((p) => p.slug === 'subjects.view') ||
+          !perms.some((p) => p.slug === 'academic.view') ||
+          !perms.some((p) => p.slug === 'attendance.view') ||
+          !perms.some((p) => p.slug === 'teachers.view') ||
+          !perms.some((p) => p.slug === 'students.view')
+        ) {
+          this.setItem(STORAGE_KEYS.PERMISSIONS, SEED_PERMISSIONS);
+          this.setItem(STORAGE_KEYS.ROLE_PERMISSIONS, SEED_ROLE_PERMISSIONS);
+        }
+
+        // Ensure seed users have valid updated password hashes and purge removed users/roles (usr-002, usr-003, usr-005, usr-007)
+        const existingUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
+        const purgedUsers = existingUsers.filter(
+          (u) =>
+            u.id !== 'usr-002' &&
+            u.id !== 'usr-003' &&
+            u.id !== 'usr-005' &&
+            u.id !== 'usr-007' &&
+            u.role_id !== 'institution_admin' &&
+            u.role_id !== 'accountant' &&
+            u.role_id !== 'student' &&
+            u.email?.toLowerCase() !== 'director@darululoom.edu.bd' &&
+            u.email?.toLowerCase() !== 'principal@darululoom.edu.bd' &&
+            u.email?.toLowerCase() !== 'accountant@darululoom.edu.bd' &&
+            u.email?.toLowerCase() !== 'student@darululoom.edu.bd'
+        );
+        let usersNeedSync = purgedUsers.length !== existingUsers.length;
+        const syncedUsers = purgedUsers.map((u) => {
+          const seed = SEED_USERS.find((su) => su.email.toLowerCase() === u.email.toLowerCase());
+          if (seed && u.password_hash !== seed.password_hash) {
+            usersNeedSync = true;
+            return { ...u, password_hash: seed.password_hash };
+          }
+          return u;
+        });
+        if (usersNeedSync) {
+          this.setItem(STORAGE_KEYS.USERS, syncedUsers);
+        }
       }
+    } catch (err) {
+      console.warn('MadSolDb initialization fallback executed:', err);
     }
   }
 

@@ -8,6 +8,7 @@ import {
 } from '../types/step1';
 import { madsolDb } from '../lib/db';
 import { hashPassword, hashPasswordSync, verifyPassword } from '../lib/crypto';
+import { safeStorage } from '../lib/safeStorage';
 
 interface AuthContextType {
   user: DbUser | null;
@@ -106,8 +107,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     madsolDb.init();
     setRoles(madsolDb.getRoles());
 
-    const savedToken = localStorage.getItem(SESSION_TOKEN_KEY);
-    const savedUserId = localStorage.getItem(ACTIVE_USER_KEY);
+    const savedToken = safeStorage.getItem(SESSION_TOKEN_KEY);
+    const savedUserId = safeStorage.getItem(ACTIVE_USER_KEY);
 
     let restoredUser: DbUser | null = null;
     if (savedToken) {
@@ -119,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const candidate = madsolDb.getUserById(savedUserId);
       if (candidate && candidate.status === 'active') {
         const sess = madsolDb.createSession(candidate.id, true);
-        localStorage.setItem(SESSION_TOKEN_KEY, sess.token);
+        safeStorage.setItem(SESSION_TOKEN_KEY, sess.token);
         restoredUser = candidate;
       }
     }
@@ -137,8 +138,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (fallback) {
         restoredUser = fallback;
         const sess = madsolDb.createSession(fallback.id, true);
-        localStorage.setItem(SESSION_TOKEN_KEY, sess.token);
-        localStorage.setItem(ACTIVE_USER_KEY, fallback.id);
+        safeStorage.setItem(SESSION_TOKEN_KEY, sess.token);
+        safeStorage.setItem(ACTIVE_USER_KEY, fallback.id);
       }
     }
 
@@ -220,8 +221,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Create secure session
     const session = madsolDb.createSession(matchedUser.id, rememberMe);
-    localStorage.setItem(SESSION_TOKEN_KEY, session.token);
-    localStorage.setItem(ACTIVE_USER_KEY, matchedUser.id);
+    safeStorage.setItem(SESSION_TOKEN_KEY, session.token);
+    safeStorage.setItem(ACTIVE_USER_KEY, matchedUser.id);
 
     // Update user last_login
     const nowIso = new Date().toISOString();
@@ -260,8 +261,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       madsolDb.deleteUserSessions(user.id);
     }
-    localStorage.removeItem(SESSION_TOKEN_KEY);
-    localStorage.removeItem(ACTIVE_USER_KEY);
+    safeStorage.removeItem(SESSION_TOKEN_KEY);
+    safeStorage.removeItem(ACTIVE_USER_KEY);
     setUser(null);
     setInstitution(null);
     setPermissions([]);
@@ -273,8 +274,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const targetUser = allUsers.find((u) => u.role_id === roleSlug) || allUsers[0];
     if (targetUser) {
       const session = madsolDb.createSession(targetUser.id, true);
-      localStorage.setItem(SESSION_TOKEN_KEY, session.token);
-      localStorage.setItem(ACTIVE_USER_KEY, targetUser.id);
+      safeStorage.setItem(SESSION_TOKEN_KEY, session.token);
+      safeStorage.setItem(ACTIVE_USER_KEY, targetUser.id);
 
       setUser(targetUser);
       const inst = madsolDb.getInstitutionById(targetUser.institution_id);

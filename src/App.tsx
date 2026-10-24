@@ -299,7 +299,7 @@ function MainAppContent() {
   };
 
   return (
-    <div className="h-screen h-[100dvh] max-h-[100dvh] w-full max-w-full overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 relative">
+    <div className="h-full w-full max-w-full overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 relative">
       {/* Background Islamic Pattern */}
       <IslamicPattern opacity={0.03} />
 
@@ -332,7 +332,8 @@ function MainAppContent() {
         {/* Main Content Area */}
         <main
           id="main-content-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 p-3 sm:p-6 lg:p-8 pb-24 lg:pb-6 transition-all"
+          className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 p-3 sm:p-6 lg:p-8 pb-28 lg:pb-6 transition-all overscroll-contain touch-pan-y"
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="max-w-7xl mx-auto w-full min-w-0">
             {renderCurrentView()}

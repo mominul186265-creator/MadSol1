@@ -57,6 +57,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     setShowPassword(!showPassword);
   };
 
+  const fillDemoUser = (id: string, pass: string) => {
+    setIdentifier(id);
+    setPassword(pass);
+    setError('');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -259,6 +265,49 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
                 ? (isBn ? 'যাচাই করা হচ্ছে...' : 'Signing in...')
                 : (isBn ? 'লগইন করুন ➔' : 'Sign In ➔')}
             </Button>
+
+            {/* Quick Demo Fill Buttons for Fast Testing */}
+            <div className="pt-2">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
+                  {isBn ? '১-ক্লিকে টেস্ট ইউজার বসান' : '1-Click Demo Fill'}
+                </span>
+                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => fillDemoUser('01711111111', 'admin123')}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
+                >
+                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    মুহতামিম
+                  </div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Super Admin</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillDemoUser('01744444444', 'teacher123')}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
+                >
+                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    শিক্ষক
+                  </div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Teacher</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillDemoUser('01766666666', 'guardian123')}
+                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
+                >
+                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
+                    অভিভাবক
+                  </div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Guardian</div>
+                </button>
+              </div>
+            </div>
           </form>
 
           {/* New Account / Sign Up Banner */}

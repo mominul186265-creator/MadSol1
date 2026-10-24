@@ -41,23 +41,34 @@
   html,
   body {
     width: 100%;
+    height: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow: hidden;
     position: relative;
     background-color: var(--bg-main);
     color: var(--text-main);
     font-family: 'Plus Jakarta Sans', 'Hind Siliguri', sans-serif;
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
   }
 
   #root {
     width: 100%;
+    height: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow: hidden;
     position: relative;
-    min-height: 100vh;
+    overscroll-behavior: none;
   }
+}
+
+/* Touch & Momentum Scrolling for Android WebView & Mobile */
+#main-content-scroll {
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
 }
 
 /* Islamic Geometric Background Pattern */

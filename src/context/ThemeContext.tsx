@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ThemeMode } from '../types';
+import { safeStorage } from '../lib/safeStorage';
 
 interface ThemeContextType {
   theme: ThemeMode;
@@ -12,9 +13,13 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('madsol_theme');
-    if (saved === 'light' || saved === 'dark' || saved === 'system') {
-      return saved;
+    try {
+      const saved = safeStorage.getItem('madsol_theme');
+      if (saved === 'light' || saved === 'dark' || saved === 'system') {
+        return saved;
+      }
+    } catch {
+      // safe fallback
     }
     return 'light';
   });
@@ -23,7 +28,11 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = (mode: ThemeMode) => {
     setThemeState(mode);
-    localStorage.setItem('madsol_theme', mode);
+    try {
+      safeStorage.setItem('madsol_theme', mode);
+    } catch {
+      // safe fallback
+    }
   };
 
   const toggleTheme = () => {
@@ -32,13 +41,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const root = document.documentElement;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const mediaQuery = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
     const applyTheme = () => {
       let isDark = false;
       if (theme === 'system') {
-        isDark = mediaQuery.matches;
+        isDark = mediaQuery?.matches ?? false;
       } else {
         isDark = theme === 'dark';
       }
@@ -57,12 +68,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     applyTheme();
 
-    const listener = () => {
-      if (theme === 'system') applyTheme();
-    };
-
-    mediaQuery.addEventListener('change', listener);
-    return () => mediaQuery.removeEventListener('change', listener);
+    if (mediaQuery?.addEventListener) {
+      const listener = () => {
+        if (theme === 'system') applyTheme();
+      };
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
   }, [theme]);
 
   return (

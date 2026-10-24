@@ -1,0 +1,45 @@
+{
+  "id": "/",
+  "name": "MadSol - Madrasa Solution",
+  "short_name": "MadSol",
+  "description": "Smart Solution for Modern Madrasas (আধুনিক মাদ্রাসার স্মার্ট ও স্বয়ংক্রিয় ব্যবস্থাপনা)",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#064e3b",
+  "background_color": "#064e3b",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/MadSol_App_Icon_.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": [
+    "education",
+    "productivity",
+    "management"
+  ],
+  "prefer_related_applications": false
+}

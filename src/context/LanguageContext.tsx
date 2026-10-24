@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Language } from '../types';
-import { translations, getTranslation, TranslationKey } from '../locales';
+import { getTranslation, TranslationKey } from '../locales';
+import { safeStorage } from '../lib/safeStorage';
 
 interface LanguageContextType {
   language: Language;
@@ -13,14 +14,24 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    const saved = localStorage.getItem('madsol_lang');
-    return (saved === 'en' || saved === 'bn') ? saved : 'bn'; // Bangla is default as requested
+    try {
+      const saved = safeStorage.getItem('madsol_lang');
+      return (saved === 'en' || saved === 'bn') ? saved : 'bn'; // Bangla is default
+    } catch {
+      return 'bn';
+    }
   });
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('madsol_lang', lang);
-    document.documentElement.lang = lang;
+    try {
+      safeStorage.setItem('madsol_lang', lang);
+    } catch {
+      // safe fallback
+    }
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = lang;
+    }
   };
 
   const toggleLanguage = () => {
@@ -28,7 +39,9 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   useEffect(() => {
-    document.documentElement.lang = language;
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = language;
+    }
   }, [language]);
 
   const t = getTranslation(language);

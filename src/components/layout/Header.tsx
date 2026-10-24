@@ -115,7 +115,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onNavigate && onNavigate('/dashboard')}
             className="cursor-pointer flex items-center gap-1.5 sm:gap-2 min-w-0"
           >
-            <MadSolLogo size="sm" showTagline={false} iconClassName="hidden sm:flex" />
+            <MadSolLogo size="sm" showTagline={false} iconClassName="flex" />
             <div className="hidden sm:block">
               <span className="text-xs font-bold text-emerald-800 dark:text-emerald-400">
                 MadSol
