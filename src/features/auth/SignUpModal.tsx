@@ -404,13 +404,13 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row items-center md:items-start gap-5 pt-1">
-          {/* Huzoor Mascot Standing Beside Sign Up Form */}
-          <div className="shrink-0 flex flex-col items-center">
+        <div className="flex flex-row items-start gap-3 sm:gap-5 pt-1">
+          {/* Huzoor Mascot Standing on Left Side of Sign Up Form */}
+          <div className="shrink-0 flex items-center justify-center">
             <HuzoorMascot
               activeField={activeField}
               language={language}
-              className="scale-95"
+              size="sm"
             />
           </div>
 

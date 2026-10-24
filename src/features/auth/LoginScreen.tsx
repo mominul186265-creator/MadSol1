@@ -3,12 +3,14 @@ import { MadSolLogo } from '../../components/common/MadSolLogo';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { IslamicPattern } from '../../components/common/IslamicPattern';
+import { HuzoorMascot, MascotFocusField } from '../../components/auth/HuzoorMascot';
 import { ForgotPasswordModal } from './ForgotPasswordModal';
 import { SignUpModal } from './SignUpModal';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
+import { safeStorage } from '../../lib/safeStorage';
 import {
   Smartphone,
   Lock,
@@ -34,7 +36,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
 
   const [isPulling, setIsPulling] = useState(true);
 
-  // Form states
+  // Form & Credential States
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -43,6 +45,9 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
   const [error, setError] = useState('');
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const [isSignUpModalOpen, setIsSignUpModalOpen] = useState(false);
+
+  // Mascot Interactive Focus State
+  const [activeMascotField, setActiveMascotField] = useState<MascotFocusField>('idle');
 
   // Initial pull-in animation on mount
   useEffect(() => {
@@ -53,14 +58,32 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleTogglePassword = () => {
-    setShowPassword(!showPassword);
-  };
+  // Restore remembered Gmail, Mobile Number, and Password without any flaws
+  useEffect(() => {
+    try {
+      const savedRememberMe = safeStorage.getItem('madsol_remember_me');
+      const isRemembered = savedRememberMe !== 'false'; // Default to true
+      setRememberMe(isRemembered);
 
-  const fillDemoUser = (id: string, pass: string) => {
-    setIdentifier(id);
-    setPassword(pass);
-    setError('');
+      if (isRemembered) {
+        const savedId = safeStorage.getItem('madsol_remembered_identifier');
+        const savedPass = safeStorage.getItem('madsol_remembered_password');
+        if (savedId) {
+          setIdentifier(savedId);
+        }
+        if (savedPass) {
+          setPassword(savedPass);
+        }
+      }
+    } catch {
+      // Safe fallback for webview restrictions
+    }
+  }, []);
+
+  const handleTogglePassword = () => {
+    const nextState = !showPassword;
+    setShowPassword(nextState);
+    setActiveMascotField(nextState ? 'password-peek' : 'password');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,6 +97,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           ? 'ইমেইল বা মোবাইল এবং পাসওয়ার্ড প্রদান করুন।'
           : 'Please enter your email/mobile and password.'
       );
+      setActiveMascotField('identifier');
       return;
     }
 
@@ -83,14 +107,45 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           ? 'পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।'
           : 'Password must be at least 6 characters.'
       );
+      setActiveMascotField('password');
       return;
     }
 
     setIsLoading(true);
+    setActiveMascotField('submit');
     const result = await login(trimmedId, password, rememberMe);
     setIsLoading(false);
 
     if (result.success) {
+      // Flawless Credential Persistence for Gmail, Phone, and Password
+      try {
+        if (rememberMe) {
+          safeStorage.setItem('madsol_remember_me', 'true');
+          safeStorage.setItem('madsol_remembered_identifier', trimmedId);
+          safeStorage.setItem('madsol_remembered_password', password);
+        } else {
+          safeStorage.setItem('madsol_remember_me', 'false');
+          safeStorage.removeItem('madsol_remembered_identifier');
+          safeStorage.removeItem('madsol_remembered_password');
+        }
+
+        // Trigger Google / Android native password manager prompt if supported
+        if (typeof window !== 'undefined' && 'PasswordCredential' in window) {
+          try {
+            const cred = new (window as any).PasswordCredential({
+              id: trimmedId,
+              password: password,
+              name: trimmedId,
+            });
+            navigator.credentials?.store(cred).catch(() => {});
+          } catch {
+            // Silently ignore if not supported by browser security policy
+          }
+        }
+      } catch {
+        // storage fallback
+      }
+
       showToast(
         isBn ? 'সফলভাবে লগইন হয়েছে! স্বাগতম।' : 'Login successful! Welcome.',
         'success'
@@ -102,6 +157,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         (isBn ? 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।' : 'Invalid email or password.');
       setError(errMsg);
       showToast(errMsg, 'error');
+      setActiveMascotField('idle');
     }
   };
 
@@ -120,13 +176,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Sign Up Button */}
           <button
             id="login-header-signup-btn"
             type="button"
             onClick={() => setIsSignUpModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>{isBn ? 'সাইন আপ' : 'Sign Up'}</span>
@@ -136,7 +192,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           <button
             id="login-lang-switch-btn"
             onClick={toggleLanguage}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-xs cursor-pointer"
           >
             <Globe className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>{isBn ? 'English' : 'বাংলা'}</span>
@@ -146,7 +202,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
           <button
             id="login-theme-switch-btn"
             onClick={toggleTheme}
-            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-xs cursor-pointer"
+            className="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-xs cursor-pointer"
             aria-label="Toggle theme"
           >
             {resolvedTheme === 'dark' ? (
@@ -158,182 +214,168 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         </div>
       </header>
 
-      {/* Main Interactive Stage */}
-      <main className="relative z-10 flex-1 flex items-center justify-center px-3 sm:px-6 py-6 sm:py-10 max-w-lg mx-auto w-full">
-        {/* Main Login Card */}
+      {/* Main Interactive Stage with Mascot on Top (Small & Centered) */}
+      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-3 sm:px-6 py-4 sm:py-6 max-w-md mx-auto w-full">
+        {/* Interactive Cartoon Mascot (Positioned on top, small and cute) */}
+        <div className="flex flex-col items-center -mb-3 z-20 relative">
+          <HuzoorMascot
+            activeField={activeMascotField}
+            isPulling={isPulling}
+            language={language}
+            size="sm"
+            className="transition-transform duration-300 hover:scale-105"
+          />
+        </div>
+
+        {/* Center Main Login Card */}
         <div
-          className={`w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/10 p-4 sm:p-7 relative z-10 transition-all duration-300 ${
+          className={`w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl shadow-emerald-950/10 p-4 sm:p-7 pt-5 sm:pt-6 relative z-10 transition-all duration-300 ${
             isPulling ? 'animate-pull-in-card' : ''
           }`}
         >
-          {/* Brand Header */}
-          <div className="flex flex-col items-center text-center mb-5">
-            <MadSolLogo size="lg" showTagline={false} className="mb-2" />
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              MadSol
-            </h1>
-            <p className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5">
-              Smart Solution for Modern Madrasas
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
-              {isBn
-                ? 'আধুনিক মাদ্রাসার সমন্বিত ক্লাউড ম্যানেজমেন্ট প্ল্যাটফর্ম'
-                : 'Integrated Cloud Platform for Educational Institutions'}
-            </p>
-          </div>
-
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="transition-transform duration-200 focus-within:scale-[1.01]">
-              <Input
-                id="login-identifier-input"
-                label={isBn ? 'ইমেইল অথবা মোবাইল নম্বর' : 'Email or Mobile Number'}
-                placeholder={isBn ? 'যেমন: superadmin@madsol.app বা 01711111111' : 'e.g. superadmin@madsol.app'}
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                leftIcon={<Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-                autoComplete="username"
-                required
-              />
+            {/* Brand Header */}
+            <div className="flex flex-col items-center text-center mb-5">
+              <MadSolLogo size="lg" showTagline={false} className="mb-2" />
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                MadSol
+              </h1>
+              <p className="text-xs sm:text-sm font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5">
+                Smart Solution for Modern Madrasas
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
+                {isBn
+                  ? 'আধুনিক মাদ্রাসার সমন্বিত ক্লাউড ম্যানেজমেন্ট প্ল্যাটফর্ম'
+                  : 'Integrated Cloud Platform for Educational Institutions'}
+              </p>
             </div>
 
-            <div className="relative transition-transform duration-200 focus-within:scale-[1.01]">
-              <Input
-                id="login-password-input"
-                type={showPassword ? 'text' : 'password'}
-                label={isBn ? 'পাসওয়ার্ড' : 'Password'}
-                placeholder={isBn ? 'গোপন পাসওয়ার্ড লিখুন' : 'Enter your password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                leftIcon={<Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
-                autoComplete="current-password"
-                hidePasswordToggle={true}
-                required
-              />
-              <button
-                id="login-show-hide-password-btn"
-                type="button"
-                tabIndex={-1}
-                onClick={handleTogglePassword}
-                className="absolute right-3.5 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer p-1"
-                title={showPassword ? (isBn ? 'পাসওয়ার্ড লুকান' : 'Hide password') : (isBn ? 'পাসওয়ার্ড দেখুন' : 'Show password')}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-
-            {error && (
-              <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300">
-                {error}
-              </div>
-            )}
-
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-xs sm:text-sm pt-1">
-              <label className="flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-slate-300">
-                <input
-                  id="login-remember-me-checkbox"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 w-4 h-4 cursor-pointer"
+            {/* Login Form with Autofill and Password Manager Compatibility */}
+            <form onSubmit={handleSubmit} method="POST" action="#" className="space-y-4">
+              <div className="transition-transform duration-200 focus-within:scale-[1.01]">
+                <Input
+                  id="login-identifier-input"
+                  name="username"
+                  type="text"
+                  label={isBn ? 'ইমেইল অথবা মোবাইল নম্বর' : 'Email or Mobile Number'}
+                  placeholder={isBn ? 'যেমন: superadmin@madsol.app বা 01711111111' : 'e.g. superadmin@madsol.app or 01711111111'}
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  onFocus={() => setActiveMascotField('identifier')}
+                  onBlur={() => setActiveMascotField('idle')}
+                  leftIcon={<Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  autoComplete="username"
+                  required
                 />
-                <span>{isBn ? 'আমাকে মনে রাখুন' : 'Remember Me'}</span>
-              </label>
+              </div>
 
-              <button
-                id="login-forgot-password-link"
-                type="button"
-                onClick={() => setIsForgotModalOpen(true)}
-                className="font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 hover:underline focus:outline-none cursor-pointer"
+              <div className="relative transition-transform duration-200 focus-within:scale-[1.01]">
+                <Input
+                  id="login-password-input"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  label={isBn ? 'পাসওয়ার্ড' : 'Password'}
+                  placeholder={isBn ? 'গোপন পাসওয়ার্ড লিখুন' : 'Enter your password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={() => setActiveMascotField(showPassword ? 'password-peek' : 'password')}
+                  onBlur={() => setActiveMascotField('idle')}
+                  leftIcon={<Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  autoComplete="current-password"
+                  hidePasswordToggle={true}
+                  required
+                />
+                <button
+                  id="login-show-hide-password-btn"
+                  type="button"
+                  tabIndex={-1}
+                  onClick={handleTogglePassword}
+                  className="absolute right-3.5 top-9 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer p-1"
+                  title={showPassword ? (isBn ? 'পাসওয়ার্ড লুকান' : 'Hide password') : (isBn ? 'পাসওয়ার্ড দেখুন' : 'Show password')}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {error && (
+                <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-xs text-rose-700 dark:text-rose-300">
+                  {error}
+                </div>
+              )}
+
+              {/* Remember Me & Forgot Password */}
+              <div className="flex items-center justify-between text-xs sm:text-sm pt-1">
+                <label
+                  onMouseEnter={() => setActiveMascotField('remember')}
+                  onMouseLeave={() => setActiveMascotField('idle')}
+                  className="flex items-center gap-2 cursor-pointer select-none text-slate-600 dark:text-slate-300"
+                >
+                  <input
+                    id="login-remember-me-checkbox"
+                    name="remember"
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    onFocus={() => setActiveMascotField('remember')}
+                    onBlur={() => setActiveMascotField('idle')}
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 dark:border-slate-700 dark:bg-slate-800 w-4 h-4 cursor-pointer"
+                  />
+                  <span>{isBn ? 'আমাকে মনে রাখুন' : 'Remember Me'}</span>
+                </label>
+
+                <button
+                  id="login-forgot-password-link"
+                  type="button"
+                  onClick={() => setIsForgotModalOpen(true)}
+                  className="font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 hover:underline focus:outline-none cursor-pointer"
+                >
+                  {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
+                </button>
+              </div>
+
+              <Button
+                id="login-submit-btn"
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                isLoading={isLoading}
+                onMouseEnter={() => setActiveMascotField('submit')}
+                onMouseLeave={() => setActiveMascotField('idle')}
+                onFocus={() => setActiveMascotField('submit')}
+                onBlur={() => setActiveMascotField('idle')}
+                className="mt-2 text-sm font-bold shadow-md shadow-emerald-700/20"
               >
-                {isBn ? 'পাসওয়ার্ড ভুলে গেছেন?' : 'Forgot Password?'}
+                {isLoading
+                  ? (isBn ? 'যাচাই করা হচ্ছে...' : 'Signing in...')
+                  : (isBn ? 'লগইন করুন ➔' : 'Sign In ➔')}
+              </Button>
+            </form>
+
+            {/* New Account / Sign Up Banner */}
+            <div className="mt-5 p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors hover:border-emerald-400">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+                  <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  {isBn ? 'নতুন মাদ্রাসা অ্যাকাউন্ট সাইন আপ' : 'New Madrasa Sign Up'}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-2.5 leading-snug">
+                {isBn
+                  ? 'আপনার মাদ্রাসার নাম ও পরিচালকের তথ্য দিয়ে সরাসরি সম্পূর্ণ নতুন অ্যাকাউন্ট খুলুন।'
+                  : 'Register your madrasa and start managing immediately.'}
+              </p>
+              <button
+                id="login-card-signup-btn"
+                type="button"
+                onClick={() => setIsSignUpModalOpen(true)}
+                className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>{isBn ? 'নতুন মাদ্রাসার জন্য সাইন আপ করুন' : 'Sign Up for New Madrasa'}</span>
               </button>
             </div>
-
-            <Button
-              id="login-submit-btn"
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              isLoading={isLoading}
-              className="mt-2 text-sm font-bold shadow-md shadow-emerald-700/20"
-            >
-              {isLoading
-                ? (isBn ? 'যাচাই করা হচ্ছে...' : 'Signing in...')
-                : (isBn ? 'লগইন করুন ➔' : 'Sign In ➔')}
-            </Button>
-
-            {/* Quick Demo Fill Buttons for Fast Testing */}
-            <div className="pt-2">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-                <span className="text-[11px] font-semibold text-slate-400 dark:text-slate-500">
-                  {isBn ? '১-ক্লিকে টেস্ট ইউজার বসান' : '1-Click Demo Fill'}
-                </span>
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => fillDemoUser('01711111111', 'admin123')}
-                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
-                >
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                    মুহতামিম
-                  </div>
-                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Super Admin</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoUser('01744444444', 'teacher123')}
-                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
-                >
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                    শিক্ষক
-                  </div>
-                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Teacher</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fillDemoUser('01766666666', 'guardian123')}
-                  className="p-2 rounded-xl bg-slate-100 hover:bg-emerald-50 dark:bg-slate-800/90 dark:hover:bg-emerald-950/40 border border-slate-200/80 dark:border-slate-700 hover:border-emerald-500/50 text-center transition-all cursor-pointer group"
-                >
-                  <div className="text-[11px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-emerald-600 dark:group-hover:text-emerald-400">
-                    অভিভাবক
-                  </div>
-                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Guardian</div>
-                </button>
-              </div>
-            </div>
-          </form>
-
-          {/* New Account / Sign Up Banner */}
-          <div className="mt-5 p-3.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/80 dark:border-emerald-800/80 transition-colors hover:border-emerald-400">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs font-bold text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
-                <UserPlus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                {isBn ? 'নতুন মাদ্রাসা অ্যাকাউন্ট সাইন আপ' : 'New Madrasa Sign Up'}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-2.5 leading-snug">
-              {isBn
-                ? 'আপনার মাদ্রাসার নাম ও পরিচালকের তথ্য দিয়ে সরাসরি সম্পূর্ণ নতুন অ্যাকাউন্ট খুলুন।'
-                : 'Register your madrasa and start managing immediately.'}
-            </p>
-            <button
-              id="login-card-signup-btn"
-              type="button"
-              onClick={() => setIsSignUpModalOpen(true)}
-              className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              <span>{isBn ? 'নতুন মাদ্রাসার জন্য সাইন আপ করুন' : 'Sign Up for New Madrasa'}</span>
-            </button>
           </div>
-        </div>
       </main>
 
       {/* Footer */}

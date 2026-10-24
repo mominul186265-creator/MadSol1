@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, MessageCircle, Volume2, VolumeX } from 'lucide-react';
 
 export type MascotFocusField =
   | 'idle'
@@ -22,6 +21,8 @@ interface HuzoorMascotProps {
   className?: string;
   customTip?: string;
   slender?: boolean;
+  facing?: 'left' | 'right';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
 
 export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
@@ -30,14 +31,15 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
   language = 'bn',
   onMascotClick,
   className = '',
-  customTip,
   slender = false,
+  facing = 'right',
+  size = 'md',
 }) => {
   const isBn = language === 'bn';
-  const [clickCount, setClickCount] = useState(0);
-  const [mascotMood, setMascotMood] = useState<'happy' | 'thinking' | 'shy' | 'excited'>('happy');
+  const [, setClickCount] = useState(0);
+  const [, setMascotMood] = useState<'happy' | 'thinking' | 'shy' | 'excited'>('happy');
   const [isBlinking, setIsBlinking] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [soundEnabled] = useState(true);
 
   // Natural eye blinking effect
   useEffect(() => {
@@ -60,110 +62,6 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
       setMascotMood('happy');
     }
   }, [activeField]);
-
-  // Contextual speech messages
-  const getSpeechText = () => {
-    if (customTip) return customTip;
-
-    if (clickCount > 0 && activeField === 'idle') {
-      const easterGreetings = isBn
-        ? [
-            'আসসালামু আলাইকুম! কোনো সাহায্য লাগলে বলুন 😊',
-            'মাদ্রাসার সকল হিসাব ও হাজিরা এখন স্মার্ট! 📖',
-            'জ্ঞান অর্জন প্রত্যেক মুসলমানের ওপর ফরজ। ✨',
-            'ফিল্ডে ক্লিক করুন, আমি দেখিয়ে দেব! 👉',
-          ]
-        : [
-            'Assalamu Alaikum! How can I assist you? 😊',
-            'Smart cloud management for modern madrasas! 📖',
-            'Seeking knowledge is sacred duty for every Muslim. ✨',
-            'Click on any field and I will guide you! 👉',
-          ];
-      return easterGreetings[(clickCount - 1) % easterGreetings.length];
-    }
-
-    if (isPulling) {
-      return isBn
-        ? (slender ? 'টেনে আনছি... 🤲' : 'হৈ হৈ! এইতো আপনার ফর্মটি টেনে নিয়ে আসছি... 🤲')
-        : (slender ? 'Pulling in... 🤲' : 'Heave-ho! Bringing in your form right now... 🤲');
-    }
-
-    if (slender) {
-      switch (activeField) {
-        case 'identifier':
-          return isBn ? 'ইমেইল বা মোবাইল দিন 📱' : 'Enter mobile/email 📱';
-        case 'password':
-          return isBn ? 'চোখ বন্ধ! পাসওয়ার্ড গোপন 🙈' : 'Eyes shut! Secret 🙈';
-        case 'password-peek':
-          return isBn ? 'উঁকি দিচ্ছি! 👀' : 'Peeking! 👀';
-        case 'remember':
-          return isBn ? 'মনে রাখুন 👍' : 'Remember me 👍';
-        case 'submit':
-          return isBn ? 'বিসমিল্লাহ বলে চাপুন 🚀' : 'Click to login 🚀';
-        case 'signup':
-          return isBn ? 'নতুন সাইন আপ 🏛️' : 'New sign up 🏛️';
-        case 'madrasa-name':
-          return isBn ? 'মাদ্রাসার নাম 🕌' : 'Madrasa name 🕌';
-        case 'mobile':
-          return isBn ? 'মোবাইল নম্বর 📞' : 'Mobile number 📞';
-        case 'pin':
-          return isBn ? 'গোপন পিন দিন 🔑' : 'Enter PIN 🔑';
-        case 'role':
-          return isBn ? 'পদবী বেছে নিন 🎓' : 'Select role 🎓';
-        case 'idle':
-        default:
-          return isBn ? 'যেখানে ক্লিক করবেন দেখাব 👉' : 'Click any field 👉';
-      }
-    }
-
-    switch (activeField) {
-      case 'identifier':
-        return isBn
-          ? 'এখানে আপনার নিবন্ধিত ইমেইল বা মোবাইল নম্বরটি লিখুন 📱'
-          : 'Enter your registered email or mobile number here 📱';
-      case 'password':
-        return isBn
-          ? 'চোখ বন্ধ করে নিয়েছি! আপনার পাসওয়ার্ড সম্পূর্ণ গোপন ও নিরাপদ 🙈'
-          : 'Eyes closed! Your secret password is safe with us 🙈';
-      case 'password-peek':
-        return isBn
-          ? 'উঁকি দিয়ে দেখছি! পাসওয়ার্ড সঠিক আছে তো? 👀'
-          : 'Peeking through! Is the password typed correctly? 👀';
-      case 'remember':
-        return isBn
-          ? 'পরের বার দ্রুত প্রবেশের জন্য আমাকে মনে রাখুন 👍'
-          : 'Check to keep yourself remembered for fast sign in 👍';
-      case 'submit':
-        return isBn
-          ? 'বিসমিল্লাহ বলে বাটনে চাপ দিন, প্রবেশ করছি! 🚀'
-          : 'Say Bismillah and click to sign in! 🚀';
-      case 'signup':
-        return isBn
-          ? 'নতুন মাদ্রাসার জন্য সহজে বিনামূল্যে সাইন আপ করুন! 🏛️'
-          : 'Sign up your new madrasa easily and for free! 🏛️';
-      case 'madrasa-name':
-        return isBn
-          ? 'আপনার প্রিয় মাদ্রাসার পূর্ণ নাম ও ঠিকানা লিখুন 🕌'
-          : 'Enter the full name and address of your madrasa 🕌';
-      case 'mobile':
-        return isBn
-          ? '১১ ডিজিটের সক্রিয় মোবাইল নম্বরটি দিন (যেমন: 017...) 📞'
-          : 'Enter active 11-digit mobile number (e.g. 017...) 📞';
-      case 'pin':
-        return isBn
-          ? 'মুহতামিমের দেওয়া ৪-৬ ডিজিটের গোপন পিন কোড লিখুন 🔑'
-          : 'Enter the 4-6 digit secret access PIN from Muhtamim 🔑';
-      case 'role':
-        return isBn
-          ? 'আপনি শিক্ষক, পরিচালক নাকি অভিভাবক—বেছে নিন 🎓'
-          : 'Select your role: Director, Teacher, or Parent 🎓';
-      case 'idle':
-      default:
-        return isBn
-          ? 'আসসালামু আলাইকুম! লগইন বা সাইন আপ করতে যেকোনো ঘরে ক্লিক করুন 😊'
-          : 'Assalamu Alaikum! Click any field to begin signing in 😊';
-    }
-  };
 
   const handleMascotTap = () => {
     setClickCount((prev) => prev + 1);
@@ -196,54 +94,24 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
   const isPointing = activeField === 'identifier' || activeField === 'remember' || activeField === 'submit' || activeField === 'pin';
   const isCheering = activeField === 'submit';
 
+  const svgSizeClass = slender
+    ? 'w-14 h-24 sm:w-18 sm:h-30 drop-shadow-md'
+    : size === 'xs'
+    ? 'w-12 h-16 sm:w-14 sm:h-18 drop-shadow-sm'
+    : size === 'sm'
+    ? 'w-14 h-20 sm:w-16 sm:h-22 drop-shadow-md'
+    : size === 'lg'
+    ? 'w-24 h-32 sm:w-36 sm:h-44 md:w-48 md:h-56 drop-shadow-xl'
+    : 'w-20 h-28 sm:w-28 sm:h-38 md:w-40 md:h-50 drop-shadow-xl';
+
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`}>
-      {/* Interactive Speech Bubble */}
-      <div
-        className={`relative z-20 ${
-          slender
-            ? 'mb-1 max-w-[125px] sm:max-w-[145px] p-1.5 px-2 rounded-xl text-[10px] leading-tight shadow-md border-[1.5px]'
-            : 'mb-2 max-w-[240px] sm:max-w-[270px] p-3 rounded-2xl shadow-lg border-2'
-        } bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 ${
-          activeField === 'password'
-            ? 'border-indigo-400 dark:border-indigo-500'
-            : activeField === 'submit'
-            ? 'border-amber-400 dark:border-amber-500 animate-pulse'
-            : 'border-emerald-500/80 dark:border-emerald-500'
-        } transition-all duration-300 transform scale-100 hover:scale-[1.02] cursor-pointer`}
-        onClick={handleMascotTap}
-        title={isBn ? 'হুজুরকে ট্যাপ করুন' : 'Tap mascot for tips'}
-      >
-        <div className="flex items-start gap-1.5">
-          <div className={`${slender ? 'w-4 h-4' : 'w-5 h-5'} rounded-full bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center shrink-0 text-emerald-700 dark:text-emerald-400 mt-0.5`}>
-            <MessageCircle className={slender ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5'} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className={`${slender ? 'text-[9.5px] leading-tight font-bold text-slate-800 dark:text-slate-100' : 'text-[11px] sm:text-xs font-semibold leading-relaxed'}`}>
-              {getSpeechText()}
-            </p>
-            {!slender && (
-              <div className="mt-1 flex items-center justify-between text-[9px] text-slate-400 font-medium">
-                <span>{isBn ? 'মাদসোল সহকারী' : 'MadSol Mascot'}</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                  {isBn ? 'ট্যাপ করুন ✨' : 'Tap me ✨'}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Speech Bubble Arrow pointing down to Huzoor */}
-        <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-x-8 border-x-transparent border-t-8 border-t-emerald-500" />
-        <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-0 h-0 border-x-7 border-x-transparent border-t-7 border-t-white dark:border-t-slate-800" />
-      </div>
-
-      {/* Huzoor SVG Mascot Container */}
+      {/* Huzoor SVG Mascot Container (Pure mascot without speech bubble or bottom tag) */}
       <div
         onClick={handleMascotTap}
         className={`relative cursor-pointer transition-transform duration-300 hover:scale-105 active:scale-95 ${
-          isPulling ? 'animate-bounce' : ''
-        }`}
+          facing === 'left' ? '-scale-x-100' : ''
+        } ${isPulling ? 'animate-bounce' : ''}`}
         title={isBn ? 'মুহতামিম / হুজুর কার্টুন সহকারী' : 'Huzoor Mascot Assistant'}
       >
         {/* Glow halo behind head */}
@@ -252,11 +120,7 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
         {/* SVG Mascot Graphic */}
         <svg
           viewBox="0 0 200 240"
-          className={
-            slender
-              ? 'w-16 h-28 sm:w-20 sm:h-34 drop-shadow-md'
-              : 'w-36 h-44 sm:w-44 sm:h-52 drop-shadow-xl'
-          }
+          className={svgSizeClass}
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -595,14 +459,6 @@ export const HuzoorMascot: React.FC<HuzoorMascotProps> = ({
             </g>
           )}
         </svg>
-
-        {/* Small floating status badge under mascot */}
-        {!slender && (
-          <div className="mt-1 flex items-center justify-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/90 dark:bg-emerald-950/80 text-[10px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shadow-xs">
-            <Sparkles className="w-3 h-3 text-amber-500 animate-spin" />
-            <span>{isBn ? 'মুহতামিম কার্টুন সহকারী' : 'Huzoor Mascot Guide'}</span>
-          </div>
-        )}
       </div>
     </div>
   );
