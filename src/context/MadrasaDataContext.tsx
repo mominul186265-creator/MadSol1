@@ -505,6 +505,7 @@ export const MadrasaDataProvider: React.FC<{ children: React.ReactNode }> = ({ c
       admissionId: req.applicationNumber,
       fullNameBn: req.applicantNameBn,
       fullNameEn: req.applicantNameEn,
+      photoUrl: req.photoUrl || req.photo,
       dateOfBirth: req.dateOfBirth,
       gender: req.gender,
       bloodGroup: req.bloodGroup,

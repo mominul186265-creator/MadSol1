@@ -6,7 +6,7 @@ import {
   DbActivityLog,
   RoleSlug,
 } from '../types/step1';
-import { madsolDb } from '../lib/db';
+import { madsolDb, isDemoUser } from '../lib/db';
 import { hashPassword, hashPasswordSync, verifyPassword } from '../lib/crypto';
 import { safeStorage } from '../lib/safeStorage';
 
@@ -125,21 +125,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    if (
-      restoredUser &&
-      (restoredUser.id === 'usr-002' ||
-        restoredUser.id === 'usr-003' ||
-        restoredUser.id === 'usr-005' ||
-        restoredUser.id === 'usr-007' ||
-        restoredUser.role_id === 'institution_admin' ||
-        restoredUser.email?.toLowerCase() === 'director@darululoom.edu.bd')
-    ) {
-      const fallback = madsolDb.getUserById('usr-001');
-      if (fallback) {
-        restoredUser = fallback;
-        const sess = madsolDb.createSession(fallback.id, true);
+    if (!restoredUser || isDemoUser(restoredUser)) {
+      const realUsers = madsolDb.getUsers();
+      const firstReal = realUsers.find((u) => u.status === 'active') || realUsers[0];
+      if (firstReal) {
+        restoredUser = firstReal;
+        const sess = madsolDb.createSession(firstReal.id, true);
         safeStorage.setItem(SESSION_TOKEN_KEY, sess.token);
-        safeStorage.setItem(ACTIVE_USER_KEY, fallback.id);
+        safeStorage.setItem(ACTIVE_USER_KEY, firstReal.id);
+      } else if (restoredUser && isDemoUser(restoredUser)) {
+        restoredUser = null;
+        safeStorage.removeItem(SESSION_TOKEN_KEY);
+        safeStorage.removeItem(ACTIVE_USER_KEY);
       }
     }
 

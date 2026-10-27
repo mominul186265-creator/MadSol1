@@ -29,15 +29,34 @@
     <!-- PWA Service Worker Registration -->
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js', { scope: '/' })
-            .then(function(reg) {
-              console.log('MadSol Service Worker registered with scope:', reg.scope);
-            })
-            .catch(function(err) {
-              console.warn('MadSol Service Worker registration failed:', err);
+        var isDev = window.location.hostname === 'localhost' ||
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.host.includes('ais-dev') ||
+                    window.location.host.includes('.run.app');
+        if (isDev) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for (var reg of registrations) {
+              reg.unregister();
+            }
+          });
+          if ('caches' in window) {
+            caches.keys().then(function(keys) {
+              for (var key of keys) {
+                caches.delete(key);
+              }
             });
-        });
+          }
+        } else {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' })
+              .then(function(reg) {
+                console.log('MadSol Service Worker registered with scope:', reg.scope);
+              })
+              .catch(function(err) {
+                console.warn('MadSol Service Worker registration failed:', err);
+              });
+          });
+        }
       }
     </script>
     

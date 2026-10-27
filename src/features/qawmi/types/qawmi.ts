@@ -54,4 +54,5 @@ export interface QawmiStudentItem {
   isHafez: boolean;
   attendancePct: number;
   status: 'active' | 'leave';
+  photoUrl?: string;
 }

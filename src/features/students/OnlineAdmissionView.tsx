@@ -276,11 +276,26 @@ export const OnlineAdmissionView: React.FC = () => {
                     </td>
 
                     <td className="p-3.5">
-                      <div className="font-bold text-slate-900 dark:text-white">
-                        {language === 'bn' ? app.applicantNameBn : app.applicantNameEn}
-                      </div>
-                      <div className="text-[10px] text-slate-500">
-                        {language === 'bn' ? app.applicantNameEn : app.applicantNameBn}
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-950 border border-emerald-300 dark:border-emerald-700 overflow-hidden flex items-center justify-center shrink-0">
+                          {app.photoUrl || app.photo ? (
+                            <img
+                              src={app.photoUrl || app.photo}
+                              alt=""
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 dark:text-white">
+                            {language === 'bn' ? app.applicantNameBn : app.applicantNameEn}
+                          </div>
+                          <div className="text-[10px] text-slate-500">
+                            {language === 'bn' ? app.applicantNameEn : app.applicantNameBn}
+                          </div>
+                        </div>
                       </div>
                     </td>
 
@@ -353,47 +368,64 @@ export const OnlineAdmissionView: React.FC = () => {
               </button>
             </div>
 
-            {/* Applicant Details Grid */}
-            <div className="grid grid-cols-2 gap-4 text-xs bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
-              <div>
-                <span className="text-slate-500 block">আবেদনকারীর নাম (বাংলা):</span>
-                <span className="font-bold text-slate-900 dark:text-white text-sm">
-                  {selectedAppForReview.applicantNameBn}
-                </span>
+            {/* Applicant Details & Photo Grid */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div className="w-24 h-28 rounded-xl border-2 border-emerald-500/30 overflow-hidden bg-white dark:bg-slate-900 shadow-sm flex items-center justify-center shrink-0">
+                {selectedAppForReview.photoUrl || selectedAppForReview.photo ? (
+                  <img
+                    src={selectedAppForReview.photoUrl || selectedAppForReview.photo}
+                    alt={selectedAppForReview.applicantNameBn}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="text-center p-2 text-slate-400">
+                    <User className="w-8 h-8 mx-auto mb-1 text-slate-400" />
+                    <span className="text-[10px] block">ছবি নেই</span>
+                  </div>
+                )}
               </div>
-              <div>
-                <span className="text-slate-500 block">Name (English):</span>
-                <span className="font-bold text-slate-900 dark:text-white text-sm">
-                  {selectedAppForReview.applicantNameEn}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">জন্ম তারিখ:</span>
-                <span className="font-medium">{selectedAppForReview.dateOfBirth}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">রক্তের গ্রুপ:</span>
-                <span className="font-bold text-emerald-600">{selectedAppForReview.bloodGroup || 'B+'}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">আবেদিত বিভাগ:</span>
-                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
-                  {selectedAppForReview.appliedDepartment}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">শ্রেণি / জামাত:</span>
-                <span className="font-semibold">{selectedAppForReview.appliedClass}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">অভিভাবকের নাম:</span>
-                <span className="font-bold">{selectedAppForReview.guardianName}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block">অভিভাবকের মোবাইল:</span>
-                <span className="font-mono font-bold text-emerald-600">
-                  {selectedAppForReview.guardianMobile}
-                </span>
+
+              <div className="grid grid-cols-2 gap-3 text-xs flex-1 w-full">
+                <div>
+                  <span className="text-slate-500 block">আবেদনকারীর নাম (বাংলা):</span>
+                  <span className="font-bold text-slate-900 dark:text-white text-sm">
+                    {selectedAppForReview.applicantNameBn}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Name (English):</span>
+                  <span className="font-bold text-slate-900 dark:text-white text-sm">
+                    {selectedAppForReview.applicantNameEn}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">জন্ম তারিখ:</span>
+                  <span className="font-medium">{selectedAppForReview.dateOfBirth}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">রক্তের গ্রুপ:</span>
+                  <span className="font-bold text-emerald-600">{selectedAppForReview.bloodGroup || 'B+'}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">আবেদিত বিভাগ:</span>
+                  <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                    {selectedAppForReview.appliedDepartment}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">শ্রেণি / জামাত:</span>
+                  <span className="font-semibold">{selectedAppForReview.appliedClass}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">অভিভাবকের নাম:</span>
+                  <span className="font-bold">{selectedAppForReview.guardianName}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">অভিভাবকের মোবাইল:</span>
+                  <span className="font-mono font-bold text-emerald-600">
+                    {selectedAppForReview.guardianMobile}
+                  </span>
+                </div>
               </div>
             </div>
 

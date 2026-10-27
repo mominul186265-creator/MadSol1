@@ -68,6 +68,7 @@ export interface DbUser {
   fullNameEn?: string;
   phone?: string;
   avatarUrl?: string;
+  photo?: string;
   guardianStudentId?: string;
   studentRoll?: string;
   department?: string;

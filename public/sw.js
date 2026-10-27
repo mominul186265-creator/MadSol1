@@ -46,6 +46,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Vite development & internal bundles: NEVER intercept or cache in SW
+  if (
+    url.pathname.startsWith('/node_modules') ||
+    url.pathname.startsWith('/@') ||
+    url.pathname.startsWith('/src') ||
+    url.searchParams.has('v') ||
+    url.searchParams.has('t') ||
+    url.searchParams.has('import')
+  ) {
+    return;
+  }
+
   // 2. Strict Security: NEVER cache API routes, auth endpoints, or dynamic data
   if (
     url.pathname.startsWith('/api') ||

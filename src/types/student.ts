@@ -119,6 +119,8 @@ export interface AdmissionRequest {
   appliedDate?: string;
   address?: string;
   enrolledStudentId?: string;
+  photo?: string;
+  photoUrl?: string;
 }
 
 export type AdmissionApplication = AdmissionRequest;

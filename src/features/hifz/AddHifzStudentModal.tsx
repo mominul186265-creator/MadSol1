@@ -6,6 +6,7 @@ import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
 import { QURAN_PARAS_INFO } from '../../data/hifzData';
 import { HifzBranch, HifzStage } from '../../types/hifz';
+import { StudentPhotoUploader } from '../../components/common/StudentPhotoUploader';
 
 interface AddHifzStudentModalProps {
   isOpen: boolean;
@@ -33,6 +34,7 @@ export const AddHifzStudentModal: React.FC<AddHifzStudentModalProps> = ({
   const [manualRoll, setManualRoll] = useState<string>('');
   const [manualGuardian, setManualGuardian] = useState<string>('');
   const [manualPhone, setManualPhone] = useState<string>('');
+  const [manualPhoto, setManualPhoto] = useState<string>('');
 
   const [currentPara, setCurrentPara] = useState<number>(1);
   const [currentSurah, setCurrentSurah] = useState<string>('সূরা আল-ফাতিহা');
@@ -108,7 +110,7 @@ export const AddHifzStudentModal: React.FC<AddHifzStudentModalProps> = ({
         studentCode,
         fullNameBn,
         fullNameEn,
-        photoUrl: baseStudent?.photoUrl,
+        photoUrl: baseStudent?.photoUrl || manualPhoto || undefined,
         gender: branch === 'mohila' ? 'female' : 'male',
         branch,
         stage,
@@ -281,6 +283,15 @@ export const AddHifzStudentModal: React.FC<AddHifzStudentModalProps> = ({
               </div>
             </div>
           )}
+
+          {/* Student Photo Upload */}
+          <StudentPhotoUploader
+            photo={manualPhoto}
+            onChange={setManualPhoto}
+            gender={branch === 'mohila' ? 'female' : 'male'}
+            label={isBn ? 'হিফজ শিক্ষার্থীর ছবি নির্বাচন / আপলোড' : 'Student Photo Upload'}
+            hint={isBn ? 'হিফজ শিক্ষার্থীর ছবি ক্যামেরা বা ফাইল থেকে আপলোড করুন' : 'Upload student photo from device or camera.'}
+          />
 
           {/* Sabaq, Saat Sabaq & Amukhta Initial values */}
           <div className="space-y-3 pt-2">

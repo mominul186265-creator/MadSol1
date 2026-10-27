@@ -18,6 +18,7 @@ import { useLanguage } from '../../../context/LanguageContext';
 import { QawmiBranch, QawmiClassItem, QawmiStudentItem } from '../types/qawmi';
 import { INITIAL_MOHILA_QAWMI_CLASSES } from '../data/mohilaQawmiData';
 import { INITIAL_QAWMI_CLASSES } from './QawmiClassesTab';
+import { StudentPhotoUploader } from '../../../components/common/StudentPhotoUploader';
 
 interface AddQawmiStudentModalProps {
   isOpen: boolean;
@@ -73,6 +74,7 @@ export const AddQawmiStudentModal: React.FC<AddQawmiStudentModalProps> = ({
   const [monthlyFee, setMonthlyFee] = useState<number>(3500);
   const [admissionDate, setAdmissionDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
+  const [photo, setPhoto] = useState('');
   const [isSuccessToast, setIsSuccessToast] = useState(false);
 
   // Sync branch when currentBranch prop updates
@@ -109,6 +111,7 @@ export const AddQawmiStudentModal: React.FC<AddQawmiStudentModalProps> = ({
       isHafez,
       attendancePct: 100,
       status: 'active',
+      photoUrl: photo || undefined,
     };
 
     if (onStudentAdded) {
@@ -125,6 +128,7 @@ export const AddQawmiStudentModal: React.FC<AddQawmiStudentModalProps> = ({
       setMotherNameBn('');
       setMobile('');
       setVillageAddress('');
+      setPhoto('');
     }, 1200);
   };
 
@@ -265,6 +269,15 @@ export const AddQawmiStudentModal: React.FC<AddQawmiStudentModalProps> = ({
               <Users className="w-4 h-4 text-emerald-400" />
               <span>{isMohila ? 'ছাত্রীর ব্যক্তিগত তথ্য' : 'ছাত্রের ব্যক্তিগত তথ্য'}</span>
             </h3>
+
+            {/* Photo Uploader */}
+            <StudentPhotoUploader
+              photo={photo}
+              onChange={setPhoto}
+              gender={isMohila ? 'female' : 'male'}
+              label={isMohila ? 'ছাত্রীর ছবি নির্বাচন / আপলোড' : 'ছাত্রের ছবি নির্বাচন / আপলোড'}
+              hint={isBn ? 'ভর্তির জন্য ছবি ডিভাইস বা ক্যামেরা থেকে সিলেক্ট করুন' : 'Select photo from device or camera'}
+            />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>

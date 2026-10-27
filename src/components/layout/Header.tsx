@@ -14,8 +14,10 @@ import {
   Sparkles,
   Smartphone,
   Heart,
+  Camera,
 } from 'lucide-react';
 import { MadSolLogo } from '../common/MadSolLogo';
+import { ProfilePhotoUploadModal } from '../common/ProfilePhotoUploadModal';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -30,11 +32,12 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleSidebar,
   onNavigate,
 }) => {
-  const { user, institution, logout, switchRole } = useAuth();
+  const { user, institution, logout, switchRole, updateProfile } = useAuth();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
@@ -313,8 +316,28 @@ export const Header: React.FC<HeaderProps> = ({
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                 className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors focus:outline-none cursor-pointer shadow-2xs"
               >
-                <div className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-emerald-800 text-amber-300 font-bold text-sm flex items-center justify-center shadow-xs shrink-0">
-                  {user.name.charAt(0) || 'M'}
+                <div className="relative shrink-0">
+                  <div className="w-8.5 h-8.5 sm:w-9.5 sm:h-9.5 rounded-full bg-emerald-800 text-amber-300 font-bold text-sm flex items-center justify-center shadow-xs shrink-0 overflow-hidden border border-emerald-600/40">
+                    {user.avatarUrl || user.photo ? (
+                      <img
+                        src={user.avatarUrl || user.photo}
+                        alt={user.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      user.name.charAt(0) || 'M'
+                    )}
+                  </div>
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsPhotoModalOpen(true);
+                    }}
+                    title={language === 'bn' ? 'প্রোফাইল ছবি পরিবর্তন ও আপলোড করুন' : 'Change/Upload profile photo'}
+                    className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-600 text-white flex items-center justify-center shadow-xs ring-1.5 ring-white dark:ring-slate-900 hover:bg-emerald-700 transition-transform active:scale-90 cursor-pointer"
+                  >
+                    <Camera className="w-2.5 h-2.5" />
+                  </div>
                 </div>
                 <div className="hidden md:flex flex-col items-start text-left max-w-[130px]">
                   <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate leading-tight w-full">
@@ -344,6 +367,21 @@ export const Header: React.FC<HeaderProps> = ({
                         {getRoleLabel(user.role_id)}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Photo Upload Trigger Button in dropdown */}
+                  <div className="p-1 border-b border-slate-100 dark:border-slate-800">
+                    <button
+                      id="profile-dropdown-photo-upload-btn"
+                      onClick={() => {
+                        setIsProfileOpen(false);
+                        setIsPhotoModalOpen(true);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors font-bold cursor-pointer"
+                    >
+                      <Camera className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{language === 'bn' ? '📷 প্রোফাইল ছবি আপলোড / পরিবর্তন' : '📷 Change / Upload Photo'}</span>
+                    </button>
                   </div>
 
                   <div className="py-1">
@@ -403,6 +441,19 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
       </div>
+
+      {/* Profile Photo Upload Modal */}
+      {user && (
+        <ProfilePhotoUploadModal
+          isOpen={isPhotoModalOpen}
+          onClose={() => setIsPhotoModalOpen(false)}
+          currentPhoto={user.avatarUrl || user.photo}
+          userName={user.name}
+          onSave={async (photoData) => {
+            return updateProfile({ avatarUrl: photoData, photo: photoData });
+          }}
+        />
+      )}
     </header>
   );
 };

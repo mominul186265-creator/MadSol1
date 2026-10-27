@@ -15,6 +15,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import { IslamicPattern } from '../../components/common/IslamicPattern';
+import { StudentPhotoUploader } from '../../components/common/StudentPhotoUploader';
 
 interface PublicAdmissionFormModalProps {
   isOpen: boolean;
@@ -37,10 +38,11 @@ export const PublicAdmissionFormModal: React.FC<PublicAdmissionFormModalProps> =
     guardianName: '',
     guardianMobile: '',
     dateOfBirth: '2015-05-12',
-    gender: 'male',
-    bloodGroup: 'A+',
+    gender: 'male' as 'male' | 'female',
+    bloodGroup: 'A+' as any,
     address: '',
     previousSchool: '',
+    photo: '',
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,7 +73,14 @@ export const PublicAdmissionFormModal: React.FC<PublicAdmissionFormModalProps> =
         dateOfBirth: formData.dateOfBirth,
         bloodGroup: formData.bloodGroup,
         address: formData.address,
-      });
+        photo: formData.photo,
+        photoUrl: formData.photo,
+        gender: formData.gender,
+        session: '২০২৬',
+        guardianRelationship: 'অভিভাবক',
+        presentAddress: formData.address,
+        isBoarding: true,
+      } as any);
 
       setSuccessApplicationNo(app.applicationNumber);
     } catch (err) {
@@ -148,6 +157,51 @@ export const PublicAdmissionFormModal: React.FC<PublicAdmissionFormModalProps> =
                   <span>{errorMsg}</span>
                 </div>
               )}
+
+              {/* Student Photo & Gender */}
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-700 dark:text-slate-300 text-xs">
+                    {language === 'bn' ? 'শিক্ষার্থীর ছবি ও লিঙ্গ' : 'Student Photo & Gender'}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, gender: 'male' }))}
+                      className={`px-2.5 py-1 text-[11px] rounded-lg font-medium transition-colors ${
+                        formData.gender === 'male'
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
+                      }`}
+                    >
+                      {language === 'bn' ? 'ছাত্র' : 'Male'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData((prev) => ({ ...prev, gender: 'female' }))}
+                      className={`px-2.5 py-1 text-[11px] rounded-lg font-medium transition-colors ${
+                        formData.gender === 'female'
+                          ? 'bg-rose-600 text-white shadow-sm'
+                          : 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-600'
+                      }`}
+                    >
+                      {language === 'bn' ? 'ছাত্রী' : 'Female'}
+                    </button>
+                  </div>
+                </div>
+
+                <StudentPhotoUploader
+                  photo={formData.photo}
+                  onChange={(photo) => setFormData((prev) => ({ ...prev, photo }))}
+                  gender={formData.gender}
+                  label={language === 'bn' ? 'শিক্ষার্থীর পাসপোর্ট সাইজ ছবি (ঐচ্ছিক)' : 'Student Passport Photo (Optional)'}
+                  hint={
+                    language === 'bn'
+                      ? 'ক্যামেরা দিয়ে তুলুন, ফাইল আপলোড করুন অথবা ইসলামিক অবতার বেছে নিন'
+                      : 'Take camera snapshot, upload file, or choose Islamic avatar'
+                  }
+                />
+              </div>
 
               {/* Applicant Name */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

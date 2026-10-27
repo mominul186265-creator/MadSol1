@@ -34,7 +34,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
-import { madsolDb } from '../../lib/db';
+import { madsolDb, isDemoUser } from '../../lib/db';
 import { DbUser, RoleSlug, UserStatus } from '../../types/step1';
 import { hashPasswordSync } from '../../lib/crypto';
 import { Button } from '../../components/common/Button';
@@ -175,20 +175,7 @@ export const UserManagementView: React.FC = () => {
     } else if (currentUser?.institution_id) {
       list = madsolDb.getUsers(currentUser.institution_id);
     }
-    const cleaned = list.filter(
-      (u) =>
-        u.id !== 'usr-002' &&
-        u.id !== 'usr-003' &&
-        u.id !== 'usr-005' &&
-        u.id !== 'usr-007' &&
-        u.role_id !== 'institution_admin' &&
-        u.role_id !== 'accountant' &&
-        u.role_id !== 'student' &&
-        u.email?.toLowerCase() !== 'director@darululoom.edu.bd' &&
-        u.email?.toLowerCase() !== 'principal@darululoom.edu.bd' &&
-        u.email?.toLowerCase() !== 'accountant@darululoom.edu.bd' &&
-        u.email?.toLowerCase() !== 'student@darululoom.edu.bd'
-    );
+    const cleaned = list.filter((u) => !isDemoUser(u));
     setUsersList(cleaned);
   };
 
@@ -1033,8 +1020,12 @@ export const UserManagementView: React.FC = () => {
                       {/* User Column */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-800/60">
-                            {u.name.charAt(0)}
+                          <div className="w-9 h-9 rounded-xl bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 font-bold flex items-center justify-center shrink-0 border border-emerald-200 dark:border-emerald-800/60 overflow-hidden">
+                            {u.avatarUrl || u.photo ? (
+                              <img src={u.avatarUrl || u.photo} alt={u.name} className="w-full h-full object-cover" />
+                            ) : (
+                              u.name.charAt(0)
+                            )}
                           </div>
                           <div>
                             <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">

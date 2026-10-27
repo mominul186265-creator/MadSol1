@@ -23,6 +23,7 @@ import {
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
+import { StudentPhotoUploader } from '../../components/common/StudentPhotoUploader';
 
 interface AddStudentModalProps {
   isOpen: boolean;
@@ -413,31 +414,14 @@ export const AddStudentModal: React.FC<AddStudentModalProps> = ({
                 <span>ব্যক্তিগত তথ্য (Personal Information)</span>
               </div>
 
-              {/* Photo Input */}
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-200 dark:bg-slate-700 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-600">
-                  {photo ? (
-                    <img src={photo} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-7 h-7 text-slate-400" />
-                  )}
-                </div>
-                <div className="flex-1 space-y-1">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    শিক্ষার্থীর ছবির লিংক (Photo URL)
-                  </label>
-                  <input
-                    type="text"
-                    value={photo}
-                    onChange={(e) => setPhoto(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                  <p className="text-[10px] text-slate-400">
-                    জেপিজি বা পিএনজি ছবির সরাসরি ইউআরএল দিন।
-                  </p>
-                </div>
-              </div>
+              {/* Student Photo Upload & Preview */}
+              <StudentPhotoUploader
+                photo={photo}
+                onChange={setPhoto}
+                gender={gender}
+                label={language === 'bn' ? 'শিক্ষার্থীর ছবি নির্বাচন / আপলোড' : 'Student Photo Upload'}
+                hint={language === 'bn' ? 'ভর্তির জন্য ছাত্র/ছাত্রীর ছবি ডিভাইস বা ক্যামেরা থেকে সিলেক্ট করুন (বা রেডিমেড ছবি বাছাই করুন)' : 'Upload student photo from device or choose a preset.'}
+              />
 
               {/* Full Name BN & EN */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

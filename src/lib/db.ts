@@ -2104,116 +2104,44 @@ const SEED_INSTITUTIONS: DbInstitution[] = [
   },
 ];
 
-// Seed Users with SHA-256 Hashed Passwords
-const SEED_USERS: DbUser[] = [
-  {
-    id: 'usr-001',
-    institution_id: 'inst-001',
-    name: 'মাওলানা মাহমুদুর রহমান',
-    email: 'superadmin@madsol.app',
-    mobile: '01711111111',
-    password_hash: hashPasswordSync('admin123'),
-    role_id: 'super_admin',
-    status: 'active',
-    last_login: '2026-09-12T08:30:00Z',
-    created_at: '2024-01-10T10:00:00Z',
-    updated_at: '2026-09-12T08:30:00Z',
-    role: 'super_admin',
-    fullNameBn: 'মাওলানা মাহমুদুর রহমান',
-    fullNameEn: 'Maulana Mahmudur Rahman',
-    phone: '01711111111',
-  },
-  {
-    id: 'usr-004',
-    institution_id: 'inst-001',
-    name: 'হাফেজ ক্বারী ওমর ফারুক',
-    email: 'teacher@darululoom.edu.bd',
-    mobile: '01744444444',
-    password_hash: hashPasswordSync('teacher123'),
-    role_id: 'teacher',
-    status: 'active',
-    last_login: '2026-09-12T07:45:00Z',
-    created_at: '2024-04-10T08:00:00Z',
-    updated_at: '2026-09-12T07:45:00Z',
-    role: 'teacher',
-    fullNameBn: 'হাফেজ ক্বারী ওমর ফারুক',
-    fullNameEn: 'Hafez Qari Omar Faruk',
-    phone: '01744444444',
-    app_access_granted: true,
-    approved_by_id: 'usr-001',
-    approved_by_name: 'মাওলানা মাহমুদুর রহমান',
-    approved_by_role: 'সুপার এডমিন',
-    approved_at: '2024-04-10T08:00:00Z',
-    can_grant_guardian_access: true,
-    access_pin: '849201',
-    allowed_modules: ['attendance', 'exams', 'notices', 'guardians', 'messaging'],
-  },
-  {
-    id: 'usr-008',
-    institution_id: 'inst-001',
-    name: 'মাওলানা মিজানুর রহমান',
-    email: 'mizan@darululoom.edu.bd',
-    mobile: '01788888888',
-    password_hash: hashPasswordSync('mizan123'),
-    role_id: 'teacher',
-    status: 'pending',
-    last_login: undefined,
-    created_at: '2026-09-18T10:00:00Z',
-    updated_at: '2026-09-18T10:00:00Z',
-    role: 'teacher',
-    fullNameBn: 'মাওলানা মিজানুর রহমান',
-    fullNameEn: 'Maulana Mizanur Rahman',
-    phone: '01788888888',
-    app_access_granted: false,
-    can_grant_guardian_access: true,
-    approval_notes: 'নতুন সহকারী শিক্ষক হিসেবে আবেদন করেছেন, মুহতামিম/পরিচালকের অনুমতির অপেক্ষায়।',
-    access_pin: '772109',
-  },
-  {
-    id: 'usr-006',
-    institution_id: 'inst-001',
-    name: 'আলহাজ্ব মোঃ জাহিদুল করিম',
-    email: 'guardian@gmail.com',
-    mobile: '01766666666',
-    password_hash: hashPasswordSync('guardian123'),
-    role_id: 'guardian',
-    status: 'active',
-    last_login: '2026-09-10T18:30:00Z',
-    created_at: '2024-05-01T12:00:00Z',
-    updated_at: '2026-09-10T18:30:00Z',
-    role: 'guardian',
-    fullNameBn: 'আলহাজ্ব মোঃ জাহিদুল করিম',
-    fullNameEn: 'Alhaj Md Jahidul Karim',
-    phone: '01766666666',
-    app_access_granted: true,
-    approved_by_id: 'usr-004',
-    approved_by_name: 'হাফেজ ক্বারী ওমর ফারুক',
-    approved_by_role: 'সহকারী শিক্ষক',
-    approved_at: '2024-05-01T12:00:00Z',
-    access_pin: '593120',
-    allowed_modules: ['attendance', 'exams', 'notices', 'fees', 'diary'],
-  },
-  {
-    id: 'usr-009',
-    institution_id: 'inst-001',
-    name: 'মোঃ শফিকুল ইসলাম',
-    email: 'shafiqul.guardian@gmail.com',
-    mobile: '01799999999',
-    password_hash: hashPasswordSync('guardian123'),
-    role_id: 'guardian',
-    status: 'pending',
-    last_login: undefined,
-    created_at: '2026-09-19T14:30:00Z',
-    updated_at: '2026-09-19T14:30:00Z',
-    role: 'guardian',
-    fullNameBn: 'মোঃ শফিকুল ইসলাম',
-    fullNameEn: 'Md Shafiqul Islam',
-    phone: '01799999999',
-    app_access_granted: false,
-    approval_notes: 'ছাত্র মুসা করিমের পিতা, সহকারী শিক্ষক বা মুহতামিমের অনুমতির অপেক্ষায়।',
-    access_pin: '331890',
-  },
-];
+export const isDemoUser = (u: { id?: string; name?: string; email?: string }): boolean => {
+  const demoIds = [
+    'usr-001',
+    'usr-002',
+    'usr-003',
+    'usr-004',
+    'usr-005',
+    'usr-006',
+    'usr-007',
+    'usr-008',
+    'usr-009',
+  ];
+  const demoNames = [
+    'মাওলানা মাহমুদুর রহমান',
+    'হাফেজ ক্বারী ওমর ফারুক',
+    'মাওলানা মিজানুর রহমান',
+    'আলহাজ্ব মোঃ জাহিদুল করিম',
+    'মোঃ শফিকুল ইসলাম',
+    'Maulana Mahmudur Rahman',
+    'Hafez Qari Omar Faruk',
+    'Maulana Mizanur Rahman',
+    'Alhaj Md Jahidul Karim',
+    'Md Shafiqul Islam',
+  ];
+  if (u.id && demoIds.includes(u.id)) return true;
+  if (u.name && demoNames.some((dn) => u.name && u.name.trim().includes(dn))) return true;
+  if (
+    u.email &&
+    (u.email.toLowerCase() === 'superadmin@madsol.app' ||
+      u.email.toLowerCase().includes('@darululoom.edu.bd'))
+  ) {
+    return true;
+  }
+  return false;
+};
+
+// Seed Users - Demo users purged per user instruction
+const SEED_USERS: DbUser[] = [];
 
 // Seed Activity Logs
 const SEED_ACTIVITY_LOGS: DbActivityLog[] = [
@@ -2429,32 +2357,11 @@ class MadSolDatabase {
         }
 
         // Ensure seed users have valid updated password hashes and purge removed users/roles (usr-002, usr-003, usr-005, usr-007)
+        // Purge all marked demo users from storage
         const existingUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
-        const purgedUsers = existingUsers.filter(
-          (u) =>
-            u.id !== 'usr-002' &&
-            u.id !== 'usr-003' &&
-            u.id !== 'usr-005' &&
-            u.id !== 'usr-007' &&
-            u.role_id !== 'institution_admin' &&
-            u.role_id !== 'accountant' &&
-            u.role_id !== 'student' &&
-            u.email?.toLowerCase() !== 'director@darululoom.edu.bd' &&
-            u.email?.toLowerCase() !== 'principal@darululoom.edu.bd' &&
-            u.email?.toLowerCase() !== 'accountant@darululoom.edu.bd' &&
-            u.email?.toLowerCase() !== 'student@darululoom.edu.bd'
-        );
-        let usersNeedSync = purgedUsers.length !== existingUsers.length;
-        const syncedUsers = purgedUsers.map((u) => {
-          const seed = SEED_USERS.find((su) => su.email.toLowerCase() === u.email.toLowerCase());
-          if (seed && u.password_hash !== seed.password_hash) {
-            usersNeedSync = true;
-            return { ...u, password_hash: seed.password_hash };
-          }
-          return u;
-        });
-        if (usersNeedSync) {
-          this.setItem(STORAGE_KEYS.USERS, syncedUsers);
+        const purgedUsers = existingUsers.filter((u) => !isDemoUser(u));
+        if (purgedUsers.length !== existingUsers.length) {
+          this.setItem(STORAGE_KEYS.USERS, purgedUsers);
         }
       }
     } catch (err) {
@@ -2528,22 +2435,9 @@ class MadSolDatabase {
 
   // --- Users ---
   public getUsers(institutionId?: string): DbUser[] {
-    const allUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, SEED_USERS);
+    const allUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
     const normalized = allUsers
-      .filter(
-        (u) =>
-          u.id !== 'usr-002' &&
-          u.id !== 'usr-003' &&
-          u.id !== 'usr-005' &&
-          u.id !== 'usr-007' &&
-          u.role_id !== 'institution_admin' &&
-          u.role_id !== 'accountant' &&
-          u.role_id !== 'student' &&
-          u.email?.toLowerCase() !== 'director@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'principal@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'accountant@darululoom.edu.bd' &&
-          u.email?.toLowerCase() !== 'student@darululoom.edu.bd'
-      )
+      .filter((u) => !isDemoUser(u))
       .map(normalizeUser);
     if (institutionId) {
       return normalized.filter((u) => u.institution_id === institutionId);
