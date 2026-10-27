@@ -20,6 +20,7 @@ export interface AttendanceTargetRow {
   target_name_bn: string;
   target_name_en: string;
   target_code: string;
+  photo?: string;
   department_id?: string;
   department_name_bn?: string;
   class_id?: string;
@@ -160,6 +161,7 @@ export function useAttendance() {
             target_name_bn: s.full_name_bn,
             target_name_en: s.full_name_en,
             target_code: s.roll_number || s.student_id,
+            photo: s.photo || (s as any).avatarUrl || (s as any).avatar_url,
             department_id: s.department_id,
             department_name_bn: dept?.name_bn || 'সাধারণ',
             class_id: s.class_id,
@@ -189,6 +191,7 @@ export function useAttendance() {
             target_name_bn: t.full_name_bn,
             target_name_en: t.full_name_en,
             target_code: t.teacher_id,
+            photo: t.photo || (t as any).avatarUrl || (t as any).avatar_url,
             department_id: t.department_id,
             department_name_bn: dept?.name_bn || 'সাধারণ শিক্ষক',
             status: rec ? rec.status : 'present',
@@ -375,6 +378,35 @@ export function useAttendance() {
     },
     [filteredRows, showToast]
   );
+
+  // Mark all students in a specific class
+  const markClassAll = useCallback((targetClassId: string, status: AttendanceStatus) => {
+    setTargetRows((prev) =>
+      prev.map((row) => {
+        if (row.class_id === targetClassId) {
+          return {
+            ...row,
+            status,
+            check_in_time: status === 'present' || status === 'late' ? row.check_in_time || '08:00' : '',
+            is_dirty: true,
+          };
+        }
+        return row;
+      })
+    );
+  }, []);
+
+  // Mark all students across all classes as present
+  const markAllClassesPresent = useCallback(() => {
+    setTargetRows((prev) =>
+      prev.map((row) => ({
+        ...row,
+        status: 'present',
+        check_in_time: row.check_in_time || '08:00',
+        is_dirty: true,
+      }))
+    );
+  }, []);
 
   // Save attendance batch
   const saveAttendanceBatch = useCallback(async () => {
@@ -655,6 +687,8 @@ export function useAttendance() {
     updateTargetStatus,
     updateTargetDetails,
     markAllVisible,
+    markClassAll,
+    markAllClassesPresent,
     saveAttendanceBatch,
     recordQrCheckIn,
     leaveApplications,

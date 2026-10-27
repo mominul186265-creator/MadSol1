@@ -12,11 +12,12 @@ import {
   ShieldCheck,
   Search,
   ArrowRightLeft,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
-import { madsolDb } from '../../lib/db';
+import { madsolDb, isDemoInstitution } from '../../lib/db';
 import { DbInstitution, InstitutionType, InstitutionStatus } from '../../types/step1';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
@@ -45,7 +46,26 @@ export const InstitutionManagementView: React.FC = () => {
   });
 
   const loadInstitutions = () => {
-    setInstitutionsList(madsolDb.getInstitutions());
+    const list = madsolDb.getInstitutions().filter((i) => !isDemoInstitution(i));
+    setInstitutionsList(list);
+  };
+
+  const handleDeleteInstitution = (inst: DbInstitution) => {
+    const confirmMsg =
+      language === 'bn'
+        ? `আপনি কি নিশ্চিতভাবে [${inst.name}] প্রতিষ্ঠানটি মুছে ফেলতে চান?`
+        : `Are you sure you want to delete ${inst.name}?`;
+    if (window.confirm(confirmMsg)) {
+      madsolDb.deleteInstitution(inst.id);
+      showToast(
+        language === 'bn'
+          ? `[${inst.name}] সফলভাবে মুছে ফেলা হয়েছে।`
+          : `Deleted ${inst.name} successfully.`,
+        'success'
+      );
+      loadInstitutions();
+      refreshData();
+    }
   };
 
   useEffect(() => {
@@ -317,10 +337,18 @@ export const InstitutionManagementView: React.FC = () => {
 
                           <button
                             onClick={() => handleOpenEdit(inst)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-                            title="Edit"
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                            title={language === 'bn' ? 'সম্পাদনা' : 'Edit'}
                           >
                             <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteInstitution(inst)}
+                            className="p-1.5 rounded-lg text-rose-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                            title={language === 'bn' ? 'মুছে ফেলুন' : 'Delete'}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       </td>

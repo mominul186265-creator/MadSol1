@@ -30,6 +30,8 @@ import {
   RefreshCw,
   Share2,
   GraduationCap,
+  Camera,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -146,6 +148,24 @@ export const UserManagementView: React.FC = () => {
   const [grantAppAccessImmediately, setGrantAppAccessImmediately] = useState(true);
   const [teacherCanGrantGuardian, setTeacherCanGrantGuardian] = useState(true);
   const [targetInstitutionId, setTargetInstitutionId] = useState('');
+  const [userPhoto, setUserPhoto] = useState('');
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showToast(language === 'bn' ? 'অনুগ্রহ করে ছবি ফরম্যাটের ফাইল দিন।' : 'Please choose an image file.', 'error');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setUserPhoto(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   // Password Reset Modal
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
@@ -189,6 +209,7 @@ export const UserManagementView: React.FC = () => {
     setName('');
     setEmail('');
     setMobile('');
+    setUserPhoto('');
     setPassword('123456'); // Standard easy password
     // If assistant teacher is creating, default to guardian
     setRoleId(isAssistantTeacher ? 'guardian' : 'teacher');
@@ -205,6 +226,7 @@ export const UserManagementView: React.FC = () => {
     setName(target.name);
     setEmail(target.email);
     setMobile(target.mobile);
+    setUserPhoto(target.photo || target.avatarUrl || '');
     setPassword('');
     setRoleId(target.role_id);
     setStatus(target.status);
@@ -264,6 +286,8 @@ export const UserManagementView: React.FC = () => {
           app_access_granted: grantAppAccessImmediately,
           can_grant_guardian_access: roleId === 'teacher' ? teacherCanGrantGuardian : undefined,
           institution_id: targetInstitutionId,
+          photo: userPhoto || undefined,
+          avatarUrl: userPhoto || undefined,
           ...(grantAppAccessImmediately && !editingUser.app_access_granted
             ? {
                 approved_by_id: currentUser?.id,
@@ -302,6 +326,8 @@ export const UserManagementView: React.FC = () => {
           approved_at: grantAppAccessImmediately ? new Date().toISOString() : undefined,
           can_grant_guardian_access: roleId === 'teacher' ? teacherCanGrantGuardian : undefined,
           access_pin: generatedPin,
+          photo: userPhoto || undefined,
+          avatarUrl: userPhoto || undefined,
           allowed_modules:
             roleId === 'teacher'
               ? ['attendance', 'exams', 'notices', 'guardians', 'messaging']
@@ -1464,6 +1490,44 @@ export const UserManagementView: React.FC = () => {
         maxWidth="md"
       >
         <form onSubmit={handleSaveUser} className="space-y-4">
+          {/* User Photo Upload Section */}
+          <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80">
+            <div className="relative shrink-0">
+              <div className="w-14 h-14 rounded-2xl overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center border-2 border-emerald-500/30 text-lg">
+                {userPhoto ? (
+                  <img src={userPhoto} alt="User Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  name.charAt(0) || <UserCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                )}
+              </div>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                {language === 'bn' ? 'ব্যবহারকারীর ছবি (Profile Photo)' : 'User Profile Photo'}
+              </div>
+              <p className="text-[10px] text-slate-400 leading-tight mb-1.5">
+                {language === 'bn' ? 'নতুন ব্যবহারকারী নিবন্ধনের ছবি আপলোড করুন' : 'Upload photo for registration and ID card'}
+              </p>
+              <div className="flex items-center gap-2">
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs transition-colors">
+                  <Camera className="w-3 h-3" />
+                  <span>{language === 'bn' ? 'ছবি নির্বাচন করুন' : 'Choose Photo'}</span>
+                  <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                </label>
+                {userPhoto && (
+                  <button
+                    type="button"
+                    onClick={() => setUserPhoto('')}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[11px] font-medium"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>{language === 'bn' ? 'মুছুন' : 'Remove'}</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
           <Input
             id="modal-user-name"
             label={language === 'bn' ? 'পূর্ণ নাম' : 'Full Name'}

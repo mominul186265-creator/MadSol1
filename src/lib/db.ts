@@ -452,83 +452,177 @@ export const SEED_DEPARTMENTS: DbDepartment[] = [
   },
 ];
 
-// Seed Classes (Database-Driven)
+// Seed Classes (Database-Driven - Covers All Madrasa Classes)
 export const SEED_CLASSES: DbClass[] = [
+  // নূরানী বিভাগ (Noorani Department)
   {
-    id: 'cls-001',
-    institution_id: 'inst-001',
-    department_id: 'dept-001',
+    id: 'cls-noor-shishu',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-003',
     academic_session_id: 'sess-2026-001',
-    name_bn: 'হিফজ সমাপ্তি জামাত',
-    name_en: 'Hifz Final Class',
-    code: 'HFZ-FIN',
+    name_bn: 'নূরানী শিশু শ্রেণি',
+    name_en: 'Noorani Shishu (Play)',
+    code: 'NOOR-0',
     class_order: 1,
-    description: 'হিফজ সমাপ্তি ও শোনানো জামাত',
+    description: 'নূরানী প্রাথমিক শিশু ও কায়দা শ্রেণি',
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
   {
-    id: 'cls-002',
-    institution_id: 'inst-001',
-    department_id: 'dept-001',
+    id: 'cls-noor-1',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-003',
     academic_session_id: 'sess-2026-001',
-    name_bn: 'হিফজ ১ম বর্ষ',
-    name_en: 'Hifz 1st Year',
-    code: 'HFZ-1',
+    name_bn: 'নূরানী ১ম শ্রেণি',
+    name_en: 'Noorani Class 1',
+    code: 'NOOR-1',
     class_order: 2,
-    description: 'হিফজ প্রথম বর্ষ প্রাথমিক প্যারা',
+    description: 'নূরানী ১ম শ্রেণি ও আমপারা',
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
   {
-    id: 'cls-003',
-    institution_id: 'inst-001',
-    department_id: 'dept-002',
+    id: 'cls-noor-2',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-003',
     academic_session_id: 'sess-2026-001',
-    name_bn: 'মিশকাত জামাত',
-    name_en: 'Mishkat Class',
-    code: 'MISHKAT',
+    name_bn: 'নূরানী ২য় শ্রেণি',
+    name_en: 'Noorani Class 2',
+    code: 'NOOR-2',
     class_order: 3,
-    description: 'হাদিস শাস্ত্রের উচ্চতর জামাত',
-    status: 'active',
-    created_at: '2024-01-01T00:00:00Z',
-  },
-  {
-    id: 'cls-004',
-    institution_id: 'inst-001',
-    department_id: 'dept-002',
-    academic_session_id: 'sess-2026-001',
-    name_bn: 'শরহে বেকায়া জামাত',
-    name_en: 'Sharhe Beqaya Class',
-    code: 'BEQAYA',
-    class_order: 4,
-    description: 'ফিকহ শাস্ত্রের ভিত্তি জামাত',
+    description: 'নূরানী ২য় শ্রেণি নাজেরা ভিত্তি',
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
   {
     id: 'cls-005',
-    institution_id: 'inst-001',
+    institution_id: 'inst-banir-khamar',
     department_id: 'dept-003',
     academic_session_id: 'sess-2026-001',
     name_bn: 'নূরানী ৩য় শ্রেণি',
     name_en: 'Noorani Class 3',
     code: 'NOOR-3',
-    class_order: 5,
+    class_order: 4,
     description: 'নূরানী সমাপনী শ্রেণি',
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
+  // নাজেরা ও হিফজ বিভাগ (Nazera & Hifz Department)
   {
-    id: 'cls-006',
-    institution_id: 'inst-002',
-    department_id: 'dept-004',
-    academic_session_id: 'sess-2026-002',
-    name_bn: 'হিফজ হিফজ জামাত',
-    name_en: 'Hifz Class',
-    code: 'HIFZ',
-    class_order: 1,
-    description: 'হিফজ সাধারণ শ্রেণি',
+    id: 'cls-hfz-nazera',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-001',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'নাজেরা জামাত',
+    name_en: 'Nazera Class',
+    code: 'NAZERA',
+    class_order: 5,
+    description: 'কুরআনুল কারীম সহীহ পাঠ ও নাজেরা জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-002',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-001',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'হিফজ ১ম বর্ষ',
+    name_en: 'Hifz 1st Year',
+    code: 'HFZ-1',
+    class_order: 6,
+    description: 'হিফজ প্রথম বর্ষ প্রাথমিক প্যারা',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-hfz-2',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-001',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'হিফজ ২য় বর্ষ',
+    name_en: 'Hifz 2nd Year',
+    code: 'HFZ-2',
+    class_order: 7,
+    description: 'হিফজ দ্বিতীয় বর্ষ মধ্যম প্যারা',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-001',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-001',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'হিফজ সমাপ্তি জামাত',
+    name_en: 'Hifz Final Class',
+    code: 'HFZ-FIN',
+    class_order: 8,
+    description: 'হিফজ সমাপ্তি ও শোনানো জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  // কিতাব ও কওমী বিভাগ (Kitab / Qawmi Department)
+  {
+    id: 'cls-mizan',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-002',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'মিজান জামাত',
+    name_en: 'Mizan Class',
+    code: 'MIZAN',
+    class_order: 9,
+    description: 'আরবি ব্যাকরণ ও সারফ ভিত্তি জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-nahbemir',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-002',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'নাহবেমীর জামাত',
+    name_en: 'Nahbemir Class',
+    code: 'NAHBEMIR',
+    class_order: 10,
+    description: 'আরবি নাহু শাস্ত্রের মূল জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-004',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-002',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'শরহে বেকায়া জামাত',
+    name_en: 'Sharhe Beqaya Class',
+    code: 'BEQAYA',
+    class_order: 11,
+    description: 'ফিকহ শাস্ত্রের ভিত্তি জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-003',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-002',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'মিশকাত জামাত',
+    name_en: 'Mishkat Class',
+    code: 'MISHKAT',
+    class_order: 12,
+    description: 'হাদিস শাস্ত্রের উচ্চতর জামাত',
+    status: 'active',
+    created_at: '2024-01-01T00:00:00Z',
+  },
+  {
+    id: 'cls-dawra',
+    institution_id: 'inst-banir-khamar',
+    department_id: 'dept-002',
+    academic_session_id: 'sess-2026-001',
+    name_bn: 'দাওরায়ে হাদীস (তাকমীল)',
+    name_en: 'Dawra-e-Hadith',
+    code: 'DAWRA',
+    class_order: 13,
+    description: 'সিহাহ সিত্তাহ হাদীসের সর্বোচ্চ সমাপনী জামাত',
     status: 'active',
     created_at: '2024-01-01T00:00:00Z',
   },
@@ -2056,53 +2150,53 @@ export const SEED_LEAVE_APPLICATIONS: DbLeaveApplication[] = [
   },
 ];
 
-// Seed Institutions
+// Default Madrasa for Banir Khamar
+export const DEFAULT_BANIR_KHAMAR_MADRASA: DbInstitution = {
+  id: 'inst-banir-khamar',
+  name: 'বানির খামার ডাঃ সাহাবুদ্দিন নূরানী ও হাফিজিয়া মাদ্রাসা',
+  short_name: 'বানির খামার',
+  institution_type: 'hifz_madrasa',
+  mobile: '01777186265',
+  email: 'mominulislam1862@gmail.com',
+  address: 'বানির খামার, ভোগডাঙ্গা, কুড়িগ্রাম',
+  logo: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=150&auto=format&fit=crop&q=80',
+  language: 'bn',
+  status: 'active',
+  created_at: '2024-01-01T08:00:00Z',
+  updated_at: '2026-09-12T00:00:00Z',
+  nameBn: 'বানির খামার ডাঃ সাহাবুদ্দিন নূরানী ও হাফিজিয়া মাদ্রাসা',
+  nameEn: 'Banir Khamar Dr. Sahabuddin Noorani & Hafizia Madrasa',
+  phone: '01777186265',
+  addressBn: 'বানির খামার, ভোগডাঙ্গা, কুড়িগ্রাম',
+  addressEn: 'Banir Khamar, Bhogdanga, Kurigram',
+  eiinNumber: '142850',
+  teacher_access_pin: '849201',
+  guardian_access_pin: '772109',
+};
+
+// Seed Institutions (Cleaned of demo institutions)
 const SEED_INSTITUTIONS: DbInstitution[] = [
-  {
-    id: 'inst-001',
-    name: 'দারুল উলুম ইসলামিয়া মাদ্রাসা',
-    short_name: 'দারুল উলুম',
-    institution_type: 'madrasa',
-    mobile: '01711000111',
-    email: 'info@darululoom.edu.bd',
-    address: 'মেইন রোড, উত্তর বাড্ডা, ঢাকা-১২১২',
-    logo: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?w=150&auto=format&fit=crop&q=80',
-    language: 'bn',
-    status: 'active',
-    created_at: '2024-01-10T08:00:00Z',
-    updated_at: '2026-09-12T00:00:00Z',
-    nameBn: 'দারুল উলুম ইসলামিয়া মাদ্রাসা',
-    nameEn: 'Darul Uloom Islamia Madrasa',
-    phone: '01711000111',
-    addressBn: 'মেইন রোড, উত্তর বাড্ডা, ঢাকা-১২১২',
-    addressEn: 'Main Road, North Badda, Dhaka-1212',
-    eiinNumber: '134521',
-    teacher_access_pin: '849201',
-    guardian_access_pin: '772109',
-  },
-  {
-    id: 'inst-002',
-    name: 'আল-জামেয়াতুল আরাবিয়া মডেল মাদ্রাসা',
-    short_name: 'আল-জামেয়া',
-    institution_type: 'hifz_madrasa',
-    mobile: '01811222333',
-    email: 'contact@aljamea.edu.bd',
-    address: 'সদর রোড, চকবাজার, চট্টগ্রাম',
-    logo: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=150&auto=format&fit=crop&q=80',
-    language: 'bn',
-    status: 'active',
-    created_at: '2024-02-15T09:00:00Z',
-    updated_at: '2026-09-12T00:00:00Z',
-    nameBn: 'আল-জামেয়াতুল আরাবিয়া মডেল মাদ্রাসা',
-    nameEn: 'Al-Jameatul Arabia Model Madrasa',
-    phone: '01811222333',
-    addressBn: 'সদর রোড, চকবাজার, চট্টগ্রাম',
-    addressEn: 'Sadar Road, Chawkbazar, Chattogram',
-    eiinNumber: '134522',
-    teacher_access_pin: '614920',
-    guardian_access_pin: '503817',
-  },
+  DEFAULT_BANIR_KHAMAR_MADRASA,
 ];
+
+export const isDemoInstitution = (inst?: { id?: string; name?: string; nameBn?: string }): boolean => {
+  if (!inst) return false;
+  const demoIds = ['inst-001', 'inst-002'];
+  const demoNames = [
+    'দারুল উলুম ইসলামিয়া মাদ্রাসা',
+    'দারুল উলুম ইসলামিয়া মাদ্রাসা',
+    'দারুল উলুম মাদ্রাসা',
+    'আল-জামেয়াতুল আরাবিয়া মডেল মাদ্রাসা',
+    'আল-জামেয়া মডেল মাদ্রাসা',
+    'আল-জামেয়াতুল আরাবিয়া',
+    'Darul Uloom Islamia Madrasa',
+    'Al-Jameatul Arabia Model Madrasa',
+  ];
+  if (inst.id && demoIds.includes(inst.id)) return true;
+  if (inst.name && demoNames.some((d) => inst.name?.trim().includes(d) || d.includes(inst.name?.trim() || '---'))) return true;
+  if (inst.nameBn && demoNames.some((d) => inst.nameBn?.trim().includes(d) || d.includes(inst.nameBn?.trim() || '---'))) return true;
+  return false;
+};
 
 export const isDemoUser = (u: { id?: string; name?: string; email?: string }): boolean => {
   const demoIds = [
@@ -2363,6 +2457,44 @@ class MadSolDatabase {
         if (purgedUsers.length !== existingUsers.length) {
           this.setItem(STORAGE_KEYS.USERS, purgedUsers);
         }
+
+        // Purge marked demo institutions (inst-001, inst-002, Darul Uloom, Al-Jamea)
+        const existingInsts = this.getItem<DbInstitution[]>(STORAGE_KEYS.INSTITUTIONS, SEED_INSTITUTIONS);
+        const cleanedInsts = existingInsts.filter((inst) => !isDemoInstitution(inst));
+        if (cleanedInsts.length === 0) {
+          cleanedInsts.push(DEFAULT_BANIR_KHAMAR_MADRASA);
+        }
+        if (cleanedInsts.length !== existingInsts.length) {
+          this.setItem(STORAGE_KEYS.INSTITUTIONS, cleanedInsts);
+        }
+
+        // Re-link students and classes from demo IDs to primary active institution
+        const primaryInstId = cleanedInsts[0]?.id || DEFAULT_BANIR_KHAMAR_MADRASA.id;
+        const allStudents = this.getItem<DbStudent[]>(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
+        let studentsModified = false;
+        const remappedStudents = allStudents.map((s) => {
+          if (s.institution_id === 'inst-001' || s.institution_id === 'inst-002') {
+            studentsModified = true;
+            return { ...s, institution_id: primaryInstId };
+          }
+          return s;
+        });
+        if (studentsModified) {
+          this.setItem(STORAGE_KEYS.STUDENTS, remappedStudents);
+        }
+
+        const allClasses = this.getItem<DbClass[]>(STORAGE_KEYS.CLASSES, SEED_CLASSES);
+        let classesModified = false;
+        const remappedClasses = allClasses.map((c) => {
+          if (c.institution_id === 'inst-001' || c.institution_id === 'inst-002') {
+            classesModified = true;
+            return { ...c, institution_id: primaryInstId };
+          }
+          return c;
+        });
+        if (classesModified) {
+          this.setItem(STORAGE_KEYS.CLASSES, remappedClasses);
+        }
       }
     } catch (err) {
       console.warn('MadSolDb initialization fallback executed:', err);
@@ -2431,6 +2563,16 @@ class MadSolDatabase {
     });
     this.setItem(STORAGE_KEYS.INSTITUTIONS, institutions);
     return institutions[index];
+  }
+
+  public deleteInstitution(id: string): boolean {
+    const institutions = this.getInstitutions();
+    const filtered = institutions.filter((i) => i.id !== id);
+    if (filtered.length !== institutions.length) {
+      this.setItem(STORAGE_KEYS.INSTITUTIONS, filtered);
+      return true;
+    }
+    return false;
   }
 
   // --- Users ---
@@ -2671,7 +2813,12 @@ class MadSolDatabase {
 
     let filtered = list;
     if (institutionId && institutionId !== 'all') {
-      filtered = filtered.filter((c) => c.institution_id === institutionId);
+      const match = list.filter((c) => c.institution_id === institutionId);
+      if (match.length > 0) {
+        filtered = match;
+      } else {
+        filtered = SEED_CLASSES.map((c) => ({ ...c, institution_id: institutionId }));
+      }
     }
     if (departmentId && departmentId !== 'all') {
       filtered = filtered.filter((c) => c.department_id === departmentId);
@@ -2685,7 +2832,7 @@ class MadSolDatabase {
       const sess = sessions.find((s) => s.id === c.academic_session_id);
       const clsSections = sections.filter((sec) => sec.class_id === c.id);
       const clsStudents = students.filter(
-        (s) => s.institution_id === c.institution_id && s.class_id === c.id && !s.deleted_at
+        (s) => s.class_id === c.id && !s.deleted_at
       );
 
       return {
@@ -2749,7 +2896,9 @@ class MadSolDatabase {
   public getAllStudentsList(institutionId?: string): DbStudent[] {
     const list = this.getItem<DbStudent[]>(STORAGE_KEYS.STUDENTS, SEED_STUDENTS);
     if (!institutionId || institutionId === 'all') return list;
-    return list.filter((s) => s.institution_id === institutionId);
+    const match = list.filter((s) => s.institution_id === institutionId);
+    if (match.length > 0) return match;
+    return list.map((s) => ({ ...s, institution_id: institutionId }));
   }
 
   public generateNextStudentId(institutionId: string, session: string = '2026'): string {

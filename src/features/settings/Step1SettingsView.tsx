@@ -13,6 +13,7 @@ import {
   Eye,
   EyeOff,
   Building2,
+  Camera,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -22,6 +23,7 @@ import { madsolDb } from '../../lib/db';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { ConfirmationDialog } from '../../components/common/ConfirmationDialog';
+import { ProfilePhotoUploadModal } from '../../components/common/ProfilePhotoUploadModal';
 
 export const Step1SettingsView: React.FC = () => {
   const { user, institution, changePassword, updateProfile, refreshData } = useAuth();
@@ -47,6 +49,8 @@ export const Step1SettingsView: React.FC = () => {
 
   // DB Reset Dialog
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  // Profile Photo Upload Modal
+  const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -226,12 +230,40 @@ export const Step1SettingsView: React.FC = () => {
 
           <div className="space-y-4">
             <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-800 text-amber-300 font-bold text-lg flex items-center justify-center mb-3">
-                {user?.name.charAt(0) || 'M'}
+              <div className="flex items-center gap-4 mb-4">
+                <div className="relative group shrink-0">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-800 text-amber-300 font-bold text-xl flex items-center justify-center overflow-hidden border-2 border-emerald-500/40 shadow-xs">
+                    {user?.avatarUrl || user?.photo ? (
+                      <img src={user.avatarUrl || user.photo} alt={user.name} className="w-full h-full object-cover" />
+                    ) : (
+                      user?.name.charAt(0) || 'M'
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsPhotoModalOpen(true)}
+                    className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center shadow-xs ring-2 ring-white dark:ring-slate-900 cursor-pointer transition-transform active:scale-90"
+                    title={language === 'bn' ? 'ছবি পরিবর্তন করুন' : 'Change photo'}
+                  >
+                    <Camera className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate">{user?.name}</p>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-400 capitalize font-medium">{user?.role_id}</p>
+                  <button
+                    type="button"
+                    onClick={() => setIsPhotoModalOpen(true)}
+                    className="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 text-[11px] font-bold text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 transition-colors cursor-pointer"
+                  >
+                    <Camera className="w-3 h-3 text-emerald-600" />
+                    <span>{language === 'bn' ? 'ছবি পরিবর্তন' : 'Change Photo'}</span>
+                  </button>
+                </div>
               </div>
-              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">{user?.name}</p>
-              <p className="text-xs text-slate-500 capitalize mt-0.5">{user?.role_id}</p>
-              <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
+
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-1">
                 <div>
                   <span className="font-semibold">{language === 'bn' ? 'প্রতিষ্ঠান:' : 'Institution:'}</span>{' '}
                   {institution?.name}
@@ -472,6 +504,19 @@ export const Step1SettingsView: React.FC = () => {
         confirmText={language === 'bn' ? 'হ্যাঁ, রিসেট করুন' : 'Yes, Reset'}
         variant="danger"
       />
+
+      {/* Profile Photo Upload Modal */}
+      {user && (
+        <ProfilePhotoUploadModal
+          isOpen={isPhotoModalOpen}
+          onClose={() => setIsPhotoModalOpen(false)}
+          currentPhoto={user.avatarUrl || user.photo}
+          userName={user.name}
+          onSave={async (photoData) => {
+            return updateProfile({ avatarUrl: photoData, photo: photoData });
+          }}
+        />
+      )}
     </div>
   );
 };

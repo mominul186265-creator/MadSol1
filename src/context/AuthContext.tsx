@@ -34,6 +34,7 @@ interface AuthContextType {
     madrasaName: string;
     madrasaAddress?: string;
     madrasaType?: any;
+    photo?: string;
   }) => Promise<{
     success: boolean;
     message?: string;
@@ -51,6 +52,7 @@ interface AuthContextType {
     password: string;
     studentName?: string;
     studentRoll?: string;
+    photo?: string;
   }) => Promise<{
     success: boolean;
     message?: string;
@@ -407,6 +409,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     madrasaName: string;
     madrasaAddress?: string;
     madrasaType?: any;
+    photo?: string;
   }) => {
     try {
       const cleanMobile = data.mobile.trim();
@@ -456,6 +459,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullNameBn: data.name.trim(),
         fullNameEn: data.name.trim(),
         phone: cleanMobile,
+        photo: data.photo,
+        avatarUrl: data.photo,
       });
 
       // Create session and set active user
@@ -498,6 +503,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     password: string;
     studentName?: string;
     studentRoll?: string;
+    photo?: string;
   }) => {
     try {
       const cleanMobile = data.mobile.trim();
@@ -558,6 +564,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         fullNameBn: data.name.trim(),
         fullNameEn: data.name.trim(),
         phone: cleanMobile,
+        photo: data.photo,
+        avatarUrl: data.photo,
         guardianStudentId: data.studentName?.trim(),
         studentRoll: data.studentRoll?.trim(),
         allowed_modules: isTeacher

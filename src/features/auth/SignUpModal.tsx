@@ -22,6 +22,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Info,
+  Camera,
+  Upload,
+  Trash2,
 } from 'lucide-react';
 import { madsolDb } from '../../lib/db';
 import { InstitutionType } from '../../types/step1';
@@ -76,6 +79,24 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
   // Form Fields - Guardian Specific
   const [studentName, setStudentName] = useState('');
   const [studentRoll, setStudentRoll] = useState('');
+  const [photo, setPhoto] = useState('');
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      setError(isBn ? 'অনুগ্রহ করে ছবি ফাইল নির্বাচন করুন।' : 'Please choose an image file.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setPhoto(event.target.result as string);
+      }
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   // Success Screen State for Muhtamim
   const [createdMuhtamimResult, setCreatedMuhtamimResult] = useState<{
@@ -100,6 +121,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
     setDepartmentOrSubject('');
     setStudentName('');
     setStudentRoll('');
+    setPhoto('');
     setError('');
     setCreatedMuhtamimResult(null);
     setCopiedTeacherPin(false);
@@ -151,6 +173,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
           madrasaName: madrasaName.trim(),
           madrasaAddress: madrasaAddress.trim() || undefined,
           madrasaType,
+          photo: photo || undefined,
         });
 
         setIsLoading(false);
@@ -192,6 +215,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
           password,
           studentName: selectedRole === 'guardian' ? studentName.trim() : departmentOrSubject.trim(),
           studentRoll: studentRoll.trim() || undefined,
+          photo: photo || undefined,
         });
 
         setIsLoading(false);
@@ -420,6 +444,44 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({
                 {error}
               </div>
             )}
+
+            {/* Profile Photo Upload Option */}
+            <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80">
+              <div className="relative shrink-0">
+                <div className="w-13 h-13 rounded-2xl overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200 font-bold flex items-center justify-center border-2 border-emerald-500/30">
+                  {photo ? (
+                    <img src={photo} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                  )}
+                </div>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-slate-800 dark:text-slate-200">
+                  {isBn ? 'প্রোফাইল ছবি (ঐচ্ছিক)' : 'Profile Photo (Optional)'}
+                </div>
+                <p className="text-[10px] text-slate-400 leading-tight mb-1.5">
+                  {isBn ? 'রেজিস্ট্রেশনের সময় আপনার পাসপোর্ট সাইজ বা সাধারণ ছবি যুক্ত করুন' : 'Upload profile picture for identification'}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-xs transition-colors">
+                    <Camera className="w-3 h-3" />
+                    <span>{isBn ? 'ছবি নির্বাচন করুন' : 'Choose Photo'}</span>
+                    <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" />
+                  </label>
+                  {photo && (
+                    <button
+                      type="button"
+                      onClick={() => setPhoto('')}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-[11px] font-medium"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>{isBn ? 'মুছুন' : 'Remove'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* Madrasa Information Fields */}
             <div className="space-y-3.5">

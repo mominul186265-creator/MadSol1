@@ -20,10 +20,13 @@ import {
   ChevronRight,
   Tv,
   Cpu,
+  Layers,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { useAttendance } from './useAttendance';
 import { DailyAttendanceSheet } from './DailyAttendanceSheet';
+import { AllClassesAttendanceTab } from './AllClassesAttendanceTab';
 import { QrAttendanceScanner } from './QrAttendanceScanner';
 import { MonthlyAttendanceMatrix } from './MonthlyAttendanceMatrix';
 import { LeaveManagementView } from './LeaveManagementView';
@@ -31,7 +34,7 @@ import { AttendanceReportModal } from './AttendanceReportModal';
 import { LiveTvDisplayModal } from './LiveTvDisplayModal';
 import { BiometricDeviceModal } from './BiometricDeviceModal';
 
-type ActiveTab = 'sheet' | 'scanner' | 'matrix' | 'leaves';
+type ActiveTab = 'all-classes' | 'sheet' | 'scanner' | 'matrix' | 'leaves';
 
 interface AttendanceManagementViewProps {
   initialOpenTvModal?: boolean;
@@ -41,9 +44,10 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
   initialOpenTvModal = false,
 }) => {
   const { language } = useLanguage();
+  const { institution } = useAuth();
   const isBn = language === 'bn';
 
-  const [activeTab, setActiveTab] = useState<ActiveTab>('sheet');
+  const [activeTab, setActiveTab] = useState<ActiveTab>('all-classes');
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isTvModalOpen, setIsTvModalOpen] = useState(initialOpenTvModal);
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
@@ -76,6 +80,8 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
     updateTargetStatus,
     updateTargetDetails,
     markAllVisible,
+    markClassAll,
+    markAllClassesPresent,
     saveAttendanceBatch,
     recordQrCheckIn,
     leaveApplications,
@@ -328,6 +334,19 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
       <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           type="button"
+          onClick={() => setActiveTab('all-classes')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+            activeTab === 'all-classes'
+              ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Layers className="w-4 h-4" />
+          <span>{isBn ? 'সব শ্রেণির হাজিরা' : 'All Classes'}</span>
+        </button>
+
+        <button
+          type="button"
           onClick={() => setActiveTab('sheet')}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold transition-all ${
             activeTab === 'sheet'
@@ -336,7 +355,7 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
           }`}
         >
           <CalendarCheck className="w-4 h-4" />
-          <span>{isBn ? 'দৈনিক হাজিরা শীট' : 'Daily Roll Call'}</span>
+          <span>{isBn ? 'শ্রেণিভিত্তিক রোল-কল' : 'Class Roll-Call'}</span>
         </button>
 
         <button
@@ -386,6 +405,25 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
 
       {/* Tab Content Display */}
       <div>
+        {activeTab === 'all-classes' && (
+          <AllClassesAttendanceTab
+            institutionId={institution?.id || 'inst-001'}
+            date={date}
+            classes={classes}
+            departments={departments}
+            allRows={targetRows}
+            canRecord={permissions.canRecord}
+            onSelectClass={(selectedClsId) => {
+              setClassId(selectedClsId);
+              setActiveTab('sheet');
+            }}
+            onMarkClassAll={markClassAll}
+            onMarkAllClassesPresent={markAllClassesPresent}
+            onSave={saveAttendanceBatch}
+            hasUnsavedChanges={hasUnsavedChanges}
+            isSaving={isSaving}
+          />
+        )}
         {activeTab === 'sheet' && (
           <DailyAttendanceSheet
             targetType={targetType}

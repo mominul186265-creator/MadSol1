@@ -340,23 +340,35 @@ export const DailyAttendanceSheet: React.FC<DailyAttendanceSheetProps> = ({
                       </td>
 
                       <td className="px-4 py-3">
-                        <div className="font-medium text-slate-900 dark:text-slate-100">
-                          {row.target_name_bn}
-                        </div>
-                        <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-                          <span>{row.department_name_bn}</span>
-                          {row.class_name_bn && (
-                            <>
-                              <span>•</span>
-                              <span>{row.class_name_bn}</span>
-                            </>
-                          )}
-                          {row.section_name_bn && (
-                            <>
-                              <span>•</span>
-                              <span>{row.section_name_bn}</span>
-                            </>
-                          )}
+                        <div className="flex items-center gap-2.5">
+                          {/* Student / Target Photo */}
+                          <div className="w-8 h-8 rounded-full overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 shadow-2xs">
+                            {row.photo ? (
+                              <img src={row.photo} alt={row.target_name_bn} className="w-full h-full object-cover" />
+                            ) : (
+                              row.target_name_bn?.charAt(0) || 'S'
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                              {row.target_name_bn}
+                            </div>
+                            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
+                              <span>{row.department_name_bn}</span>
+                              {row.class_name_bn && (
+                                <>
+                                  <span>•</span>
+                                  <span>{row.class_name_bn}</span>
+                                </>
+                              )}
+                              {row.section_name_bn && (
+                                <>
+                                  <span>•</span>
+                                  <span>{row.section_name_bn}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </td>
 
