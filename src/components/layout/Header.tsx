@@ -100,9 +100,12 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header
       id="main-header"
-      className="sticky top-0 z-30 w-full max-w-full h-15 sm:h-18 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 shrink-0"
+      className="sticky top-0 z-30 w-full max-w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-colors duration-200 shrink-0 pt-safe-header"
+      style={{
+        paddingTop: 'max(env(safe-area-inset-top, 0px), var(--mobile-safe-top, 0px))',
+      }}
     >
-      <div className="h-full px-2.5 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-4 max-w-full min-w-0">
+      <div className="h-14 sm:h-16 px-2.5 sm:px-6 flex items-center justify-between gap-1.5 sm:gap-4 max-w-full min-w-0">
         {/* Left Side: Mobile Menu Button + MadSol Logo */}
         <div className="flex items-center gap-2 sm:gap-3.5 min-w-0 shrink">
           <button

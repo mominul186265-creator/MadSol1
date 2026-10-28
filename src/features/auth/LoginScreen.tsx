@@ -166,7 +166,12 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
       <IslamicPattern opacity={0.06} />
 
       {/* Top Header: Brand Name + Language Switcher + Dark Mode */}
-      <header className="relative z-10 w-full px-4 sm:px-8 py-4 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur-xs bg-white/40 dark:bg-slate-950/40">
+      <header
+        className="relative z-10 w-full px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 backdrop-blur-xs bg-white/40 dark:bg-slate-950/40 pt-safe-header"
+        style={{
+          paddingTop: 'max(env(safe-area-inset-top, 0px), var(--mobile-safe-top, 12px))',
+        }}
+      >
         <div className="flex items-center gap-3">
           <MadSolLogo size="sm" showTagline={false} />
           <div className="hidden sm:block">

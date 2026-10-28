@@ -4,6 +4,11 @@
 
 @layer base {
   :root {
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    --mobile-safe-top: 0px;
     --primary-emerald: #065f46;
     --primary-emerald-hover: #047857;
     --primary-emerald-light: #ecfdf5;
@@ -16,6 +21,20 @@
     --border-color: #e2e8f0;
     --text-main: #0f172a;
     --text-muted: #64748b;
+  }
+
+  @media (max-width: 640px) {
+    :root {
+      /* Mobile top clearance for punch-hole cameras and notches */
+      --mobile-safe-top: 26px;
+    }
+  }
+
+  @media all and (display-mode: standalone) {
+    :root {
+      /* PWA / Installed WebAPK standalone status bar buffer */
+      --mobile-safe-top: 30px;
+    }
   }
 
   .dark {
@@ -62,6 +81,15 @@
     position: relative;
     overscroll-behavior: none;
   }
+}
+
+/* Mobile Safe Area Inset Support for Notch & Punch-hole Cameras */
+.pt-safe-header {
+  padding-top: max(env(safe-area-inset-top, 0px), var(--mobile-safe-top, 0px));
+}
+
+.pb-safe-nav {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
 /* Touch & Momentum Scrolling for Android WebView & Mobile */
