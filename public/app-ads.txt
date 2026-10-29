@@ -1,0 +1,13 @@
+# Google AdMob Authorized Digital Sellers (app-ads.txt)
+# Official Documentation: https://support.google.com/admob/answer/9363762
+# 
+# এই ফাইলটি https://mad-sol1.vercel.app/app-ads.txt লিংকে স্বয়ংক্রিয়ভাবে লাইভ থাকবে।
+# 
+# যখন আপনি নিজের রিয়েল AdMob অ্যাকাউন্ট তৈরি করবেন, 
+# তখন AdMob ড্যাশবোর্ড থেকে আপনার 16-সংখ্যার Publisher ID কপি করে নিচের লাইনে বসাবেন:
+# 
+# উদাহরণ:
+# google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0
+#
+# (নিচের লাইনটি আপনার AdMob Publisher ID পাওয়ার পর আনকমেন্ট করুন):
+# google.com, pub-YOUR_PUBLISHER_ID_HERE, DIRECT, f08c47fec0942fa0

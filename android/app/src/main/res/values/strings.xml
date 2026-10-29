@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">MadSol</string>
+
+    <!-- Production Web URL (Points directly to your deployed Vercel site) -->
+    <string name="web_url">https://mad-sol1.vercel.app</string>
+
+    <!-- 
+      GOOGLE ADMOB CONFIGURATION (Official Google Test IDs)
+      Documentation: https://developers.google.com/admob/android/quick-start
+      
+      ⚠️ নির্দেশিকা:
+      টেস্টিং শেষে যখন আপনি নিজের রিয়েল অ্যাডমব অ্যাকাউন্ট ব্যবহার করবেন, 
+      তখন নিচের ca-app-pub-3940256099942544... আইডিগুলোর পরিবর্তে 
+      আপনার নিজস্ব AdMob Console থেকে পাওয়া App ID ও Ad Unit ID বসাবেন।
+    -->
+    <!-- Official Google Sample AdMob App ID (Mandatory for AndroidManifest metadata) -->
+    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+
+    <!-- Official Google Test Banner Ad Unit ID -->
+    <string name="admob_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- Official Google Test Interstitial Ad Unit ID -->
+    <string name="admob_interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+
+    <!-- UI Strings -->
+    <string name="loading">মাদসোল লোড হচ্ছে...</string>
+    <string name="offline_title">ইন্টারনেট সংযোগ বিচ্ছিন্ন</string>
+    <string name="offline_message">অনুগ্রহ করে আপনার মোবাইল ডাটা বা ওয়াইফাই সংযোগ পরীক্ষা করে পুনরায় চেষ্টা করুন।</string>
+    <string name="retry">পুনরায় চেষ্টা করুন</string>
+    <string name="file_chooser_title">ছবি বা ফাইল নির্বাচন করুন</string>
+    <string name="exit_prompt">অ্যাপ থেকে বের হতে আবার ব্যাক চাপুন</string>
+</resources>
