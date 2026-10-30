@@ -21,12 +21,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
       - name: 🐘 Setup Gradle 8.9
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
-      - name: 🛠️ Ensure Gradle Wrapper and Permissions
+      - name: 🛠️ Ensure Gradle Wrapper and Android Licenses
         working-directory: android
         run: |
           mkdir -p gradle/wrapper
@@ -35,14 +38,16 @@ jobs:
             curl -sSL "https://raw.githubusercontent.com/gradle/gradle/v8.9.0/gradle/wrapper/gradle-wrapper.jar" -o gradle/wrapper/gradle-wrapper.jar
           fi
           chmod +x gradlew || true
+          yes | sdkmanager --licenses || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0" || true
 
       - name: 🔨 Build Android Debug APK
         working-directory: android
         run: |
           if [ -f "./gradlew" ] && [ -s "gradle/wrapper/gradle-wrapper.jar" ]; then
-            ./gradlew assembleDebug --no-daemon --stacktrace
+            ./gradlew assembleDebug --no-daemon --stacktrace --info
           else
-            gradle assembleDebug --no-daemon --stacktrace
+            gradle assembleDebug --no-daemon --stacktrace --info
           fi
 
       - name: 📦 Upload Debug APK Artifact
