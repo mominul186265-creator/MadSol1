@@ -200,6 +200,8 @@ class MainActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 binding.swipeRefreshLayout.isRefreshing = false
                 binding.progressBar.visibility = View.GONE
+                // Hide initial splash loading screen smoothly once website content is ready
+                binding.splashLoadingLayout.visibility = View.GONE
             }
 
             override fun onReceivedError(
@@ -209,6 +211,7 @@ class MainActivity : AppCompatActivity() {
             ) {
                 // Show offline layout only for main frame navigation errors
                 if (request?.isForMainFrame == true) {
+                    binding.splashLoadingLayout.visibility = View.GONE
                     binding.offlineLayout.visibility = View.VISIBLE
                     binding.progressBar.visibility = View.GONE
                     binding.swipeRefreshLayout.isRefreshing = false
