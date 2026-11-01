@@ -249,6 +249,13 @@ class MainActivity : AppCompatActivity() {
             getColor(R.color.primary_emerald),
             getColor(R.color.accent_emerald_light)
         )
+
+        // Only allow pull-to-refresh when the WebView is actually at the very top (scrollY == 0)
+        // This completely prevents accidental refresh when scrolling through long pages
+        binding.swipeRefreshLayout.setOnChildScrollUpCallback { _, _ ->
+            binding.webView.scrollY > 0
+        }
+
         binding.swipeRefreshLayout.setOnRefreshListener {
             binding.webView.reload()
         }
