@@ -54,16 +54,6 @@ async function startServer() {
     
     // Boot server-side persistent scheduler worker
     CommunicationSchedulerWorker.getInstance().start();
-
-    // Execute Protiddhoni Adapter Compliance Test Suite on boot
-    try {
-      const { ProtiddhoniAdapterTest } = await import('./src/server/communication/providers/ProtiddhoniAdapterTest');
-      const testReport = await ProtiddhoniAdapterTest.runTests();
-      console.log(`[Protiddhoni Test Runner] Compliance status: ${testReport.success ? 'SUCCESS (All Specs Passed)' : 'FAILURE'}`);
-      testReport.results.forEach(res => console.log(`  ${res}`));
-    } catch (testErr) {
-      console.error('[Protiddhoni Test Runner] Failed to execute compliance tests:', testErr);
-    }
   });
 }
 
