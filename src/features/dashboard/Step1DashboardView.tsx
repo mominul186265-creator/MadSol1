@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Clock,
-  Sunrise,
-  Sun,
-  Sunset,
-  Moon,
   MapPin,
   ChevronDown,
-  AlertTriangle,
-  Star,
-  Timer,
+  BookMarked,
+  BookOpen,
+  GraduationCap,
+  Bot,
+  Users,
+  Smartphone,
+  Heart,
+  CalendarCheck,
+  Receipt,
+  UserCheck,
+  Award,
+  Tv,
+  Utensils,
+  Calendar,
+  Sparkles,
+  ArrowRight,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 import { BD_DISTRICTS } from '../../data/districts';
-import { Coordinates, CalculationMethod, PrayerTimes, Madhab, SunnahTimes } from 'adhan';
 
 interface Step1DashboardProps {
   onNavigate: (path: string) => void;
@@ -27,6 +35,7 @@ const toBengaliNumber = (num: string | number) => {
 
 export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const isBn = language === 'bn';
 
   // Sort districts alphabetically based on language
@@ -36,8 +45,6 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
 
   const [selectedDistrictId, setSelectedDistrictId] = useState('dhaka');
   const [currentTime, setCurrentTime] = useState(new Date());
-  
-  const selectedDistrict = BD_DISTRICTS.find(d => d.id === selectedDistrictId) || BD_DISTRICTS[0];
 
   // Update current time every second
   useEffect(() => {
@@ -46,13 +53,6 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-
-  // Calculate prayer times using Adhan
-  const coordinates = new Coordinates(selectedDistrict.lat, selectedDistrict.lng);
-  const params = CalculationMethod.Karachi(); // South Asia / Bangladesh
-  params.madhab = Madhab.Hanafi; // Hanafi
-  
-  const prayerTimesObj = new PrayerTimes(coordinates, currentTime, params);
 
   // Format digits based on selected language
   const formatDigits = (str: string | number) => {
@@ -73,47 +73,15 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     return `${isBn ? toBengaliNumber(timeFormatted) : timeFormatted} ${ampm}`;
   };
 
-  const formatTime = (date: Date) => {
-    let hours = date.getHours();
-    const minutes = date.getMinutes();
-    const ampm = hours >= 12 ? (isBn ? 'পিএম' : 'PM') : (isBn ? 'এএম' : 'AM');
-    hours = hours % 12;
-    hours = hours ? hours : 12;
-    const minutesStr = minutes < 10 ? '0' + minutes : String(minutes);
-    
-    const timeFormatted = `${hours}:${minutesStr}`;
-    return `${isBn ? toBengaliNumber(timeFormatted) : timeFormatted} ${ampm}`;
-  };
-
   // Islamic / Hijri Month Names in Bengali & English
   const HIJRI_MONTHS_BN = [
-    'মহররম',
-    'সফর',
-    'রবিউল আউয়াল',
-    'রবিউস সানি',
-    'জমাদিউল আউয়াল',
-    'জমাদিউস সানি',
-    'রজব',
-    'শাবান',
-    'রমজান',
-    'শাওয়াল',
-    'জিলকদ',
-    'জিলহজ'
+    'মহররম', 'সফর', 'রবিউল আউয়াল', 'রবিউস সানি', 'জমাদিউল আউয়াল',
+    'জমাদিউস সানি', 'রজব', 'শাবান', 'রমজান', 'শাওয়াল', 'জিলকদ', 'জিলহজ'
   ];
 
   const HIJRI_MONTHS_EN = [
-    'Muharram',
-    'Safar',
-    'Rabi al-Awwal',
-    'Rabi al-Thani',
-    'Jumada al-Awwal',
-    'Jumada al-Thani',
-    'Rajab',
-    'Shaban',
-    'Ramadan',
-    'Shawwal',
-    'Dhu al-Qadah',
-    'Dhu al-Hijjah'
+    'Muharram', 'Safar', 'Rabi al-Awwal', 'Rabi al-Thani', 'Jumada al-Awwal',
+    'Jumada al-Thani', 'Rajab', 'Shaban', 'Ramadan', 'Shawwal', 'Dhu al-Qadah', 'Dhu al-Hijjah'
   ];
 
   // Bangla Months in Bengali & English
@@ -169,7 +137,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     }
   };
 
-  // Calculate Hijri / Arabic Date & Year (Explicit Arabic Islamic months, no Gregorian fallback)
+  // Calculate Hijri / Arabic Date & Year
   const getHijriDate = (date: Date, fullYearLabel = false) => {
     try {
       const formatter = new Intl.DateTimeFormat('en-u-ca-islamic-umalqura', {
@@ -195,10 +163,10 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
         }
       }
     } catch {
-      // fallback to algorithmic computation below
+      // fallback
     }
 
-    // Algorithmic Umm al-Qura / Kuwaiti calculation
+    // Algorithmic fallback
     const day = date.getDate();
     const month = date.getMonth();
     let year = date.getFullYear();
@@ -222,7 +190,6 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     const cc = Math.floor((bb - 122.1) / 365.25);
     const dd = Math.floor(365.25 * cc);
     const ee = Math.floor((bb - dd) / 30.6001);
-    const dDay = bb - dd - Math.floor(30.6001 * ee);
 
     const l = jd - 1948440 + 10632;
     const n = Math.floor((l - 1) / 10631);
@@ -244,214 +211,127 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     }
   };
 
-  const tomorrow = new Date(currentTime);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowPrayerTimes = new PrayerTimes(coordinates, tomorrow, params);
-
-  // Fasting calculations:
-  // Sehri start time: ~1 hr 15 mins before Subh Sadiq (standard Bangladesh / Islamic practice for beginning Sehri)
-  const sehriStartTime = new Date(prayerTimesObj.fajr.getTime() - 75 * 60000);
-  const sehriTime = new Date(prayerTimesObj.fajr.getTime() - 3 * 60000); // 3 mins safety margin before Fajr (Sehri ends)
-  const iftarTime = prayerTimesObj.maghrib;
-
-  const farzPrayers = [
+  // Primary 5 Navigation Options from the Bottom Bar moved directly onto Home
+  const PRIMARY_NAV_ITEMS = [
     {
-      id: 'fajr',
-      key: 'fajr',
-      nameBn: 'ফজর',
-      nameEn: 'Fajr',
-      timeObj: prayerTimesObj.fajr,
-      endTimeObj: prayerTimesObj.sunrise,
-      icon: Sunrise,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bgColor: 'bg-indigo-100 dark:bg-indigo-950/80',
+      id: 'hifz',
+      titleBn: 'হিফজুল কুরআন বিভাগ',
+      titleEn: 'Hifz Department',
+      subtitleBn: 'দৈনিক ছবক, সাত ছবক ও আমপারা মূল্যায়ন',
+      subtitleEn: 'Daily Sabaq, Sabqi & Ampara tracker',
+      path: '/hifz',
+      icon: BookMarked,
+      color: 'from-emerald-600 to-teal-700',
+      badge: 'হিফজ',
+      badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
     },
     {
-      id: 'dhuhr',
-      key: 'dhuhr',
-      nameBn: 'যোহর',
-      nameEn: 'Dhuhr',
-      timeObj: prayerTimesObj.dhuhr,
-      endTimeObj: prayerTimesObj.asr,
-      icon: Sun,
-      color: 'text-amber-600 dark:text-amber-400',
-      bgColor: 'bg-amber-100 dark:bg-amber-950/80',
+      id: 'qawmi',
+      titleBn: 'ক্বওমী নেসাব ও জামাত',
+      titleEn: 'Qawmi Curriculum & Classes',
+      subtitleBn: '১০টি পূর্ণ জামাত, বেফাক কিতাব ও পরীক্ষার কাঠামো',
+      subtitleEn: '10 academic classes, Befaq syllabus & books',
+      path: '/qawmi',
+      icon: BookOpen,
+      color: 'from-blue-600 to-indigo-700',
+      badge: 'ক্বওমী',
+      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
     },
     {
-      id: 'asr',
-      key: 'asr',
-      nameBn: 'আসর',
-      nameEn: 'Asr',
-      timeObj: prayerTimesObj.asr,
-      endTimeObj: prayerTimesObj.maghrib,
-      icon: Sunset,
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-950/80',
+      id: 'academic',
+      titleBn: 'নূরানী ও প্রাক-প্রাথমিক',
+      titleEn: 'Noorani & Primary Wing',
+      subtitleBn: 'প্লে থেকে ৫ম শ্রেণী, ৩ সাময়িক পরীক্ষা ও সিলেবাস',
+      subtitleEn: 'Play to Grade 5, term exams & board syllabus',
+      path: '/academic',
+      icon: GraduationCap,
+      color: 'from-amber-600 to-orange-700',
+      badge: 'নূরানী',
+      badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
     },
     {
-      id: 'maghrib',
-      key: 'maghrib',
-      nameBn: 'মাগরিব',
-      nameEn: 'Maghrib',
-      timeObj: prayerTimesObj.maghrib,
-      endTimeObj: prayerTimesObj.isha,
-      icon: Sunset,
-      color: 'text-rose-600 dark:text-rose-400',
-      bgColor: 'bg-rose-100 dark:bg-rose-950/80',
+      id: 'automation',
+      titleBn: 'স্মার্ট অটোমেশন সেন্টার',
+      titleEn: 'Smart Automation Center',
+      subtitleBn: 'স্বয়ংক্রিয় নোটিফিকেশন, বকেয়া ফি অ্যালার্ট ও মেসেজ',
+      subtitleEn: 'Automated SMS, fee reminders & routine alerts',
+      path: '/automation',
+      icon: Bot,
+      color: 'from-purple-600 to-indigo-800',
+      badge: 'স্মার্ট',
+      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300',
     },
     {
-      id: 'isha',
-      key: 'isha',
-      nameBn: 'এশা',
-      nameEn: 'Isha',
-      timeObj: prayerTimesObj.isha,
-      endTimeObj: tomorrowPrayerTimes.fajr,
-      icon: Moon,
-      color: 'text-emerald-600 dark:text-emerald-400',
-      bgColor: 'bg-emerald-100 dark:bg-emerald-950/80',
-    }
-  ];
-
-  let nextPrayerKey = prayerTimesObj.nextPrayer();
-  let nextPrayerTime = nextPrayerKey !== 'none' ? prayerTimesObj.timeForPrayer(nextPrayerKey) : null;
-  let currentPrayerKey = prayerTimesObj.currentPrayer();
-
-  if (nextPrayerKey === 'none') {
-    nextPrayerKey = 'fajr';
-    nextPrayerTime = tomorrowPrayerTimes.fajr;
-  }
-
-  if (currentPrayerKey === 'none') {
-    currentPrayerKey = 'isha';
-  }
-
-  const getRemainingTimeStr = (targetDate: Date | null) => {
-    if (!targetDate) return '';
-    const diffMs = targetDate.getTime() - currentTime.getTime();
-    if (diffMs <= 0) return '';
-    
-    const hours = Math.floor(diffMs / (1000 * 60 * 60));
-    const mins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diffMs % (1000 * 60)) / 1000);
-    
-    let str = '';
-    if (hours > 0) {
-      str += `${formatDigits(hours)}${isBn ? 'ঘ ' : 'h '}`;
-    }
-    str += `${formatDigits(mins)}${isBn ? 'মি ' : 'm '}${formatDigits(secs)}${isBn ? 'সে' : 's'}`;
-    
-    return str;
-  };
-
-  // Fasting event state
-  let nextFastingEvent = '';
-  let nextFastingTime: Date | null = null;
-
-  if (currentTime < sehriTime) {
-    nextFastingEvent = 'sehri';
-    nextFastingTime = sehriTime;
-  } else if (currentTime < iftarTime) {
-    nextFastingEvent = 'iftar';
-    nextFastingTime = iftarTime;
-  } else {
-    nextFastingEvent = 'sehri';
-    const tomorrow = new Date(currentTime);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowPrayerTimes = new PrayerTimes(coordinates, tomorrow, params);
-    nextFastingTime = new Date(tomorrowPrayerTimes.fajr.getTime() - 3 * 60000);
-  }
-
-  // Fasting & Solar Horizon Items (Exact same model as Farz prayer cards)
-  const fastingAndSolarItems = [
-    {
-      id: 'sehri',
-      nameBn: 'সেহরি',
-      nameEn: 'Sehri',
-      timeObj: sehriStartTime,
-      endTimeObj: sehriTime,
-      hasRange: true,
-      icon: Moon,
-      color: 'text-teal-600 dark:text-teal-400',
-      bgColor: 'bg-teal-100 dark:bg-teal-950/80',
-      isNext: nextFastingEvent === 'sehri' && currentTime < sehriStartTime,
-      isCurrent: currentTime >= sehriStartTime && currentTime < sehriTime,
-      badgeText: isBn ? 'পরবর্তী' : 'Next',
-      remaining: nextFastingEvent === 'sehri' && nextFastingTime ? getRemainingTimeStr(nextFastingTime) : '',
-    },
-    {
-      id: 'iftar',
-      nameBn: 'ইফতার শুরু',
-      nameEn: 'Iftar Starts',
-      timeObj: iftarTime,
-      hasRange: false,
-      icon: Sunset,
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-950/80',
-      isNext: nextFastingEvent === 'iftar',
-      isCurrent: false,
-      badgeText: isBn ? 'পরবর্তী' : 'Next',
-      remaining: nextFastingEvent === 'iftar' && nextFastingTime ? getRemainingTimeStr(nextFastingTime) : '',
-    },
-    {
-      id: 'sunrise',
-      nameBn: 'সূর্যোদয়',
-      nameEn: 'Sunrise',
-      timeObj: prayerTimesObj.sunrise,
-      hasRange: false,
-      icon: Sun,
-      color: 'text-yellow-600 dark:text-yellow-400',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-950/80',
-      isNext: false,
-      isCurrent: false,
-      badgeText: '',
-      remaining: '',
-    },
-    {
-      id: 'sunset',
-      nameBn: 'সূর্যাস্ত',
-      nameEn: 'Sunset',
-      timeObj: prayerTimesObj.maghrib,
-      hasRange: false,
-      icon: Sunset,
-      color: 'text-rose-600 dark:text-rose-400',
-      bgColor: 'bg-rose-100 dark:bg-rose-950/80',
-      isNext: false,
-      isCurrent: false,
-      badgeText: '',
-      remaining: '',
+      id: 'users',
+      titleBn: 'ইউজার ও রোল ব্যবস্থাপনা',
+      titleEn: 'User & Role Management',
+      subtitleBn: 'মুহতামিম, শিক্ষক, হিসাবরক্ষক ও অভিভাবক প্রোফাইল',
+      subtitleEn: 'Muhtamim, teachers, accountants & guardians',
+      path: '/users',
+      icon: Users,
+      color: 'from-rose-600 to-pink-700',
+      badge: 'ইউজার',
+      badgeColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300',
     },
   ];
 
-  // Nafal & Sunnah Prayers
-  const sunnahTimes = new SunnahTimes(prayerTimesObj);
-  const tahajjudTime = sunnahTimes.lastThirdOfTheNight;
-  const tahajjudEnd = prayerTimesObj.fajr;
-  const ishraqTime = new Date(prayerTimesObj.sunrise.getTime() + 15 * 60000);
-  const ishraqEnd = new Date(prayerTimesObj.dhuhr.getTime() - 15 * 60000);
-  const awwabinTime = new Date(prayerTimesObj.maghrib.getTime() + 15 * 60000);
-  const awwabinEnd = prayerTimesObj.isha;
-
-  // Prohibited / Makruh Times
-  const forbiddenSunriseStart = prayerTimesObj.sunrise;
-  const forbiddenSunriseEnd = new Date(prayerTimesObj.sunrise.getTime() + 15 * 60000);
-  
-  const forbiddenZawalStart = new Date(prayerTimesObj.dhuhr.getTime() - 15 * 60000);
-  const forbiddenZawalEnd = prayerTimesObj.dhuhr;
-  
-  const forbiddenSunsetStart = new Date(prayerTimesObj.maghrib.getTime() - 15 * 60000);
-  const forbiddenSunsetEnd = prayerTimesObj.maghrib;
-
-  const formatTimeRange = (start: Date, end: Date) => {
-    return `${formatTime(start)} - ${formatTime(end)}`;
-  };
-
-  const nextPrayerObj = farzPrayers.find(p => p.key === nextPrayerKey);
+  // Quick Action Administrative Shortcuts
+  const QUICK_ACTIONS = [
+    {
+      id: 'attendance',
+      titleBn: 'ডিজিটাল হাজিরা',
+      titleEn: 'Daily Attendance',
+      path: '/attendance',
+      icon: CalendarCheck,
+      bgColor: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+    },
+    {
+      id: 'fees',
+      titleBn: 'ফি ও বেতন আদায়',
+      titleEn: 'Fees Collection',
+      path: '/fees',
+      icon: Receipt,
+      bgColor: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+    },
+    {
+      id: 'teachers',
+      titleBn: 'উস্তায ও শিক্ষকবৃন্দ',
+      titleEn: 'Teachers List',
+      path: '/teachers',
+      icon: UserCheck,
+      bgColor: 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800/60',
+    },
+    {
+      id: 'exams',
+      titleBn: 'পরীক্ষা ও ফলাফল',
+      titleEn: 'Exams & Results',
+      path: '/exams',
+      icon: Award,
+      bgColor: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
+    },
+    {
+      id: 'boarding',
+      titleBn: 'ছাত্রাবাস ও খাবার',
+      titleEn: 'Hostel & Food',
+      path: '/boarding',
+      icon: Utensils,
+      bgColor: 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60',
+    },
+    {
+      id: 'live_tv',
+      titleBn: 'টিভি হাজিরা মনিটর',
+      titleEn: 'Live TV Monitor',
+      path: '/live_tv',
+      icon: Tv,
+      bgColor: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800/60',
+    },
+  ];
 
   return (
-    <div className="space-y-2 w-full max-w-full min-w-0">
-      {/* 1. Header Banner (Live Time, Center Title & Compact District Selector) - Scrolls naturally with content */}
+    <div className="space-y-4 w-full max-w-full min-w-0">
+      {/* 1. Header Banner: Live Time on Left, Dates in Center, District Selector on Right */}
       <div className="w-full">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#004d3b] via-[#005743] to-[#00382b] text-white px-3 py-2 sm:px-4 sm:py-2.5 shadow-md border-t-2 border-emerald-400">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#004d3b] via-[#005743] to-[#00382b] text-white px-3 py-2.5 sm:px-4 sm:py-3 shadow-md border-t-2 border-emerald-400">
           <div className="relative z-10 flex items-center justify-between gap-1.5 sm:gap-2">
             {/* Left: Live Running Time Shape on Top, Weekday & Date Below */}
             <div className="flex flex-col items-start justify-center gap-0.5 shrink-0">
@@ -467,22 +347,21 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
               </div>
             </div>
 
-            {/* Center: উজ্জ্বল শেপে নামাজের সময়সূচী এবং তার নিচে বাংলা ও আরবি তারিখ সাল */}
-            <div className="flex-1 flex flex-col items-center justify-center px-0.5 sm:px-1 text-center min-w-0">
-              <div className="px-2.5 sm:px-3.5 py-0.5 rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-400/30 via-emerald-300/40 to-teal-400/30 border border-emerald-300/80 shadow-[0_0_10px_rgba(110,231,183,0.45)] backdrop-blur-xs flex items-center justify-center">
-                <span className="text-xs sm:text-sm font-extrabold text-white tracking-wide drop-shadow-xs whitespace-nowrap leading-tight">
-                  {isBn ? 'নামাজের সময়সূচী' : 'Prayer Times'}
+            {/* Center: তারিখ ও হিজরি সাল (নামাজের সময়সূচী লেখাটি ব্যবহারকারীর অনুরোধে বাদ দেওয়া হয়েছে) */}
+            <div className="flex-1 flex flex-col items-center justify-center px-1 text-center min-w-0">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 text-[10px] sm:text-xs text-white font-bold leading-tight">
+                <span className="bg-white/10 px-2 py-0.5 rounded-md border border-white/10 whitespace-nowrap">
+                  {getBanglaDate(currentTime, false)}
                 </span>
-              </div>
-              <div className="flex items-center justify-center gap-1 sm:gap-1.5 text-[8px] sm:text-[10px] text-emerald-100/90 font-medium mt-1 leading-none whitespace-nowrap">
-                <span>{getBanglaDate(currentTime, false)}</span>
-                <span className="text-emerald-400/80">•</span>
-                <span>{getHijriDate(currentTime, false)}</span>
+                <span className="hidden sm:inline text-emerald-300">•</span>
+                <span className="bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/30 text-emerald-200 whitespace-nowrap">
+                  {getHijriDate(currentTime, false)}
+                </span>
               </div>
             </div>
 
             {/* Right: District Selector (Compact width) */}
-            <div className="relative w-[82px] sm:w-[110px] shrink-0">
+            <div className="relative w-[85px] sm:w-[110px] shrink-0">
               <div className="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-300 pointer-events-none">
                 <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               </div>
@@ -505,224 +384,118 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
         </div>
       </div>
 
-      {/* 2. Five Obligatory Prayers (Farz) - 2 Columns (দুই ভাগে বিভক্ত) */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5 px-0.5">
-          <h2 className="text-xs font-bold inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg sm:rounded-xl bg-sky-100/90 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 shadow-2xs">
-            <Clock className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-            <span>{isBn ? 'পাঁচ ওয়াক্ত ফরজ নামাজ' : 'Five Obligatory Prayers'}</span>
+      {/* 2. Main Navigation Options on Home (অ্যাপ ওপেন হলেই সরাসরি অপশনগুলো সামনে আসবে) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <span className="w-2 h-4 rounded bg-emerald-600 inline-block" />
+            <span>{isBn ? 'প্রধান বিভাগ ও ব্যবস্থাপনা' : 'Main Departments & Modules'}</span>
           </h2>
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-            {isBn ? 'হানাফী মাযহাব' : 'Hanafi'}
+          <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+            {isBn ? 'সরাসরি প্রবেশ করুন' : 'Quick Access'}
           </span>
         </div>
 
-        {/* 2-Column Responsive Grid: Divided into two parts */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-1.5">
-          {farzPrayers.map((prayer) => {
-            const isNext = prayer.key === nextPrayerKey;
-            const isCurrent = prayer.key === currentPrayerKey;
-            const prayerName = isBn ? prayer.nameBn : prayer.nameEn;
-            const prayerTimeStr = formatTime(prayer.timeObj);
-            const prayerEndTimeStr = formatTime(prayer.endTimeObj);
-            const isIsha = prayer.key === 'isha';
-
+        {/* 5 Primary Navigation Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
+          {PRIMARY_NAV_ITEMS.map((item) => {
+            const Icon = item.icon;
             return (
-              <div
-                key={prayer.id}
-                className={`flex items-center justify-between px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border transition-all duration-150 ${
-                  isIsha ? 'col-span-2 sm:col-span-1 lg:col-span-1' : ''
-                } ${
-                  isNext
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 shadow-xs ring-1 ring-emerald-500'
-                    : isCurrent
-                    ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-400 dark:border-amber-800 ring-1 ring-amber-400/60'
-                    : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800'
-                }`}
-              >
-                {/* 1. Left: Prayer Name & Badge */}
-                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                    {prayerName}
-                  </span>
-                  {isNext && (
-                    <span className="bg-emerald-600 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs animate-pulse whitespace-nowrap">
-                      {isBn ? 'পরবর্তী' : 'Next'}
-                    </span>
-                  )}
-                  {isCurrent && !isNext && (
-                    <span className="bg-amber-500 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs whitespace-nowrap">
-                      {isBn ? 'বর্তমান' : 'Now'}
-                    </span>
-                  )}
-                </div>
-
-                {/* 2. Right: Start Time (Top) & End Time (Below) - Both exactly the same size */}
-                <div className="shrink-0 text-right flex flex-col items-end justify-center pl-1">
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 tabular-nums whitespace-nowrap leading-tight">
-                    {isBn ? 'শুরু ' : 'Start '}{prayerTimeStr}
-                  </span>
-                  <span className="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 tabular-nums whitespace-nowrap leading-tight mt-0.5">
-                    {isBn ? 'শেষ ' : 'End '}{prayerEndTimeStr}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 3. Fasting & Solar Schedule - 2 Columns (দুই ভাগে বিভক্ত) */}
-      <div>
-        <div className="flex items-center justify-between mb-1.5 px-0.5 mt-1">
-          <h2 className="text-xs font-bold inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg sm:rounded-xl bg-sky-100/90 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 shadow-2xs">
-            <Moon className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
-            <span>{isBn ? 'সেহরি, ইফতার ও সূর্যোদয়-সূর্যাস্ত' : 'Sehri, Iftar & Solar Schedule'}</span>
-          </h2>
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-            {isBn ? 'দৈনিক সময়' : 'Daily Times'}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5">
-          {fastingAndSolarItems.map((item) => {
-            const itemName = isBn ? item.nameBn : item.nameEn;
-
-            return (
-              <div
+              <button
                 key={item.id}
-                className={`flex items-center justify-between px-2.5 sm:px-3 py-2 rounded-xl border transition-all duration-150 min-h-[44px] sm:min-h-[48px] ${
-                  item.isNext
-                    ? 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 shadow-xs ring-1 ring-emerald-500'
-                    : item.isCurrent
-                    ? 'bg-amber-50/80 dark:bg-amber-950/40 border-amber-400 dark:border-amber-800 ring-1 ring-amber-400/60'
-                    : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800'
-                }`}
+                onClick={() => onNavigate(item.path)}
+                className="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-3.5 sm:p-4 text-left shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between"
               >
-                {/* 1. Left: Item Name & Badge */}
-                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0 min-w-0">
-                  <span className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                    {itemName}
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform`}>
+                    <Icon className="w-6 h-6 stroke-[2]" />
+                  </div>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.badgeColor}`}>
+                    {item.badge}
                   </span>
-                  {item.isNext && (
-                    <span className="bg-emerald-600 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs animate-pulse whitespace-nowrap">
-                      {item.badgeText}
-                    </span>
-                  )}
-                  {item.isCurrent && !item.isNext && (
-                    <span className="bg-amber-500 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs whitespace-nowrap">
-                      {isBn ? 'চলমান' : 'Now'}
-                    </span>
-                  )}
                 </div>
 
-                {/* 2. Right: Start & End Time (like Prayer cards) or Single Time */}
-                {item.hasRange && item.endTimeObj ? (
-                  <div className="shrink-0 text-right flex flex-col items-end justify-center pl-1">
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 tabular-nums whitespace-nowrap leading-tight">
-                      {isBn ? 'শুরু ' : 'Start '}{formatTime(item.timeObj)}
-                    </span>
-                    <span className="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-300 tabular-nums whitespace-nowrap leading-tight mt-0.5">
-                      {isBn ? 'শেষ ' : 'End '}{formatTime(item.endTimeObj)}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="shrink-0 text-right flex flex-col items-end justify-center pl-1">
-                    <span className="text-[11px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 tabular-nums whitespace-nowrap leading-tight">
-                      {formatTime(item.timeObj)}
-                    </span>
-                  </div>
-                )}
-              </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
+                    {isBn ? item.titleBn : item.titleEn}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+                    {isBn ? item.subtitleBn : item.subtitleEn}
+                  </p>
+                </div>
+
+                <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-emerald-700 dark:text-emerald-400">
+                  <span>{isBn ? 'বিভাগে যান' : 'Open Section'}</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </button>
             );
           })}
+
+          {/* Sub-Apps Card: সহকারী শিক্ষক অ্যাপ ও অভিভাবক অ্যাপ লিঙ্ক */}
+          <div className="rounded-2xl bg-gradient-to-br from-emerald-900 to-slate-900 text-white p-3.5 sm:p-4 border border-emerald-800/80 shadow-xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  {isBn ? 'স্পেশাল অ্যাপস' : 'Sub-Apps'}
+                </span>
+                <Sparkles className="w-4 h-4 text-amber-400" />
+              </div>
+              <h3 className="text-sm sm:text-base font-black text-white">
+                {isBn ? 'শিক্ষক ও অভিভাবক পোর্টাল' : 'Teacher & Guardian Portals'}
+              </h3>
+              <p className="text-[11px] text-emerald-200/80 mt-0.5">
+                {isBn ? 'সহকারী শিক্ষক ও অভিভাবকদের জন্য পৃথক ইন্টারফেস' : 'Dedicated portals for staff & parents'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-3 pt-2.5 border-t border-emerald-800/60">
+              <button
+                onClick={() => onNavigate('/teacher-app')}
+                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-emerald-700/80 hover:bg-emerald-600 text-white text-[11px] font-bold transition-colors cursor-pointer"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>{isBn ? 'শিক্ষক অ্যাপ' : 'Teacher'}</span>
+              </button>
+              <button
+                onClick={() => onNavigate('/guardian-app')}
+                className="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-xl bg-blue-700/80 hover:bg-blue-600 text-white text-[11px] font-bold transition-colors cursor-pointer"
+              >
+                <Heart className="w-3.5 h-3.5" />
+                <span>{isBn ? 'অভিভাবক' : 'Guardian'}</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* 4. Nafal Prayers & Prohibited Times - Both with Single-Line Entries */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-        {/* Left: Nafal Prayers */}
-        <div className="p-2 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/20">
-          <div className="flex items-center justify-between pb-1 border-b border-emerald-200/60 dark:border-emerald-900/40 mb-1.5">
-            <h3 className="text-xs font-bold inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-sky-100/90 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 shadow-2xs">
-              <Star className="w-3 h-3 text-sky-600 dark:text-sky-400" />
-              <span>{isBn ? 'নফল নামাজের সময়সূচী' : 'Optional (Nafal) Prayers'}</span>
-            </h3>
-            <span className="text-[9px] text-emerald-700 dark:text-emerald-400 font-semibold">
-              {isBn ? 'মুস্তাহাব' : 'Mustahabb'}
-            </span>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900/40 text-xs">
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                {isBn ? 'তাহাজ্জুদ' : 'Tahajjud'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(tahajjudTime, tahajjudEnd)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900/40 text-xs">
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                {isBn ? 'ইশরাক' : 'Ishraq'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(ishraqTime, ishraqEnd)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900/40 text-xs">
-              <span className="font-bold text-slate-700 dark:text-slate-300">
-                {isBn ? 'আওয়াবিন' : 'Awwabin'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(awwabinTime, awwabinEnd)}
-              </span>
-            </div>
-          </div>
+      {/* 3. Quick Administrative Shortcuts Grid */}
+      <div className="space-y-2 pt-1">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <span className="w-1.5 h-3 rounded bg-amber-500 inline-block" />
+            <span>{isBn ? 'প্রয়োজনীয় দ্রুত অ্যাকশন' : 'Quick Actions'}</span>
+          </h2>
         </div>
 
-        {/* Right: Prohibited Times */}
-        <div className="p-2 rounded-xl border border-rose-200/80 dark:border-rose-900/60 bg-rose-50/40 dark:bg-rose-950/20">
-          <div className="flex items-center justify-between pb-1 border-b border-rose-200/60 dark:border-rose-900/40 mb-1.5">
-            <h3 className="text-xs font-bold inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-sky-100/90 dark:bg-sky-950/70 border border-sky-200 dark:border-sky-800/80 text-sky-950 dark:text-sky-100 shadow-2xs">
-              <AlertTriangle className="w-3 h-3 text-sky-600 dark:text-sky-400" />
-              <span>{isBn ? 'নামাজের ৩টি নিষিদ্ধ সময়' : 'Prohibited Prayer Times'}</span>
-            </h3>
-            <span className="text-[9px] text-rose-700 dark:text-rose-400 font-semibold">
-              {isBn ? 'নামাজ মাকরূহ' : 'Makruh'}
-            </span>
-          </div>
-
-          <div className="space-y-1">
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-900/40 text-xs">
-              <span className="font-bold text-rose-800 dark:text-rose-300">
-                {isBn ? 'সূর্যোদয়কাল' : 'Sunrise'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(forbiddenSunriseStart, forbiddenSunriseEnd)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-900/40 text-xs">
-              <span className="font-bold text-rose-800 dark:text-rose-300">
-                {isBn ? 'দ্বিপ্রহর (যাওয়াল)' : 'Midday (Zawal)'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(forbiddenZawalStart, forbiddenZawalEnd)}
-              </span>
-            </div>
-
-            <div className="flex items-center justify-between px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-rose-100 dark:border-rose-900/40 text-xs">
-              <span className="font-bold text-rose-800 dark:text-rose-300">
-                {isBn ? 'সূর্যাস্তকাল' : 'Sunset'}
-              </span>
-              <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
-                {formatTimeRange(forbiddenSunsetStart, forbiddenSunsetEnd)}
-              </span>
-            </div>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+          {QUICK_ACTIONS.map((action) => {
+            const Icon = action.icon;
+            return (
+              <button
+                key={action.id}
+                onClick={() => onNavigate(action.path)}
+                className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all hover:scale-[1.02] cursor-pointer shadow-2xs ${action.bgColor}`}
+              >
+                <div className="p-1.5 rounded-lg bg-white dark:bg-slate-900/80 shrink-0 shadow-2xs">
+                  <Icon className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold truncate">
+                  {isBn ? action.titleBn : action.titleEn}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
