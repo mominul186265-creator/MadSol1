@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
+import { triggerNativeInterstitialAd } from '../../utils/admobBridge';
 
 interface GuardianSubAppProps {
   onBackToMain?: () => void;
@@ -415,7 +416,10 @@ export const GuardianSubApp: React.FC<GuardianSubAppProps> = ({
                 <p className="text-xs text-slate-500">গ্রেড: A+ • মেধা স্থান: ১ম (First in Class)</p>
               </div>
               <button
-                onClick={() => showToast('রেজাল্ট কার্ড ডাউনলোড সম্পন্ন হয়েছে!', 'success')}
+                onClick={() => {
+                  showToast('রেজাল্ট কার্ড ডাউনলোড সম্পন্ন হয়েছে!', 'success');
+                  triggerNativeInterstitialAd();
+                }}
                 className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs"
               >
                 <Download className="w-3.5 h-3.5" />

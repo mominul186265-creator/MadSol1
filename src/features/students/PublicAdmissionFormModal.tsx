@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { IslamicPattern } from '../../components/common/IslamicPattern';
 import { StudentPhotoUploader } from '../../components/common/StudentPhotoUploader';
+import { triggerNativeInterstitialAd } from '../../utils/admobBridge';
 
 interface PublicAdmissionFormModalProps {
   isOpen: boolean;
@@ -83,6 +84,8 @@ export const PublicAdmissionFormModal: React.FC<PublicAdmissionFormModalProps> =
       } as any);
 
       setSuccessApplicationNo(app.applicationNumber);
+      // Trigger AdMob Interstitial Ad safely on admission success milestone
+      triggerNativeInterstitialAd();
     } catch (err) {
       setErrorMsg('আবেদন জমা দিতে সমস্যা হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
     } finally {

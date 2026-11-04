@@ -29,6 +29,7 @@ import { AddExamSubjectModal } from './AddExamSubjectModal';
 import { DigitalMarksheetModal } from './DigitalMarksheetModal';
 import { AdmitCardModal } from './AdmitCardModal';
 import { SeatPlanModal } from './SeatPlanModal';
+import { triggerNativeInterstitialAd } from '../../utils/admobBridge';
 
 export const ExamManagementView: React.FC = () => {
   const { language } = useLanguage();
@@ -665,7 +666,10 @@ export const ExamManagementView: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={async () => {
-                    await generateExamResults(selectedExam.id);
+                    const results = await generateExamResults(selectedExam.id, students);
+                    if (results && results.length > 0) {
+                      triggerNativeInterstitialAd();
+                    }
                   }}
                   className="flex items-center gap-1.5 rounded-xl bg-purple-600 px-4 py-2 text-xs font-semibold text-white shadow-xs hover:bg-purple-700 transition"
                 >

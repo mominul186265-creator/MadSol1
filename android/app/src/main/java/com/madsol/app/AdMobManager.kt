@@ -25,6 +25,8 @@ class AdMobManager(private val context: Context) {
     private var bannerAdView: AdView? = null
     private var interstitialAd: InterstitialAd? = null
     private var isInterstitialLoading = false
+    // Per-session frequency capping: maximum 1 interstitial per app session
+    private var hasShownInterstitialInSession = false
 
     /**
      * Initializes Google Mobile Ads SDK on a background thread.
@@ -115,27 +117,41 @@ class AdMobManager(private val context: Context) {
 
     /**
      * Shows the pre-loaded Interstitial Ad if available.
-     * Re-loads automatically after being dismissed.
+     * Enforces frequency capping (max 1 per session) and non-blocking callback.
      */
     fun showInterstitial(activity: Activity, adUnitId: String, onDismissed: (() -> Unit)? = null) {
+        // Frequency capping: Strictly show maximum one interstitial per app session
+        if (hasShownInterstitialInSession) {
+            Log.d(TAG, "Interstitial skipped: Already shown in this session (max 1 per session policy)")
+            onDismissed?.invoke()
+            return
+        }
+
         val ad = interstitialAd
         if (ad != null) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
+                override fun onAdShowedFullScreenContent() {
+                    hasShownInterstitialInSession = true
+                    Log.d(TAG, "Interstitial ad showed full screen")
+                }
+
                 override fun onAdDismissedFullScreenContent() {
                     interstitialAd = null
-                    preloadInterstitial(adUnitId)
+                    Log.d(TAG, "Interstitial ad dismissed by user")
+                    // Do not eagerly reload to respect frequency capping per session
                     onDismissed?.invoke()
                 }
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     interstitialAd = null
-                    preloadInterstitial(adUnitId)
+                    Log.w(TAG, "Interstitial ad failed to show: ${adError.message}")
                     onDismissed?.invoke()
                 }
             }
             ad.show(activity)
         } else {
-            // Not ready yet, proceed directly
+            // Ad is not loaded yet; NEVER block the user or app operations
+            Log.d(TAG, "Interstitial ad not ready; proceeding without blocking user")
             onDismissed?.invoke()
             preloadInterstitial(adUnitId)
         }
