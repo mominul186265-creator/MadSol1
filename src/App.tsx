@@ -14,7 +14,6 @@ import { Part7SystemProvider } from './context/Part7SystemContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileDrawer } from './components/layout/MobileDrawer';
-import { BottomNavigation } from './components/layout/BottomNavigation';
 import { LoginScreen } from './features/auth/LoginScreen';
 import { Step1DashboardView } from './features/dashboard/Step1DashboardView';
 import { StudentManagementView } from './features/students/StudentManagementView';
@@ -332,7 +331,7 @@ function MainAppContent() {
         {/* Main Content Area */}
         <main
           id="main-content-scroll"
-          className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 p-3 sm:p-6 lg:p-8 pb-28 lg:pb-6 transition-all overscroll-contain touch-pan-y"
+          className="flex-1 overflow-y-auto overflow-x-hidden w-full max-w-full min-w-0 p-3 sm:p-6 lg:p-8 pb-10 lg:pb-8 transition-all overscroll-contain touch-pan-y"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="max-w-7xl mx-auto w-full min-w-0">
@@ -345,9 +344,6 @@ function MainAppContent() {
           </div>
         </main>
       </div>
-
-      {/* Mobile Bottom Navigation */}
-      <BottomNavigation currentPath={currentPath} onNavigate={setCurrentPath} />
 
       {/* Confidential Secret Admin Modal (Unlocked by 7 clicks on app name in slide menu) */}
       <SecretAdminModal
