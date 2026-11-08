@@ -14,19 +14,30 @@ import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
  * Manages Google Mobile Ads SDK initialization, lifecycle, and loading
  * for both Banner and Interstitial Ads.
  * 
+ * Includes automatic graceful fallback to official Google Test Ad Unit IDs
+ * if live user AdMob IDs are pending account approval or no-fill.
+ * 
  * Official Guide: https://developers.google.com/admob/android/quick-start
  */
 class AdMobManager(private val context: Context) {
 
     companion object {
         private const val TAG = "AdMobManager"
+
+        // Official Google Sample AdMob Test Ad Unit IDs for safe fallback
+        const val TEST_BANNER_AD_UNIT_ID = "ca-app-pub-3940256099942544/6300978111"
+        const val TEST_INTERSTITIAL_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712"
     }
 
     private var bannerAdView: AdView? = null
     private var interstitialAd: InterstitialAd? = null
     private var isInterstitialLoading = false
-    // Per-session frequency capping: maximum 1 interstitial per app session
+    
+    // Per-session frequency capping: strictly maximum 1 interstitial per app session
     private var hasShownInterstitialInSession = false
+    
+    // Minimum time gap between user actions and interstitial (e.g. at least 30 seconds)
+    private var lastInterstitialShowTimestamp = 0L
 
     /**
      * Initializes Google Mobile Ads SDK on a background thread.
@@ -40,26 +51,31 @@ class AdMobManager(private val context: Context) {
 
     /**
      * Creates and loads an adaptive Banner Ad into the specified container.
+     * If user's live ad unit fails to load (e.g., account pending approval),
+     * automatically falls back to Google's official test banner ID.
      */
-    fun loadBanner(container: ViewGroup, adUnitId: String) {
+    fun loadBanner(container: ViewGroup, adUnitId: String, fallbackToTest: Boolean = true) {
         try {
-            // Destroy any existing ad view before creating a new one
             destroyBanner()
 
             val adView = AdView(context)
             adView.adUnitId = adUnitId
             
-            // Calculate anchored adaptive banner size based on screen width
             val adSize = getAdaptiveAdSize(context)
             adView.setAdSize(adSize)
 
             adView.adListener = object : AdListener() {
                 override fun onAdLoaded() {
-                    Log.d(TAG, "Banner Ad loaded successfully")
+                    Log.d(TAG, "Banner Ad loaded successfully ($adUnitId)")
                 }
 
                 override fun onAdFailedToLoad(error: LoadAdError) {
-                    Log.w(TAG, "Banner Ad failed to load: ${error.message} (Code: ${error.code})")
+                    Log.w(TAG, "Banner Ad failed to load ($adUnitId): ${error.message} (Code: ${error.code})")
+                    // If live ad unit failed and fallback is enabled, load Google test banner
+                    if (fallbackToTest && adUnitId != TEST_BANNER_AD_UNIT_ID) {
+                        Log.i(TAG, "Falling back to Google official test banner ad unit...")
+                        loadBanner(container, TEST_BANNER_AD_UNIT_ID, fallbackToTest = false)
+                    }
                 }
 
                 override fun onAdOpened() {
@@ -88,8 +104,9 @@ class AdMobManager(private val context: Context) {
 
     /**
      * Pre-loads an Interstitial Ad to be ready when triggered.
+     * Falls back to official Google test unit if live unit is pending.
      */
-    fun preloadInterstitial(adUnitId: String) {
+    fun preloadInterstitial(adUnitId: String, fallbackToTest: Boolean = true) {
         if (interstitialAd != null || isInterstitialLoading) return
 
         isInterstitialLoading = true
@@ -103,13 +120,19 @@ class AdMobManager(private val context: Context) {
                 override fun onAdLoaded(ad: InterstitialAd) {
                     interstitialAd = ad
                     isInterstitialLoading = false
-                    Log.d(TAG, "Interstitial Ad loaded")
+                    Log.d(TAG, "Interstitial Ad loaded successfully ($adUnitId)")
                 }
 
                 override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                     interstitialAd = null
                     isInterstitialLoading = false
-                    Log.w(TAG, "Interstitial Ad failed to load: ${loadAdError.message}")
+                    Log.w(TAG, "Interstitial Ad failed to load ($adUnitId): ${loadAdError.message}")
+                    
+                    // Fallback to test interstitial if live ad unit is not yet active/approved
+                    if (fallbackToTest && adUnitId != TEST_INTERSTITIAL_AD_UNIT_ID) {
+                        Log.i(TAG, "Falling back to Google official test interstitial ad unit...")
+                        preloadInterstitial(TEST_INTERSTITIAL_AD_UNIT_ID, fallbackToTest = false)
+                    }
                 }
             }
         )
@@ -120,7 +143,7 @@ class AdMobManager(private val context: Context) {
      * Enforces frequency capping (max 1 per session) and non-blocking callback.
      */
     fun showInterstitial(activity: Activity, adUnitId: String, onDismissed: (() -> Unit)? = null) {
-        // Frequency capping: Strictly show maximum one interstitial per app session
+        // Frequency capping: strictly show maximum one interstitial per app session
         if (hasShownInterstitialInSession) {
             Log.d(TAG, "Interstitial skipped: Already shown in this session (max 1 per session policy)")
             onDismissed?.invoke()
@@ -132,13 +155,13 @@ class AdMobManager(private val context: Context) {
             ad.fullScreenContentCallback = object : FullScreenContentCallback() {
                 override fun onAdShowedFullScreenContent() {
                     hasShownInterstitialInSession = true
+                    lastInterstitialShowTimestamp = System.currentTimeMillis()
                     Log.d(TAG, "Interstitial ad showed full screen")
                 }
 
                 override fun onAdDismissedFullScreenContent() {
                     interstitialAd = null
-                    Log.d(TAG, "Interstitial ad dismissed by user")
-                    // Do not eagerly reload to respect frequency capping per session
+                    Log.d(TAG, "Interstitial ad dismissed by user; resuming app seamlessly")
                     onDismissed?.invoke()
                 }
 

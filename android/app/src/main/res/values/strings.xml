@@ -5,22 +5,21 @@
     <string name="web_url">https://mad-sol1.vercel.app</string>
 
     <!-- 
-      GOOGLE ADMOB CONFIGURATION (Official Google Test IDs)
+      GOOGLE ADMOB CONFIGURATION (User AdMob IDs & Test Fallback)
       Documentation: https://developers.google.com/admob/android/quick-start
-      
-      ⚠️ নির্দেশিকা:
-      টেস্টিং শেষে যখন আপনি নিজের রিয়েল অ্যাডমব অ্যাকাউন্ট ব্যবহার করবেন, 
-      তখন নিচের ca-app-pub-3940256099942544... আইডিগুলোর পরিবর্তে 
-      আপনার নিজস্ব AdMob Console থেকে পাওয়া App ID ও Ad Unit ID বসাবেন।
     -->
-    <!-- Official Google Sample AdMob App ID (Mandatory for AndroidManifest metadata) -->
-    <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
+    <!-- User Live Google AdMob App ID (Included in AndroidManifest.xml) -->
+    <string name="admob_app_id">ca-app-pub-2872520276587490~3338620878</string>
 
-    <!-- Official Google Test Banner Ad Unit ID -->
-    <string name="admob_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <!-- User Live Banner Ad Unit ID -->
+    <string name="admob_banner_ad_unit_id">ca-app-pub-2872520276587490/3905007758</string>
 
-    <!-- Official Google Test Interstitial Ad Unit ID -->
-    <string name="admob_interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
+    <!-- User Live Interstitial Ad Unit ID -->
+    <string name="admob_interstitial_ad_unit_id">ca-app-pub-2872520276587490/5616535511</string>
+
+    <!-- Official Google Test IDs (Used as safe fallback during account review/approval) -->
+    <string name="test_admob_banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="test_admob_interstitial_ad_unit_id">ca-app-pub-3940256099942544/1033173712</string>
 
     <!-- UI Strings -->
     <string name="loading">মাদসোল লোড হচ্ছে...</string>
