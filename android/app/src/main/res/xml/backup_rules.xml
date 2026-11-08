@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <!-- Include local user preferences and cached settings -->
+    <!-- Include local user preferences, cookies, and cached settings across updates -->
     <include domain="sharedpref" path="." />
+    <include domain="database" path="." />
+    <include domain="file" path="app_webview" />
 </full-backup-content>

@@ -314,6 +314,8 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         adMobManager.pauseBanner()
         binding.webView.onPause()
+        // Force flush all session cookies and local storage tokens to disk
+        CookieManager.getInstance().flush()
         super.onPause()
     }
 
