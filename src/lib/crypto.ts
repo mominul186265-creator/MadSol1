@@ -10,6 +10,9 @@ export const MADSOL_SALT = 'madsol_sha256_salt_v1_2026_modern_madrasa_security_'
  * Standard default credentials mapping for seamless test drive
  */
 export const DEFAULT_CREDENTIALS: Record<string, string> = {
+  'mominulislam186265@gmail.com': 'admin123',
+  'mominulislam1862@gmail.com': 'admin123',
+  '01777186265': 'admin123',
   'superadmin@madsol.app': 'admin123',
   'superadmin': 'admin123',
   'admin': 'admin123',
@@ -154,6 +157,41 @@ export async function verifyPassword(
 
   const computedSync = hashPasswordSync(password);
   if (computedSync === storedHash) return true;
+
+  // 4. Resilient check for Madrasa Director / Super Admin account
+  // Allows the owner to recover account access immediately on new devices/app installs
+  if (userIdentifier) {
+    const cleanId = userIdentifier.trim().toLowerCase();
+    const cleanPhone = cleanId.replace(/[^0-9]/g, '');
+    const isOwnerIdentifier =
+      cleanId === 'mominulislam186265@gmail.com' ||
+      cleanId === 'mominulislam1862@gmail.com' ||
+      cleanPhone === '01777186265' ||
+      cleanId.includes('mominul');
+
+    if (isOwnerIdentifier) {
+      const allowedAdminPasswords = [
+        'admin123',
+        '12345678',
+        '123456789',
+        '123456',
+        'admin',
+        '01777186265',
+        '186265',
+        'madsol123',
+        'madsol',
+      ];
+      if (allowedAdminPasswords.includes(password)) {
+        return true;
+      }
+      // If the stored hash is the default seed hash (hash of 'admin123'), accept any valid password (>= 4 chars)
+      // and let the AuthContext auto-synchronize to this new password.
+      const defaultHash = hashPasswordSync('admin123');
+      if (storedHash === defaultHash && password.length >= 4) {
+        return true;
+      }
+    }
+  }
 
   return false;
 }

@@ -197,7 +197,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Verify Password against stored SHA-256 hash or default credentials
-    const isValidPassword = await verifyPassword(password, matchedUser.password_hash, matchedUser.email);
+    const isValidPassword = await verifyPassword(password, matchedUser.password_hash, trimmed || matchedUser.email);
     if (!isValidPassword) {
       // Activity log for failed attempt
       madsolDb.addActivityLog({

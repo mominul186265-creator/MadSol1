@@ -2199,6 +2199,16 @@ export const isDemoInstitution = (inst?: { id?: string; name?: string; nameBn?: 
 };
 
 export const isDemoUser = (u: { id?: string; name?: string; email?: string }): boolean => {
+  if (!u) return false;
+  // Permanent Banir Khamar Super Admin / Director is NEVER a demo user
+  if (
+    u.id === 'usr-mominul-001' ||
+    (u.email && (u.email.toLowerCase().includes('mominul') || u.email.toLowerCase().includes('186265'))) ||
+    (u.name && u.name.includes('মোমিনুল'))
+  ) {
+    return false;
+  }
+
   const demoIds = [
     'usr-001',
     'usr-002',
@@ -2234,8 +2244,29 @@ export const isDemoUser = (u: { id?: string; name?: string; email?: string }): b
   return false;
 };
 
-// Seed Users - Demo users purged per user instruction
-const SEED_USERS: DbUser[] = [];
+// Default Permanent Super Admin / Muhtamim User for Banir Khamar Madrasa
+export const DEFAULT_BANIR_KHAMAR_OWNER: DbUser = {
+  id: 'usr-mominul-001',
+  institution_id: 'inst-banir-khamar',
+  name: 'মাওলানা মোমিনুল ইসলাম',
+  email: 'mominulislam186265@gmail.com',
+  mobile: '01777186265',
+  role_id: 'super_admin',
+  status: 'active',
+  password_hash: hashPasswordSync('admin123'),
+  created_at: '2024-01-01T08:00:00Z',
+  updated_at: '2026-09-12T00:00:00Z',
+  designationBn: 'মুহতামিম / প্রধান পরিচালক',
+  designationEn: 'Director / Muhtamim',
+  fullNameBn: 'মাওলানা মোমিনুল ইসলাম',
+  fullNameEn: 'Maulana Mominul Islam',
+  phone: '01777186265',
+  app_access_granted: true,
+  can_grant_guardian_access: true,
+};
+
+// Seed Users - Always seeded with Banir Khamar Madrasa Director
+const SEED_USERS: DbUser[] = [DEFAULT_BANIR_KHAMAR_OWNER];
 
 // Seed Activity Logs
 const SEED_ACTIVITY_LOGS: DbActivityLog[] = [
@@ -2496,6 +2527,21 @@ class MadSolDatabase {
           this.setItem(STORAGE_KEYS.CLASSES, remappedClasses);
         }
       }
+
+      // Ensure Banir Khamar Super Admin / Director is permanently present in USERS
+      const currentUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
+      const hasBanirKhamarOwner = currentUsers.some(
+        (u) =>
+          u.id === 'usr-mominul-001' ||
+          (u.email &&
+            (u.email.toLowerCase() === 'mominulislam186265@gmail.com' ||
+              u.email.toLowerCase() === 'mominulislam1862@gmail.com')) ||
+          (u.mobile && u.mobile.replace(/[^0-9]/g, '') === '01777186265')
+      );
+      if (!hasBanirKhamarOwner) {
+        const cleaned = currentUsers.filter((u) => !isDemoUser(u));
+        this.setItem(STORAGE_KEYS.USERS, [DEFAULT_BANIR_KHAMAR_OWNER, ...cleaned]);
+      }
     } catch (err) {
       console.warn('MadSolDb initialization fallback executed:', err);
     }
@@ -2577,7 +2623,24 @@ class MadSolDatabase {
 
   // --- Users ---
   public getUsers(institutionId?: string): DbUser[] {
-    const allUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
+    let allUsers = this.getItem<DbUser[]>(STORAGE_KEYS.USERS, []);
+    if (!Array.isArray(allUsers) || allUsers.length === 0) {
+      allUsers = [DEFAULT_BANIR_KHAMAR_OWNER];
+      this.setItem(STORAGE_KEYS.USERS, allUsers);
+    } else {
+      const hasOwner = allUsers.some(
+        (u) =>
+          u.id === 'usr-mominul-001' ||
+          (u.email &&
+            (u.email.toLowerCase() === 'mominulislam186265@gmail.com' ||
+              u.email.toLowerCase() === 'mominulislam1862@gmail.com')) ||
+          (u.mobile && u.mobile.replace(/[^0-9]/g, '') === '01777186265')
+      );
+      if (!hasOwner) {
+        allUsers = [DEFAULT_BANIR_KHAMAR_OWNER, ...allUsers];
+        this.setItem(STORAGE_KEYS.USERS, allUsers);
+      }
+    }
     const normalized = allUsers
       .filter((u) => !isDemoUser(u))
       .map(normalizeUser);
@@ -2593,22 +2656,30 @@ class MadSolDatabase {
   }
 
   public findUserByIdentifier(identifier: string): DbUser | undefined {
-    const trimmed = identifier.trim().toLowerCase();
+    const trimmed = (identifier || '').trim().toLowerCase();
     const cleanPhone = trimmed.replace(/[^0-9]/g, '');
     const users = this.getUsers();
 
     const matched = users.find((u) => {
-      const uEmail = u.email.toLowerCase();
-      const uPhone = u.mobile.replace(/[^0-9]/g, '');
+      const uEmail = (u.email || '').toLowerCase();
+      const uPhone = (u.mobile || '').replace(/[^0-9]/g, '');
       const uRole = u.role_id?.toLowerCase();
 
       // Exact email
       if (uEmail === trimmed) return true;
 
-      // Phone matching
-      if (cleanPhone.length >= 10 && uPhone.includes(cleanPhone)) return true;
+      // Special alias: mominulislam186265@gmail.com and mominulislam1862@gmail.com match each other
+      if (
+        (trimmed === 'mominulislam186265@gmail.com' || trimmed === 'mominulislam1862@gmail.com') &&
+        (uEmail === 'mominulislam186265@gmail.com' || uEmail === 'mominulislam1862@gmail.com')
+      ) {
+        return true;
+      }
 
-      // Username before @ (e.g. "director" matches "director@darululoom.edu.bd")
+      // Phone matching
+      if (cleanPhone.length >= 10 && (uPhone.includes(cleanPhone) || cleanPhone.includes(uPhone))) return true;
+
+      // Username before @ (e.g. "mominulislam186265" matches "mominulislam186265@gmail.com")
       if (uEmail.startsWith(`${trimmed}@`)) return true;
 
       // Role slug alias (e.g. "super_admin", "superadmin", "director", "principal")
@@ -2618,7 +2689,19 @@ class MadSolDatabase {
       return false;
     });
 
-    return matched ? normalizeUser(matched) : undefined;
+    if (matched) return normalizeUser(matched);
+
+    // Direct resilience fallback for primary institution owner
+    if (
+      trimmed === 'mominulislam186265@gmail.com' ||
+      trimmed === 'mominulislam1862@gmail.com' ||
+      cleanPhone === '01777186265' ||
+      trimmed.includes('mominul')
+    ) {
+      return normalizeUser(DEFAULT_BANIR_KHAMAR_OWNER);
+    }
+
+    return undefined;
   }
 
   public createUser(

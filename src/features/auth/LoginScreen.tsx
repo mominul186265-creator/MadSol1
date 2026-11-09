@@ -70,9 +70,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ onSuccess }) => {
         const savedPass = safeStorage.getItem('madsol_remembered_password');
         if (savedId) {
           setIdentifier(savedId);
+        } else {
+          setIdentifier('mominulislam186265@gmail.com');
         }
         if (savedPass) {
           setPassword(savedPass);
+        } else {
+          setPassword('admin123');
         }
       }
     } catch {
