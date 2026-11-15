@@ -72,6 +72,7 @@ import {
   INITIAL_AUDIT_LOGS_DETAILED
 } from '../data/part7InitialData';
 import { useAuth } from './AuthContext';
+import { cloudSync } from '../lib/cloudSync';
 
 interface Part7SystemContextType {
   // 1. AI Assistant & Insights
@@ -346,9 +347,33 @@ export const Part7SystemProvider: React.FC<{ children: React.ReactNode }> = ({ c
     localStorage.setItem('madsol_support_tickets', JSON.stringify(supportTickets));
   }, [supportTickets]);
 
+  const isFirstDocRender = React.useRef(true);
   useEffect(() => {
+    if (isFirstDocRender.current) {
+      isFirstDocRender.current = false;
+      return;
+    }
     localStorage.setItem('madsol_documents', JSON.stringify(documents));
+    cloudSync.triggerDebouncedSave(2000);
   }, [documents]);
+
+  // Listen for cloud restore events to update documents and tickets
+  useEffect(() => {
+    const handleRestore = () => {
+      try {
+        const savedDocs = localStorage.getItem('madsol_documents');
+        if (savedDocs) setDocuments(JSON.parse(savedDocs));
+        const savedCards = localStorage.getItem('madsol_student_id_cards');
+        if (savedCards) setStudentIdCards(JSON.parse(savedCards));
+        const savedTickets = localStorage.getItem('madsol_support_tickets');
+        if (savedTickets) setSupportTickets(JSON.parse(savedTickets));
+      } catch (e) {
+        console.warn('Error refreshing restored Part7 data:', e);
+      }
+    };
+    window.addEventListener('madsol_data_restored', handleRestore);
+    return () => window.removeEventListener('madsol_data_restored', handleRestore);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('madsol_student_id_cards', JSON.stringify(studentIdCards));

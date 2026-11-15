@@ -62,7 +62,10 @@ export const ExamManagementView: React.FC = () => {
   const selectedExam = (scopedExams || []).find((e) => e.id === selectedExamId) || scopedExams[0];
 
   // Subject selected for marks entry
-  const examSubjs = (examSubjects || []).filter((s) => s.examId === (selectedExam?.id || ''));
+  const examSubjs = React.useMemo(
+    () => (examSubjects || []).filter((s) => s.examId === (selectedExam?.id || '')),
+    [examSubjects, selectedExam?.id]
+  );
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(examSubjs[0]?.id || '');
 
   // Marks Entry Form State
@@ -86,10 +89,10 @@ export const ExamManagementView: React.FC = () => {
 
   // Sync marks when exam or subject changes
   React.useEffect(() => {
-    if ((examSubjs || []).length > 0 && !examSubjs.find((s) => s.id === selectedSubjectId)) {
+    if (examSubjs.length > 0 && !examSubjs.some((s) => s.id === selectedSubjectId)) {
       setSelectedSubjectId(examSubjs[0]?.id || '');
     }
-  }, [selectedExamId, examSubjs, selectedSubjectId]);
+  }, [examSubjs, selectedSubjectId]);
 
   // Load existing marks into state
   React.useEffect(() => {

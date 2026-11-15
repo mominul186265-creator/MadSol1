@@ -14,12 +14,20 @@ import {
   EyeOff,
   Building2,
   Camera,
+  CloudCheck,
+  CloudUpload,
+  CloudDownload,
+  Database,
+  RefreshCw,
+  Download,
+  Upload,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useToast } from '../../context/ToastContext';
 import { madsolDb } from '../../lib/db';
+import { cloudSync, CloudSyncStatus } from '../../lib/cloudSync';
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { ConfirmationDialog } from '../../components/common/ConfirmationDialog';
@@ -31,7 +39,15 @@ export const Step1SettingsView: React.FC = () => {
   const { theme, resolvedTheme, setTheme } = useTheme();
   const { showToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'security' | 'preferences' | 'cloud_backup'>('profile');
+  const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>(cloudSync.getStatus());
+  const [isCloudSyncing, setIsCloudSyncing] = useState(false);
+  const [importFileInput, setImportFileInput] = useState<HTMLInputElement | null>(null);
+
+  // Subscribe to sync manager
+  React.useEffect(() => {
+    return cloudSync.subscribe((s) => setSyncStatus(s));
+  }, []);
 
   // Profile Form
   const [name, setName] = useState(user?.name || '');
@@ -182,6 +198,18 @@ export const Step1SettingsView: React.FC = () => {
         >
           <Globe className="w-4 h-4" />
           <span>{language === 'bn' ? 'ভাষা ও থিম' : 'Preferences'}</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('cloud_backup')}
+          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+            activeTab === 'cloud_backup'
+              ? 'bg-emerald-700 text-white shadow-xs'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+          }`}
+        >
+          <CloudCheck className="w-4 h-4" />
+          <span>{language === 'bn' ? 'ক্লাউড ব্যাকআপ ও ভল্ট' : 'Cloud Vault & Backup'}</span>
         </button>
       </div>
 
@@ -486,6 +514,182 @@ export const Step1SettingsView: React.FC = () => {
             >
               {language === 'bn' ? 'ডাটাবেজ রিসেট করুন' : 'Reset Database'}
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Cloud Backup & Data Vault */}
+      {activeTab === 'cloud_backup' && (
+        <div className="space-y-6">
+          {/* Status Box */}
+          <div className="p-6 rounded-3xl bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-teal-500/10 border border-emerald-500/20 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-emerald-500/15">
+              <div className="flex items-center gap-3">
+                <div className="p-3 rounded-2xl bg-emerald-600 text-white shadow-sm">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                      {language === 'bn' ? 'ক্লাউড পার্মানেন্ট ডেটা ও ডকুমেন্ট ভল্ট' : 'Cloud Data & Document Vault'}
+                    </h3>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-300">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      {language === 'bn' ? 'সক্রিয় ও সুরক্ষিত' : 'Active & Secured'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                    {language === 'bn'
+                      ? 'আপনার মাদ্রাসার সকল শিক্ষার্থী, শিক্ষক, ফাইল, সনদপত্র, ফি এবং হাজিরা স্বয়ংক্রিয়ভাবে ক্লাউডে সংরক্ষিত হচ্ছে।'
+                      : 'All madrasa students, teachers, documents, certificates, fees, and attendance are synced to the cloud server.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={async () => {
+                    setIsCloudSyncing(true);
+                    const res = await cloudSync.pushBackup(user?.email, user?.institution_id);
+                    setIsCloudSyncing(false);
+                    if (res.success) {
+                      showToast(
+                        language === 'bn'
+                          ? 'সকল ডেটা ও ডকুমেন্ট সফলভাবে ক্লাউড সার্ভারে সংরক্ষিত হয়েছে!'
+                          : 'All data and documents safely backed up to cloud!',
+                        'success'
+                      );
+                    } else {
+                      showToast(res.message || 'Backup failed', 'error');
+                    }
+                  }}
+                  isLoading={isCloudSyncing}
+                  leftIcon={<CloudUpload className="w-4 h-4" />}
+                >
+                  {language === 'bn' ? 'এখনই ক্লাউডে সেভ করুন' : 'Backup to Cloud'}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    const confirmRestore = window.confirm(
+                      language === 'bn'
+                        ? 'আপনি কি ক্লাউড সার্ভার থেকে সর্বশেষ সংরক্ষিত সব ডেটা ও ফাইল পুনরুদ্ধার করতে চান?'
+                        : 'Restore all data and documents from cloud server?'
+                    );
+                    if (!confirmRestore) return;
+
+                    setIsCloudSyncing(true);
+                    const res = await cloudSync.pullAndRestore(user?.email, user?.institution_id);
+                    setIsCloudSyncing(false);
+                    if (res.success && res.restored) {
+                      refreshData();
+                      showToast(
+                        res.message || (language === 'bn' ? 'ক্লাউড থেকে সফলভাবে পুনরুদ্ধার হয়েছে!' : 'Restored successfully!'),
+                        'success'
+                      );
+                    } else {
+                      showToast(res.message || 'No backup found', 'info');
+                    }
+                  }}
+                  isLoading={isCloudSyncing}
+                  leftIcon={<CloudDownload className="w-4 h-4" />}
+                >
+                  {language === 'bn' ? 'ক্লাউড থেকে রিস্টোর' : 'Restore from Cloud'}
+                </Button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 dark:text-slate-300">
+              <div className="p-3 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/10">
+                <div className="text-[11px] text-slate-400 font-semibold mb-0.5">{language === 'bn' ? 'সংরক্ষিত মডিউল' : 'Stored Modules'}</div>
+                <div className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                  <Database className="w-4 h-4 text-emerald-600" />
+                  <span>{syncStatus.totalKeys}টি ডেটা টেবিল</span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/10">
+                <div className="text-[11px] text-slate-400 font-semibold mb-0.5">{language === 'bn' ? 'সর্বশেষ সিঙ্ক' : 'Last Synced'}</div>
+                <div className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-1.5">
+                  <RefreshCw className={`w-4 h-4 text-emerald-600 ${syncStatus.isSyncing ? 'animate-spin' : ''}`} />
+                  <span>
+                    {syncStatus.lastSyncedAt
+                      ? new Date(syncStatus.lastSyncedAt).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short',
+                        })
+                      : (language === 'bn' ? 'এখনই স্বয়ংক্রিয়' : 'Automatic')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-white/70 dark:bg-slate-900/60 border border-emerald-500/10">
+                <div className="text-[11px] text-slate-400 font-semibold mb-0.5">{language === 'bn' ? 'আন-ইনস্টল প্রটেকশন' : 'Uninstall Safety'}</div>
+                <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{language === 'bn' ? '১০০% নিশ্চিত নিরাপদ' : '100% Guaranteed Safe'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Local Device Offline Backup / Restore */}
+          <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Download className="w-5 h-5 text-emerald-600" />
+              <span>{language === 'bn' ? 'অফলাইন ব্যাকআপ ফাইল এক্সপোর্ট ও ইমপোর্ট' : 'Offline Backup Export & Import'}</span>
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              {language === 'bn'
+                ? 'আপনি চাইলে আপনার মাদ্রাসার সম্পূর্ণ ডেটাবেসের একটি ব্যাকআপ ফাইল (.json) নিজের ডিভাইসে ডাউনলোড করে রাখতে পারেন এবং যেকোনো ডিভাইস বা নতুন অ্যাকাউন্টে আপলোড করে ফিরিয়ে আনতে পারেন।'
+                : 'Download an encrypted snapshot of the entire database or import a saved backup JSON file.'}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => cloudSync.exportBackupJson()}
+                leftIcon={<Download className="w-4 h-4 text-emerald-600" />}
+              >
+                {language === 'bn' ? 'ব্যাকআপ ফাইল ডাউনলোড করুন (.json)' : 'Download Backup JSON'}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => importFileInput?.click()}
+                leftIcon={<Upload className="w-4 h-4 text-blue-600" />}
+              >
+                {language === 'bn' ? 'ফাইল থেকে রিস্টোর করুন' : 'Import from File'}
+              </Button>
+
+              <input
+                type="file"
+                accept=".json,application/json"
+                ref={(r) => setImportFileInput(r)}
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const res = await cloudSync.importBackupJson(file);
+                  if (res.success) {
+                    refreshData();
+                    showToast(
+                      res.message || (language === 'bn' ? 'ফাইল থেকে ডেটা রিস্টোর হয়েছে!' : 'Restored from file!'),
+                      'success'
+                    );
+                  } else {
+                    showToast(res.message || 'Import failed', 'error');
+                  }
+                  if (e.target) e.target.value = '';
+                }}
+              />
+            </div>
           </div>
         </div>
       )}

@@ -96,6 +96,7 @@ import {
 } from '../types/step7';
 import { hashPasswordSync } from './crypto';
 import { safeStorage } from './safeStorage';
+import { cloudSync } from './cloudSync';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -2341,6 +2342,10 @@ class MadSolDatabase {
   private setItem<T>(key: string, value: T): void {
     try {
       safeStorage.setItem(key, JSON.stringify(value));
+      // Auto-sync changes to server cloud store
+      if (typeof window !== 'undefined') {
+        cloudSync.triggerDebouncedSave();
+      }
     } catch (e) {
       console.error(`Error writing to ${key}:`, e);
     }

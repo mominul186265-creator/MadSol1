@@ -9,6 +9,7 @@ import {
 import { madsolDb, isDemoUser } from '../lib/db';
 import { hashPassword, hashPasswordSync, verifyPassword } from '../lib/crypto';
 import { safeStorage } from '../lib/safeStorage';
+import { cloudSync } from '../lib/cloudSync';
 
 interface AuthContextType {
   user: DbUser | null;
@@ -84,11 +85,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [roles, setRoles] = useState<DbRole[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
 
-  // Refresh DB state into React state
+  // Keep a ref to the latest user to keep callbacks stable
+  const userRef = React.useRef<DbUser | null>(user);
+  userRef.current = user;
+
+  // Refresh DB state into React state - stable reference with []
   const refreshData = useCallback(() => {
     setRoles(madsolDb.getRoles());
-    if (user) {
-      const refreshedUser = madsolDb.getUserById(user.id);
+    const currentUser = userRef.current;
+    if (currentUser) {
+      const refreshedUser = madsolDb.getUserById(currentUser.id);
       if (refreshedUser) {
         setUser(refreshedUser);
         const inst = madsolDb.getInstitutionById(refreshedUser.institution_id);
@@ -102,9 +108,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPermissions([]);
       }
     }
-  }, [user]);
+  }, []);
 
-  // Initial restore of session on load
+  // Initial restore of session on load - runs strictly once on mount
   useEffect(() => {
     madsolDb.init();
     setRoles(madsolDb.getRoles());
@@ -143,12 +149,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     if (restoredUser) {
+      userRef.current = restoredUser;
       setUser(restoredUser);
       const inst = madsolDb.getInstitutionById(restoredUser.institution_id);
       setInstitution(inst || null);
       setPermissions(madsolDb.getRolePermissions(restoredUser.role_id));
       setActivityLogs(madsolDb.getActivityLogs(restoredUser.institution_id));
     }
+
+    // Try restoring from server cloud if fresh install or to ensure latest cloud records
+    cloudSync.pullAndRestore().catch(() => {});
+
+    // Listen for custom cloud restore events
+    const handleCloudRestore = () => {
+      setRoles(madsolDb.getRoles());
+      const activeId = safeStorage.getItem(ACTIVE_USER_KEY) || userRef.current?.id;
+      if (activeId) {
+        const freshUser = madsolDb.getUserById(activeId);
+        if (freshUser) {
+          userRef.current = freshUser;
+          setUser(freshUser);
+          const freshInst = madsolDb.getInstitutionById(freshUser.institution_id);
+          setInstitution(freshInst || null);
+          setPermissions(madsolDb.getRolePermissions(freshUser.role_id));
+          setActivityLogs(madsolDb.getActivityLogs(freshUser.institution_id));
+        }
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('madsol_data_restored', handleCloudRestore);
+    }
+
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('madsol_data_restored', handleCloudRestore);
+      }
+    };
   }, []);
 
   // Check permission helper
@@ -243,6 +280,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       status: 'success',
     });
     setActivityLogs((prev) => [newLog, ...prev]);
+
+    // Trigger cloud synchronization to restore or update server backup
+    cloudSync.pullAndRestore(matchedUser.email, matchedUser.institution_id).then((res) => {
+      if (res.restored) {
+        refreshData();
+      } else {
+        cloudSync.pushBackup(matchedUser.email, matchedUser.institution_id);
+      }
+    }).catch(() => {});
 
     return { success: true };
   };

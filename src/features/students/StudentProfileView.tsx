@@ -97,16 +97,16 @@ export const StudentProfileView: React.FC<StudentProfileViewProps> = ({
 
     getDocuments(student.id).then((docs) => {
       if (isMounted) setDocuments(docs);
-    });
+    }).catch(() => {});
 
     getActivities(student.id).then((acts) => {
       if (isMounted) setActivities(acts);
-    });
+    }).catch(() => {});
 
     return () => {
       isMounted = false;
     };
-  }, [student.id, getDocuments, getActivities]);
+  }, [student.id]);
 
   const department = departments.find((d) => d.id === student.department_id);
   const studentClass = classes.find((c) => c.id === student.class_id);

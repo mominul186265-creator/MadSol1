@@ -245,20 +245,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefreshLayout.setColorSchemeColors(
-            getColor(R.color.primary_emerald),
-            getColor(R.color.accent_emerald_light)
-        )
-
-        // Only allow pull-to-refresh when the WebView is actually at the very top (scrollY == 0)
-        // This completely prevents accidental refresh when scrolling through long pages
-        binding.swipeRefreshLayout.setOnChildScrollUpCallback { _, _ ->
-            binding.webView.scrollY > 0
-        }
-
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            binding.webView.reload()
-        }
+        // Disable pull-to-refresh gesture completely so that scrolling through long pages,
+        // dashboard cards, student lists, and tables is 100% smooth without accidental reload icons
+        binding.swipeRefreshLayout.isEnabled = false
     }
 
     private fun setupOfflineRetry() {

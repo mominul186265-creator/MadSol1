@@ -15,9 +15,11 @@ import {
   Smartphone,
   Heart,
   Camera,
+  CloudCheck,
 } from 'lucide-react';
 import { MadSolLogo } from '../common/MadSolLogo';
 import { ProfilePhotoUploadModal } from '../common/ProfilePhotoUploadModal';
+import { CloudSyncModal } from '../common/CloudSyncModal';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -41,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isRoleMenuOpen, setIsRoleMenuOpen] = useState(false);
+  const [isCloudModalOpen, setIsCloudModalOpen] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -211,6 +214,18 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             )}
           </div>
+
+          {/* ☁️ Cloud Sync Status Button */}
+          <button
+            id="header-cloud-sync-btn"
+            type="button"
+            onClick={() => setIsCloudModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/80 dark:bg-emerald-950/50 text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors shadow-2xs cursor-pointer"
+            title="ক্লাউড ডেটা ব্যাকআপ ও ভল্ট স্ট্যাটাস"
+          >
+            <CloudCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span className="hidden md:inline font-bold">ক্লাউড ভল্ট</span>
+          </button>
 
           {/* 🌐 Language Switcher */}
           <div className="relative" ref={langRef}>
@@ -457,6 +472,12 @@ export const Header: React.FC<HeaderProps> = ({
           }}
         />
       )}
+
+      {/* Cloud Sync & Document Vault Modal */}
+      <CloudSyncModal
+        isOpen={isCloudModalOpen}
+        onClose={() => setIsCloudModalOpen(false)}
+      />
     </header>
   );
 };

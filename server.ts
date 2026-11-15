@@ -3,6 +3,7 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import dotenv from 'dotenv';
 import { communicationRouter } from './src/server/communication/routes';
+import { syncRouter } from './src/server/sync/syncRoutes';
 import { CommunicationSchedulerWorker } from './src/server/communication/scheduler/CommunicationSchedulerWorker';
 
 dotenv.config();
@@ -28,8 +29,9 @@ async function startServer() {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
-  // Mount communication routes
+  // Mount communication and cloud sync routes
   app.use('/api/communication', communicationRouter);
+  app.use('/api/sync', syncRouter);
 
   // In production, serve static files from dist; in development, attach Vite middleware
   if (isProd) {
