@@ -1,39 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
   BookMarked,
-  Award,
   Users,
   CheckCircle2,
   AlertTriangle,
-  Search,
   Plus,
-  Filter,
-  Star,
-  Eye,
   Calendar,
   Sparkles,
-  UserCheck,
-  ChevronRight,
   TrendingUp,
   BookOpen,
   Layers,
-  GraduationCap,
-  ShieldCheck,
-  User,
-  Heart,
-  LayoutGrid,
-  List,
-  Phone,
-  PhoneCall,
-  MessageSquare,
 } from 'lucide-react';
 import { useHifz } from '../../context/HifzContext';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
-import { HifzStudent, HifzBranch, HifzStage } from '../../types/hifz';
-import { HifzStudentProfileModal } from './HifzStudentProfileModal';
-import { SabakEntryModal } from './SabakEntryModal';
-import { DailyEvaluationModal } from './DailyEvaluationModal';
+import { HifzBranch } from '../../types/hifz';
 import { AddHifzStudentModal } from './AddHifzStudentModal';
 import { HifzStageDetailView } from './HifzStageDetailView';
 
@@ -51,12 +32,8 @@ export const HifzDashboardView: React.FC<HifzDashboardViewProps> = ({
     sabakEntries,
     sabkiEntries,
     manzilEntries,
-    evaluations,
     alertEvents,
-    resolveAlert,
   } = useHifz();
-
-  const isBn = language === 'bn';
 
   // Branch Selection: 'boys' (ছাত্র হিফজ) vs 'mohila' (মহিলা হিফজ)
   const [selectedBranch, setSelectedBranch] = useState<HifzBranch>(initialBranch);
@@ -70,24 +47,6 @@ export const HifzDashboardView: React.FC<HifzDashboardViewProps> = ({
     }
   }, [initialBranch]);
 
-  // Stage Selection: 'all' | 'qaida' | 'ampara' | 'nazra' | 'hifz' | 'revision'
-  const [selectedStage, setSelectedStage] = useState<'all' | HifzStage>('all');
-
-  // Main Tabs
-  const [activeTab, setActiveTab] = useState<'students' | 'sabak_log' | 'saat_amukhta' | 'evaluations' | 'alerts_teachers'>('students');
-
-  // Layout View: 'cards' vs 'table'
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('table');
-
-  // Search & Filter
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'graduated' | 'alert'>('all');
-
-  // Modals state
-  const [selectedStudentForProfile, setSelectedStudentForProfile] = useState<HifzStudent | null>(null);
-  const [selectedStudentForSabak, setSelectedStudentForSabak] = useState<HifzStudent | null>(null);
-  const [sabakModalInitialTab, setSabakModalInitialTab] = useState<'sabak' | 'saat_sabak' | 'amukhta'>('sabak');
-  const [selectedStudentForEval, setSelectedStudentForEval] = useState<HifzStudent | null>(null);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
 
   // Role permissions
@@ -108,66 +67,21 @@ export const HifzDashboardView: React.FC<HifzDashboardViewProps> = ({
   const hifzCount = branchStudents.filter((s) => s.stage === 'hifz' || (!s.stage && s.stage !== 'revision')).length;
   const revisionCount = branchStudents.filter((s) => s.stage === 'revision').length;
 
-  // Filtered Students according to Stage, Status & Search
-  const filteredStudents = branchStudents.filter((std) => {
-    // Stage Filter
-    if (selectedStage !== 'all') {
-      if (selectedStage === 'hifz') {
-        if (std.stage && std.stage !== 'hifz') return false;
-      } else {
-        if (std.stage !== selectedStage) return false;
-      }
-    }
-
-    // Search Query
-    const query = searchQuery.toLowerCase();
-    const matchesSearch =
-      std.fullNameBn.toLowerCase().includes(query) ||
-      std.studentCode.toLowerCase().includes(query) ||
-      std.rollNumber.toLowerCase().includes(query) ||
-      std.currentSurah.toLowerCase().includes(query) ||
-      (std.currentLessonDescription && std.currentLessonDescription.toLowerCase().includes(query)) ||
-      std.assignedTeacherName.toLowerCase().includes(query);
-
-    if (!matchesSearch) return false;
-
-    // Status Filter
-    if (filterStatus === 'active') return std.status === 'active';
-    if (filterStatus === 'graduated') return std.status === 'graduated';
-    if (filterStatus === 'alert') return std.lowProgressAlert;
-
-    return true;
-  });
-
   // Statistics Calculations
   const totalBranchStudents = branchStudents.length;
-  const avgProgress = totalBranchStudents > 0
-    ? Number((branchStudents.reduce((acc, s) => acc + s.progressPercentage, 0) / totalBranchStudents).toFixed(1))
-    : 0;
+  const avgProgress =
+    totalBranchStudents > 0
+      ? Number(
+          (
+            branchStudents.reduce((acc, s) => acc + s.progressPercentage, 0) /
+            totalBranchStudents
+          ).toFixed(1)
+        )
+      : 0;
 
   const todayStr = new Date().toISOString().split('T')[0];
   const todaySabakCount = sabakEntries.filter((s) => s.date === todayStr).length;
   const pendingAlerts = alertEvents.filter((a) => a.status === 'pending');
-
-  const getStageBadge = (stage: string) => {
-    switch (stage) {
-      case 'qaida':
-        return { label: 'নূরানী কায়দা', color: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 border-blue-200 dark:border-blue-900' };
-      case 'ampara':
-        return { label: 'আমপারা স্তর', color: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border-indigo-200 dark:border-indigo-900' };
-      case 'nazra':
-        return { label: 'নাজেরা স্তর', color: 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300 border-teal-200 dark:border-teal-900' };
-      case 'revision':
-        return { label: 'রিভিশন শাখা', color: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border-purple-200 dark:border-purple-900' };
-      default:
-        return { label: 'হিফজুল কুরআন', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900' };
-    }
-  };
-
-  const handleOpenSabakModal = (student: HifzStudent, tab: 'sabak' | 'saat_sabak' | 'amukhta' = 'sabak') => {
-    setSelectedStudentForSabak(student);
-    setSabakModalInitialTab(tab);
-  };
 
   // If a specific stage page is selected, render the dedicated separate stage view
   if (activeStagePage) {
@@ -458,33 +372,11 @@ export const HifzDashboardView: React.FC<HifzDashboardViewProps> = ({
         </div>
       </div>
 
-      {/* Modals */}
-      <HifzStudentProfileModal
-        student={selectedStudentForProfile}
-        isOpen={!!selectedStudentForProfile}
-        onClose={() => setSelectedStudentForProfile(null)}
-        onOpenSabakModal={(s, tab) => handleOpenSabakModal(s, tab)}
-        onOpenEvalModal={(s) => setSelectedStudentForEval(s)}
-      />
-
-      <SabakEntryModal
-        student={selectedStudentForSabak}
-        isOpen={!!selectedStudentForSabak}
-        onClose={() => setSelectedStudentForSabak(null)}
-        initialTab={sabakModalInitialTab}
-      />
-
-      <DailyEvaluationModal
-        student={selectedStudentForEval}
-        isOpen={!!selectedStudentForEval}
-        onClose={() => setSelectedStudentForEval(null)}
-      />
-
       <AddHifzStudentModal
         isOpen={isAddStudentOpen}
         onClose={() => setIsAddStudentOpen(false)}
         defaultBranch={selectedBranch}
-        defaultStage={selectedStage === 'all' ? 'hifz' : selectedStage}
+        defaultStage="hifz"
       />
     </div>
   );

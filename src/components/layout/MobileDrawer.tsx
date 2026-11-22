@@ -1,23 +1,28 @@
 import React, { useState, useRef } from 'react';
 import {
   X,
-  GraduationCap,
   LogOut,
   ShieldCheck,
-  UserCheck,
-  CalendarCheck,
+  FileText,
+  Users,
   Calendar,
-  Smartphone,
-  Heart,
+  Layers,
+  Wallet,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Banknote,
+  Gift,
+  HeartHandshake,
+  CreditCard,
   Award,
-  Utensils,
-  Tv,
-  Radio,
-  Sparkles,
-  Receipt,
+  QrCode,
   MessageSquare,
-  BookMarked,
-  BookOpen,
+  LifeBuoy,
+  Building2,
+  ShieldAlert,
+  Sliders,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -71,8 +76,11 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  const getRoleLabel = (role?: RoleSlug) => {
-    switch (role) {
+  const role = user?.role_id;
+  const isAdminOrPrincipal = role === 'super_admin' || role === 'institution_admin' || role === 'principal';
+
+  const getRoleLabel = (r?: RoleSlug) => {
+    switch (r) {
       case 'super_admin':
         return language === 'bn' ? 'সুপার এডমিন' : 'Super Admin';
       case 'institution_admin':
@@ -88,137 +96,258 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       case 'student':
         return language === 'bn' ? 'শিক্ষার্থী' : 'Student';
       default:
-        return role || '';
+        return r || '';
     }
   };
 
-
-
-  // Section 2: Special Sub-Apps (From Screenshot Block 1)
-  const SPECIAL_APPS = [
+  // Section 1: Academic, Admissions & Schedule (Excludes Home Page modules)
+  const ACADEMIC_EXTRA_ITEMS = [
     {
-      id: 'drawer-nav-teacher-app',
-      path: '/teacher-app',
-      labelBn: '১. সহকারী শিক্ষক অ্যাপ',
-      labelEn: '1. Teacher App',
-      subtitleBn: 'Teacher Portal & Sabak Diary',
-      subtitleEn: 'Teacher Portal & Sabak Diary',
-      icon: Smartphone,
-      iconBg: 'bg-emerald-500 text-white',
-      badge: 'Teacher',
-      allowed: true,
+      id: 'drawer-nav-admissions',
+      path: '/admissions',
+      labelBn: 'অনলাইন ভর্তি আবেদন',
+      labelEn: 'Online Admission',
+      subtitleBn: 'নতুন ভর্তি ফরম ও অনুমোদন',
+      subtitleEn: 'Admission applications & review',
+      icon: FileText,
+      iconBg: 'bg-emerald-600 text-white',
+      allowed: isAdminOrPrincipal,
     },
     {
-      id: 'drawer-nav-guardian-app',
-      path: '/guardian-app',
-      labelBn: '২. অভিভাবক অ্যাপ',
-      labelEn: '2. Guardian App',
-      subtitleBn: 'Guardian & Parent Portal',
-      subtitleEn: 'Guardian & Parent Portal',
-      icon: Heart,
-      iconBg: 'bg-blue-500 text-white',
-      badge: 'Parent',
-      allowed: true,
-    },
-  ];
-
-  // Section 3: Smart Modules (From Screenshot Block 2)
-  const SMART_MODULES = [
-    {
-      id: 'drawer-nav-exams',
-      path: '/exams',
-      labelBn: 'পরীক্ষা ও প্রবেশপত্র',
-      labelEn: 'Exams & Admit Card',
-      subtitleBn: 'এডমিট কার্ড ও সিট প্ল্যান',
-      subtitleEn: 'Admit Card & Seat Plan',
-      icon: Award,
-      iconBg: 'bg-amber-400 text-slate-900',
-      badge: 'Exams',
-      allowed: true,
-    },
-    {
-      id: 'drawer-nav-live-tv',
-      path: '/live_tv',
-      labelBn: 'টিভি হাজিরা মনিটর',
-      labelEn: 'Live TV Attendance',
-      subtitleBn: 'স্মার্ট টিভি ও ডিভাইস',
-      subtitleEn: 'Smart TV & Device',
-      icon: Tv,
-      iconBg: 'bg-cyan-400 text-slate-900',
-      badge: 'Live TV',
-      allowed: true,
-    },
-    {
-      id: 'drawer-nav-boarding',
-      path: '/boarding',
-      labelBn: 'ছাত্রাবাস ও মিল খাতা',
-      labelEn: 'Boarding & Meals',
-      subtitleBn: 'লিল্লাহ বোর্ডিং ও মেমো',
-      subtitleEn: 'Lillah Boarding & Memo',
-      icon: Utensils,
-      iconBg: 'bg-orange-400 text-slate-900',
-      badge: 'Hostel',
-      allowed: user?.role_id !== 'guardian',
-    },
-  ];
-
-  // Section 4: General Academic & Administrative Management
-  const GENERAL_ITEMS = [
-    {
-      id: 'drawer-nav-students',
-      path: '/students',
-      labelBn: 'শিক্ষার্থী তালিকা',
-      labelEn: 'Students',
-      icon: GraduationCap,
-      allowed: user?.role_id !== 'guardian',
-    },
-    {
-      id: 'drawer-nav-fees',
-      path: '/fees',
-      labelBn: 'শিক্ষার্থী ফি ও বেতন',
-      labelEn: 'Student Fees',
-      icon: Receipt,
-      allowed: user?.role_id !== 'guardian' && user?.role_id !== 'student',
-    },
-    {
-      id: 'drawer-nav-teachers',
-      path: '/teachers',
-      labelBn: 'শিক্ষক ও স্টাফ',
-      labelEn: 'Teachers',
-      icon: UserCheck,
-      allowed: user?.role_id !== 'guardian',
+      id: 'drawer-nav-guardians',
+      path: '/guardians',
+      labelBn: 'অভিভাবক তালিকা',
+      labelEn: 'Guardians Directory',
+      subtitleBn: 'অভিভাবক তথ্য ও যোগাযোগ',
+      subtitleEn: 'Parent registry & contacts',
+      icon: Users,
+      iconBg: 'bg-sky-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'teacher',
     },
     {
       id: 'drawer-nav-routines',
       path: '/routines',
+      matchPaths: ['/routines', '/routine'],
       labelBn: 'ক্লাস রুটিন',
       labelEn: 'Class Routine',
+      subtitleBn: 'সাপ্তাহিক পাঠদান সময়সূচী',
+      subtitleEn: 'Weekly class schedule',
       icon: Calendar,
+      iconBg: 'bg-indigo-600 text-white',
       allowed: true,
     },
     {
-      id: 'drawer-nav-attendance',
-      path: '/attendance',
-      labelBn: 'ডিজিটাল হাজিরা খাতা',
-      labelEn: 'Daily Attendance',
-      icon: CalendarCheck,
-      allowed: user?.role_id !== 'guardian',
+      id: 'drawer-nav-academic-setup',
+      path: '/academic_setup',
+      labelBn: 'বিভাগ ও জামাত সেটআপ',
+      labelEn: 'Academic Setup',
+      subtitleBn: 'শ্রেণী, শাখা ও বিষয় বিন্যাস',
+      subtitleEn: 'Classes, sections & subjects',
+      icon: Layers,
+      iconBg: 'bg-amber-600 text-white',
+      allowed: isAdminOrPrincipal,
     },
   ];
+
+  // Section 2: Accounts, Payroll & Funds (Excludes Fees on Home Page)
+  const FINANCE_ITEMS = [
+    {
+      id: 'drawer-nav-accounts',
+      path: '/accounts',
+      labelBn: 'হিসাব ড্যাশবোর্ড ও খতিয়ান',
+      labelEn: 'Accounts & Ledger',
+      subtitleBn: 'আয়-ব্যয় ও সাধারণ খতিয়ান',
+      subtitleEn: 'Balance & general ledger',
+      icon: Wallet,
+      iconBg: 'bg-emerald-500 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-dues',
+      path: '/dues',
+      labelBn: 'বকেয়া ফি ও তাগাদা',
+      labelEn: 'Student Dues',
+      subtitleBn: 'বকেয়া তালিকা ও এসএমএস তাগাদা',
+      subtitleEn: 'Outstanding dues & alerts',
+      icon: AlertCircle,
+      iconBg: 'bg-rose-500 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-income',
+      path: '/income',
+      labelBn: 'আয় ব্যবস্থাপনা',
+      labelEn: 'Income Ledger',
+      subtitleBn: 'রাজস্ব ও বিবিধ আয় এন্ট্রি',
+      subtitleEn: 'Revenue & receipts',
+      icon: TrendingUp,
+      iconBg: 'bg-teal-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-expenses',
+      path: '/expenses',
+      labelBn: 'ব্যয় ও বিল ভাউচার',
+      labelEn: 'Expense Management',
+      subtitleBn: 'খরচ, বিল ও ভাউচার হিসাব',
+      subtitleEn: 'Expenses & vouchers',
+      icon: TrendingDown,
+      iconBg: 'bg-orange-500 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-salaries',
+      path: '/salaries',
+      labelBn: 'শিক্ষক বেতন ও পেরোল',
+      labelEn: 'Staff Payroll',
+      subtitleBn: 'বেতন শিট ও পে-স্লিপ',
+      subtitleEn: 'Salary roster & payslips',
+      icon: Banknote,
+      iconBg: 'bg-cyan-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-donations',
+      path: '/donations',
+      labelBn: 'দান ও অনুদান খতিয়ান',
+      labelEn: 'Donations Registry',
+      subtitleBn: 'যাকাত, সদকা ও দাতা তালিকা',
+      subtitleEn: 'Charity & donor records',
+      icon: Gift,
+      iconBg: 'bg-violet-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-chanda',
+      path: '/chanda',
+      labelBn: 'মাসিক চাঁদা আদায়',
+      labelEn: 'Monthly Chanda',
+      subtitleBn: 'নিয়মিত দাতা ও চাঁদা সংগ্রহ',
+      subtitleEn: 'Recurring monthly donors',
+      icon: HeartHandshake,
+      iconBg: 'bg-pink-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'drawer-nav-funds',
+      path: '/funds',
+      labelBn: 'স্বতন্ত্র তহবিল ব্যবস্থাপনা',
+      labelEn: 'Special Funds',
+      subtitleBn: 'লিল্লাহ, যাকাত ও নির্মাণ ফান্ড',
+      subtitleEn: 'Lillah, Zakat & reserves',
+      icon: Layers,
+      iconBg: 'bg-slate-600 text-white',
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+  ];
+
+  const DOCUMENTS_AND_ADMIN_ITEMS: Array<{
+    id: string;
+    path: string;
+    matchPaths?: string[];
+    labelBn: string;
+    labelEn: string;
+    icon: React.ComponentType<{ className?: string }>;
+    allowed: boolean;
+  }> = [
+    {
+      id: 'drawer-nav-id-cards',
+      path: '/id_cards',
+      labelBn: 'স্মার্ট আইডি কার্ড',
+      labelEn: 'Smart ID Cards',
+      icon: CreditCard,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'drawer-nav-certificates',
+      path: '/certificates',
+      labelBn: 'সনদপত্র ও প্রশংসাপত্র',
+      labelEn: 'Certificates & Sanad',
+      icon: Award,
+      allowed: isAdminOrPrincipal || role === 'teacher',
+    },
+    {
+      id: 'drawer-nav-documents',
+      path: '/documents',
+      labelBn: 'ডকুমেন্ট ভল্ট ও নথিপত্র',
+      labelEn: 'Document Vault',
+      icon: FileText,
+      allowed: isAdminOrPrincipal || role === 'teacher',
+    },
+    {
+      id: 'drawer-nav-qr-verify',
+      path: '/qr_verify',
+      labelBn: 'কিউআর (QR) যাচাইকরণ',
+      labelEn: 'QR Verification',
+      icon: QrCode,
+      allowed: true,
+    },
+    {
+      id: 'drawer-nav-internal-messages',
+      path: '/internal_messages',
+      labelBn: 'অভ্যন্তরীণ বার্তা',
+      labelEn: 'Internal Messages',
+      icon: MessageSquare,
+      allowed: role !== 'guardian' && role !== 'student',
+    },
+    {
+      id: 'drawer-nav-support-tickets',
+      path: '/support_tickets',
+      labelBn: 'সাপোর্ট ও হেল্পডেস্ক',
+      labelEn: 'Support Tickets',
+      icon: LifeBuoy,
+      allowed: true,
+    },
+    {
+      id: 'drawer-nav-institution',
+      path: '/institution',
+      labelBn: 'প্রতিষ্ঠান ব্যবস্থাপনা',
+      labelEn: 'Institution Management',
+      icon: Building2,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'drawer-nav-super-admin',
+      path: '/super_admin',
+      labelBn: 'সুপার এডমিন প্যানেল',
+      labelEn: 'Super Admin Panel',
+      icon: ShieldAlert,
+      allowed: role === 'super_admin',
+    },
+    {
+      id: 'drawer-nav-advanced-settings',
+      path: '/advanced_settings',
+      labelBn: 'ব্র্যান্ডিং ও অ্যাডভান্সড সেটিংস',
+      labelEn: 'Advanced Settings',
+      icon: Sliders,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'drawer-nav-settings',
+      path: '/settings',
+      labelBn: 'সেটিংস ও নিরাপত্তা',
+      labelEn: 'Settings & Security',
+      icon: Settings,
+      allowed: true,
+    },
+  ];
+
+  const isPathMatch = (itemPath: string, matchPaths?: string[]) =>
+    matchPaths ? matchPaths.includes(currentPath) : currentPath === itemPath;
 
   const renderNavCard = (item: {
     id: string;
     path: string;
+    matchPaths?: string[];
     labelBn: string;
     labelEn: string;
     subtitleBn?: string;
     subtitleEn?: string;
     icon: React.ComponentType<{ className?: string }>;
     iconBg?: string;
-    badge?: string;
   }) => {
     const Icon = item.icon;
-    const isActive = currentPath === item.path;
+    const isActive = isPathMatch(item.path, item.matchPaths);
 
     return (
       <button
@@ -253,20 +382,13 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             )}
           </div>
         </div>
-        {item.badge && (
-          <span
-            className={`text-[9px] font-bold px-2 py-0.5 rounded-md shrink-0 ml-1.5 ${
-              isActive
-                ? 'bg-white/20 text-white'
-                : 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-            }`}
-          >
-            {item.badge}
-          </span>
-        )}
       </button>
     );
   };
+
+  const visibleAcademicExtra = ACADEMIC_EXTRA_ITEMS.filter((item) => item.allowed);
+  const visibleFinance = FINANCE_ITEMS.filter((item) => item.allowed);
+  const visibleDocumentsAndAdmin = DOCUMENTS_AND_ADMIN_ITEMS.filter((item) => item.allowed);
 
   return (
     <div
@@ -322,49 +444,46 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
             </div>
           )}
 
-
-          {/* Navigation Items (Scrollable) */}
+          {/* Navigation Items (Scrollable — Only Secondary Modules Not on Home Page) */}
           <nav className="flex-1 p-3 space-y-4 overflow-y-auto min-h-0">
-
-
-            {/* 2. Special Sub-Apps (From Screenshot) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Smartphone className="w-3 h-3" />
-                  {isBn ? 'বিশেষ পোর্টাল ও সাব-অ্যাপ' : 'Special Apps & Portals'}
-                </p>
-                <span className="text-[9px] text-slate-400 font-medium">{isBn ? '২টি অ্যাপ' : '2 Apps'}</span>
+            {/* 1. Academic Setup, Admissions & Routine */}
+            {visibleAcademicExtra.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="w-3 h-3" />
+                    {isBn ? 'ভর্তি, রুটিন ও অভিভাবক' : 'Admissions & Routine'}
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  {visibleAcademicExtra.map(renderNavCard)}
+                </div>
               </div>
-              <div className="space-y-1.5">
-                {SPECIAL_APPS.filter((item) => item.allowed).map(renderNavCard)}
-              </div>
-            </div>
+            )}
 
-            {/* 3. Smart Modules (From Screenshot) */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  {isBn ? 'নতুন স্মার্ট মডিউলসমূহ' : 'Smart Modules'}
-                </p>
-                <span className="text-[9px] text-slate-400 font-medium">
-                  {isBn ? `${SMART_MODULES.filter((item) => item.allowed).length}টি মডিউল` : `${SMART_MODULES.filter((item) => item.allowed).length} Modules`}
-                </span>
+            {/* 2. Accounts, Payroll & Funds */}
+            {visibleFinance.length > 0 && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between px-1">
+                  <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Wallet className="w-3 h-3 text-amber-500" />
+                    {isBn ? 'হিসাব, বেতন ও তহবিল' : 'Accounts & Funds'}
+                  </p>
+                </div>
+                <div className="space-y-1.5">
+                  {visibleFinance.map(renderNavCard)}
+                </div>
               </div>
-              <div className="space-y-1.5">
-                {SMART_MODULES.filter((item) => item.allowed).map(renderNavCard)}
-              </div>
-            </div>
+            )}
 
-            {/* 4. General Management */}
+            {/* 3. Documents, Certificates, Support & Admin */}
             <div className="space-y-1 pt-1 border-t border-slate-100 dark:border-slate-800">
               <p className="px-1 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                {isBn ? 'সাধারণ অ্যাকাডেমিক ও প্রশাসন' : 'General Management'}
+                {isBn ? 'ডকুমেন্ট, বার্তা ও প্রশাসন' : 'Documents & Administration'}
               </p>
-              {GENERAL_ITEMS.filter((item) => item.allowed).map((item) => {
+              {visibleDocumentsAndAdmin.map((item) => {
                 const Icon = item.icon;
-                const isActive = currentPath === item.path;
+                const isActive = isPathMatch(item.path, item.matchPaths);
 
                 return (
                   <button
@@ -393,7 +512,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         <div className="p-3 border-t border-slate-100 dark:border-slate-800 space-y-2 shrink-0">
           <div className="flex items-center gap-2 px-2 py-1 text-[11px] text-slate-400">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>MadSol v1.0 • Step 1</span>
+            <span>MadSol v1.0</span>
           </div>
           <button
             onClick={() => {

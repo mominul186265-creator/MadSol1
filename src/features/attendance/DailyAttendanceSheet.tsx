@@ -289,205 +289,333 @@ export const DailyAttendanceSheet: React.FC<DailyAttendanceSheetProps> = ({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto w-full min-w-0">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
-                <tr>
-                  <th className="px-4 py-3 font-semibold w-12 text-center">#</th>
-                  <th className="px-4 py-3 font-semibold w-24">
-                    {targetType === 'student'
-                      ? isBn
-                        ? 'রোল'
-                        : 'Roll'
-                      : isBn
-                      ? 'শিক্ষক আইডি'
-                      : 'Teacher ID'}
-                  </th>
-                  <th className="px-4 py-3 font-semibold">
-                    {isBn ? 'নাম ও পদবী / জামাত' : 'Name & Department / Class'}
-                  </th>
-                  <th className="px-4 py-3 font-semibold text-center w-64">
-                    {isBn ? 'উপস্থিতি স্ট্যাটাস' : 'Attendance Status'}
-                  </th>
-                  <th className="px-4 py-3 font-semibold w-28">
-                    {isBn ? 'প্রবেশ সময়' : 'Check-In'}
-                  </th>
-                  <th className="px-4 py-3 font-semibold">
-                    {isBn ? 'মন্তব্য / কারণ' : 'Remarks / Reason'}
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
-                {rows.map((row, index) => {
-                  const isPresent = row.status === 'present';
-                  const isAbsent = row.status === 'absent';
-                  const isLate = row.status === 'late';
-                  const isLeave = row.status === 'leave';
+          <>
+            {/* Mobile Touch-Friendly Card View (< md) */}
+            <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800/70">
+              {rows.map((row, index) => {
+                const isPresent = row.status === 'present';
+                const isAbsent = row.status === 'absent';
+                const isLate = row.status === 'late';
+                const isLeave = row.status === 'leave';
 
-                  return (
-                    <tr
-                      key={row.target_id}
-                      className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors ${
-                        row.is_dirty ? 'bg-amber-50/30 dark:bg-amber-950/10' : ''
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-center text-slate-400 font-mono">
-                        {index + 1}
-                      </td>
-
-                      <td className="px-4 py-3 font-mono font-semibold text-slate-700 dark:text-slate-300">
-                        {row.target_code}
-                      </td>
-
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2.5">
-                          {/* Student / Target Photo */}
-                          <div className="w-8 h-8 rounded-full overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 shadow-2xs">
-                            {row.photo ? (
-                              <img src={row.photo} alt={row.target_name_bn} className="w-full h-full object-cover" />
-                            ) : (
-                              row.target_name_bn?.charAt(0) || 'S'
-                            )}
+                return (
+                  <div
+                    key={row.target_id}
+                    className={`p-3.5 space-y-3 ${
+                      row.is_dirty ? 'bg-amber-50/40 dark:bg-amber-950/15' : ''
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="text-[11px] font-mono text-slate-400 w-5 shrink-0">
+                          {index + 1}.
+                        </span>
+                        <div className="w-9 h-9 rounded-full overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700">
+                          {row.photo ? (
+                            <img src={row.photo} alt={row.target_name_bn} className="w-full h-full object-cover" />
+                          ) : (
+                            row.target_name_bn?.charAt(0) || 'S'
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
+                            {row.target_name_bn}
                           </div>
-                          <div className="min-w-0">
-                            <div className="font-medium text-slate-900 dark:text-slate-100 truncate">
-                              {row.target_name_bn}
-                            </div>
-                            <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
-                              <span>{row.department_name_bn}</span>
-                              {row.class_name_bn && (
-                                <>
-                                  <span>•</span>
-                                  <span>{row.class_name_bn}</span>
-                                </>
-                              )}
-                              {row.section_name_bn && (
-                                <>
-                                  <span>•</span>
-                                  <span>{row.section_name_bn}</span>
-                                </>
-                              )}
-                            </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                            {targetType === 'student' ? (isBn ? 'রোল: ' : 'Roll: ') : (isBn ? 'আইডি: ' : 'ID: ')}
+                            <span className="font-mono font-semibold text-slate-700 dark:text-slate-300">{row.target_code}</span>
+                            {row.class_name_bn ? ` • ${row.class_name_bn}` : ''}
                           </div>
                         </div>
-                      </td>
+                      </div>
+                    </div>
 
-                      {/* Status Toggle Buttons */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl w-fit mx-auto border border-slate-200 dark:border-slate-700">
-                          {/* Present Button */}
-                          <button
-                            type="button"
-                            disabled={!canRecord}
-                            onClick={() => onStatusChange(row.target_id, 'present')}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
-                              isPresent
-                                ? 'bg-emerald-600 text-white shadow-xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
-                            }`}
-                            title={isBn ? 'উপস্থিত' : 'Present'}
-                          >
-                            <Check className="w-3 h-3" />
-                            <span>P</span>
-                          </button>
+                    {/* 4 Big Bengali Tap Buttons */}
+                    <div className="grid grid-cols-4 gap-1.5">
+                      <button
+                        type="button"
+                        disabled={!canRecord}
+                        onClick={() => onStatusChange(row.target_id, 'present')}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border transition-all ${
+                          isPresent
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <Check className="w-3 h-3 shrink-0" />
+                        <span>{isBn ? 'উপস্থিত' : 'Present'}</span>
+                      </button>
 
-                          {/* Absent Button */}
-                          <button
-                            type="button"
-                            disabled={!canRecord}
-                            onClick={() => onStatusChange(row.target_id, 'absent')}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
-                              isAbsent
-                                ? 'bg-rose-600 text-white shadow-xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
-                            }`}
-                            title={isBn ? 'অনুপস্থিত' : 'Absent'}
-                          >
-                            <X className="w-3 h-3" />
-                            <span>A</span>
-                          </button>
+                      <button
+                        type="button"
+                        disabled={!canRecord}
+                        onClick={() => onStatusChange(row.target_id, 'absent')}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border transition-all ${
+                          isAbsent
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <X className="w-3 h-3 shrink-0" />
+                        <span>{isBn ? 'অনুপস্থিত' : 'Absent'}</span>
+                      </button>
 
-                          {/* Late Button */}
-                          <button
-                            type="button"
+                      <button
+                        type="button"
+                        disabled={!canRecord}
+                        onClick={() => onStatusChange(row.target_id, 'late')}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border transition-all ${
+                          isLate
+                            ? 'bg-amber-500 text-white border-amber-500 shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <Clock className="w-3 h-3 shrink-0" />
+                        <span>{isBn ? 'বিলম্ব' : 'Late'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={!canRecord}
+                        onClick={() => onStatusChange(row.target_id, 'leave')}
+                        className={`py-2 px-1 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 border transition-all ${
+                          isLeave
+                            ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
+                            : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                        }`}
+                      >
+                        <span>{isBn ? 'ছুটি' : 'Leave'}</span>
+                      </button>
+                    </div>
+
+                    {/* Optional Time + Remarks Row */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        disabled={!canRecord || isAbsent || isLeave}
+                        value={row.check_in_time}
+                        onChange={(e) =>
+                          onDetailsChange(row.target_id, { check_in_time: e.target.value })
+                        }
+                        className="w-24 px-2 py-1.5 text-[11px] rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono disabled:opacity-40"
+                      />
+                      <input
+                        type="text"
+                        disabled={!canRecord}
+                        value={row.remarks}
+                        onChange={(e) =>
+                          onDetailsChange(row.target_id, { remarks: e.target.value })
+                        }
+                        placeholder={isBn ? 'মন্তব্য বা কারণ লিখুন...' : 'Remarks...'}
+                        className="flex-1 min-w-0 px-2.5 py-1.5 text-[11px] rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder-slate-400"
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View (md+) */}
+            <div className="hidden md:block overflow-x-auto w-full min-w-0">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+                  <tr>
+                    <th className="px-4 py-3 font-semibold w-12 text-center">#</th>
+                    <th className="px-4 py-3 font-semibold w-24">
+                      {targetType === 'student'
+                        ? isBn
+                          ? 'রোল'
+                          : 'Roll'
+                        : isBn
+                        ? 'শিক্ষক আইডি'
+                        : 'Teacher ID'}
+                    </th>
+                    <th className="px-4 py-3 font-semibold">
+                      {isBn ? 'নাম ও পদবী / জামাত' : 'Name & Department / Class'}
+                    </th>
+                    <th className="px-4 py-3 font-semibold text-center w-64">
+                      {isBn ? 'উপস্থিতি স্ট্যাটাস' : 'Attendance Status'}
+                    </th>
+                    <th className="px-4 py-3 font-semibold w-28">
+                      {isBn ? 'প্রবেশ সময়' : 'Check-In'}
+                    </th>
+                    <th className="px-4 py-3 font-semibold">
+                      {isBn ? 'মন্তব্য / কারণ' : 'Remarks / Reason'}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {rows.map((row, index) => {
+                    const isPresent = row.status === 'present';
+                    const isAbsent = row.status === 'absent';
+                    const isLate = row.status === 'late';
+                    const isLeave = row.status === 'leave';
+
+                    return (
+                      <tr
+                        key={row.target_id}
+                        className={`hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors ${
+                          row.is_dirty ? 'bg-amber-50/30 dark:bg-amber-950/10' : ''
+                        }`}
+                      >
+                        <td className="px-4 py-3 text-center text-slate-400 font-mono">
+                          {index + 1}
+                        </td>
+
+                        <td className="px-4 py-3 font-mono font-semibold text-slate-700 dark:text-slate-300">
+                          {row.target_code}
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            {/* Student / Target Photo */}
+                            <div className="w-8 h-8 rounded-full overflow-hidden bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 shadow-2xs">
+                              {row.photo ? (
+                                <img src={row.photo} alt={row.target_name_bn} className="w-full h-full object-cover" />
+                              ) : (
+                                row.target_name_bn?.charAt(0) || 'S'
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                                {row.target_name_bn}
+                              </div>
+                              <div className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
+                                <span>{row.department_name_bn}</span>
+                                {row.class_name_bn && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{row.class_name_bn}</span>
+                                  </>
+                                )}
+                                {row.section_name_bn && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{row.section_name_bn}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Status Toggle Buttons */}
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-center gap-1 bg-slate-100 dark:bg-slate-800/90 p-1 rounded-xl w-fit mx-auto border border-slate-200 dark:border-slate-700">
+                            {/* Present Button */}
+                            <button
+                              type="button"
+                              disabled={!canRecord}
+                              onClick={() => onStatusChange(row.target_id, 'present')}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                                isPresent
+                                  ? 'bg-emerald-600 text-white shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400'
+                              }`}
+                              title={isBn ? 'উপস্থিত' : 'Present'}
+                            >
+                              <Check className="w-3 h-3" />
+                              <span>P</span>
+                            </button>
+
+                            {/* Absent Button */}
+                            <button
+                              type="button"
+                              disabled={!canRecord}
+                              onClick={() => onStatusChange(row.target_id, 'absent')}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                                isAbsent
+                                  ? 'bg-rose-600 text-white shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400'
+                              }`}
+                              title={isBn ? 'অনুপস্থিত' : 'Absent'}
+                            >
+                              <X className="w-3 h-3" />
+                              <span>A</span>
+                            </button>
+
+                            {/* Late Button */}
+                            <button
+                              type="button"
+                              disabled={!canRecord}
+                              onClick={() => onStatusChange(row.target_id, 'late')}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                                isLate
+                                  ? 'bg-amber-500 text-white shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400'
+                              }`}
+                              title={isBn ? 'বিলম্ব' : 'Late'}
+                            >
+                              <Clock className="w-3 h-3" />
+                              <span>L</span>
+                            </button>
+
+                            {/* Leave Button */}
+                            <button
+                              type="button"
+                              disabled={!canRecord}
+                              onClick={() => onStatusChange(row.target_id, 'leave')}
+                              className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                                isLeave
+                                  ? 'bg-purple-600 text-white shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400'
+                              }`}
+                              title={isBn ? 'ছুটি' : 'On Leave'}
+                            >
+                              <span>LV</span>
+                            </button>
+                          </div>
+                        </td>
+
+                        {/* Check-in time input */}
+                        <td className="px-4 py-3">
+                          <input
+                            type="time"
+                            disabled={!canRecord || isAbsent || isLeave}
+                            value={row.check_in_time}
+                            onChange={(e) =>
+                              onDetailsChange(row.target_id, { check_in_time: e.target.value })
+                            }
+                            className="w-24 px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono disabled:opacity-40 disabled:bg-slate-100 dark:disabled:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                        </td>
+
+                        {/* Remarks input */}
+                        <td className="px-4 py-3">
+                          <input
+                            type="text"
                             disabled={!canRecord}
-                            onClick={() => onStatusChange(row.target_id, 'late')}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                            value={row.remarks}
+                            onChange={(e) =>
+                              onDetailsChange(row.target_id, { remarks: e.target.value })
+                            }
+                            placeholder={
                               isLate
-                                ? 'bg-amber-500 text-white shadow-xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400'
-                            }`}
-                            title={isBn ? 'বিলম্ব' : 'Late'}
-                          >
-                            <Clock className="w-3 h-3" />
-                            <span>L</span>
-                          </button>
-
-                          {/* Leave Button */}
-                          <button
-                            type="button"
-                            disabled={!canRecord}
-                            onClick={() => onStatusChange(row.target_id, 'leave')}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
-                              isLeave
-                                ? 'bg-purple-600 text-white shadow-xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-purple-600 dark:hover:text-purple-400'
-                            }`}
-                            title={isBn ? 'ছুটি' : 'On Leave'}
-                          >
-                            <span>LV</span>
-                          </button>
-                        </div>
-                      </td>
-
-                      {/* Check-in time input */}
-                      <td className="px-4 py-3">
-                        <input
-                          type="time"
-                          disabled={!canRecord || isAbsent || isLeave}
-                          value={row.check_in_time}
-                          onChange={(e) =>
-                            onDetailsChange(row.target_id, { check_in_time: e.target.value })
-                          }
-                          className="w-24 px-2 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-mono disabled:opacity-40 disabled:bg-slate-100 dark:disabled:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                      </td>
-
-                      {/* Remarks input */}
-                      <td className="px-4 py-3">
-                        <input
-                          type="text"
-                          disabled={!canRecord}
-                          value={row.remarks}
-                          onChange={(e) =>
-                            onDetailsChange(row.target_id, { remarks: e.target.value })
-                          }
-                          placeholder={
-                            isLate
-                              ? isBn
-                                ? 'দেরির কারণ...'
-                                : 'Reason for late'
-                              : isAbsent
-                              ? isBn
-                                ? 'অনুপস্থিতির কারণ...'
-                                : 'Reason for absence'
-                              : isLeave
-                              ? isBn
-                                ? 'ছুটির ধরন/বিবরণ...'
-                                : 'Leave details'
-                              : isBn
-                              ? 'মন্তব্য...'
-                              : 'Remarks...'
-                          }
-                          className="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                                ? isBn
+                                  ? 'দেরির কারণ...'
+                                  : 'Reason for late'
+                                : isAbsent
+                                ? isBn
+                                  ? 'অনুপস্থিতির কারণ...'
+                                  : 'Reason for absence'
+                                : isLeave
+                                ? isBn
+                                  ? 'ছুটির ধরন/বিবরণ...'
+                                  : 'Leave details'
+                                : isBn
+                                ? 'মন্তব্য...'
+                                : 'Remarks...'
+                            }
+                            className="w-full px-2.5 py-1 text-xs rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

@@ -463,22 +463,6 @@ export const SecretAdminModal: React.FC<SecretAdminModalProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* Direct Link to Full Institution Page */}
-            <div className="pt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  onNavigate('/institution');
-                  onClose();
-                }}
-                className="w-full py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-900/40 cursor-pointer"
-              >
-                <Building2 className="w-4 h-4" />
-                <span>{isBn ? '🏛️ সম্পূর্ণ প্রতিষ্ঠান ব্যবস্থাপনা পেজ খুলুন' : 'Open Full Institution Management Page'}</span>
-                <ExternalLink className="w-4 h-4 ml-1" />
-              </button>
-            </div>
           </div>
         )}
 

@@ -10,10 +10,7 @@ import {
   Menu,
   Building2,
   Check,
-  ShieldCheck,
   Sparkles,
-  Smartphone,
-  Heart,
   Camera,
   CloudCheck,
 } from 'lucide-react';
@@ -147,31 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Right Side Tools */}
-        <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-          {/* Sub-Apps Quick Launch Buttons (Desktop & Tablet) */}
-          {onNavigate && (
-            <div className="hidden lg:flex items-center gap-2 mr-1">
-              <button
-                id="header-launch-teacher-app-btn"
-                onClick={() => onNavigate('/teacher-app')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 text-xs font-bold hover:bg-emerald-100 transition-all cursor-pointer shadow-2xs"
-                title="সহকারী শিক্ষক অ্যাপ খুলুন"
-              >
-                <Smartphone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span>শিক্ষক অ্যাপ</span>
-              </button>
-              <button
-                id="header-launch-guardian-app-btn"
-                onClick={() => onNavigate('/guardian-app')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800/60 text-xs font-bold hover:bg-blue-100 transition-all cursor-pointer shadow-2xs"
-                title="অভিভাবক অ্যাপ খুলুন"
-              >
-                <Heart className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <span>অভিভাবক অ্যাপ</span>
-              </button>
-            </div>
-          )}
-
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           {/* Quick Role Switcher for assessment */}
           <div className="relative hidden sm:block" ref={roleRef}>
             <button
@@ -215,27 +188,15 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </div>
 
-          {/* ☁️ Cloud Sync Status Button */}
-          <button
-            id="header-cloud-sync-btn"
-            type="button"
-            onClick={() => setIsCloudModalOpen(true)}
-            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border border-emerald-300 dark:border-emerald-800/80 bg-emerald-50/80 dark:bg-emerald-950/50 text-xs font-semibold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors shadow-2xs cursor-pointer"
-            title="ক্লাউড ডেটা ব্যাকআপ ও ভল্ট স্ট্যাটাস"
-          >
-            <CloudCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span className="hidden md:inline font-bold">ক্লাউড ভল্ট</span>
-          </button>
-
           {/* 🌐 Language Switcher */}
           <div className="relative" ref={langRef}>
             <button
               id="header-lang-btn"
               onClick={() => setIsLangOpen(!isLangOpen)}
-              className="flex items-center justify-center gap-1.5 w-10 h-10 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors text-xs font-semibold shadow-2xs"
+              className="flex items-center justify-center gap-1.5 w-9 h-9 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors text-xs font-semibold shadow-2xs"
               title="Language"
             >
-              <Globe className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 dark:text-emerald-400" />
               <span className="hidden sm:inline font-bold text-xs">{language === 'bn' ? 'বাং' : 'EN'}</span>
             </button>
 
@@ -280,7 +241,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             id="header-theme-toggle-btn"
             onClick={toggleTheme}
-            className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors shadow-2xs cursor-pointer active:scale-95"
+            className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors shadow-2xs cursor-pointer active:scale-95"
             title={
               resolvedTheme === 'dark'
                 ? language === 'bn' ? 'লাইট মোড চালু করুন' : 'Switch to Light Mode'
@@ -289,9 +250,9 @@ export const Header: React.FC<HeaderProps> = ({
             aria-label="Toggle dark/light theme"
           >
             {resolvedTheme === 'dark' ? (
-              <Sun className="w-5 h-5 text-amber-400" />
+              <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
             ) : (
-              <Moon className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+              <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400" />
             )}
           </button>
 
@@ -300,10 +261,10 @@ export const Header: React.FC<HeaderProps> = ({
             <button
               id="header-notifications-btn"
               onClick={() => setIsNotifOpen(!isNotifOpen)}
-              className="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors shadow-2xs"
+              className="relative flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 rounded-xl transition-colors shadow-2xs"
               aria-label="Notifications"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             {isNotifOpen && (
@@ -398,33 +359,21 @@ export const Header: React.FC<HeaderProps> = ({
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 bg-emerald-50/70 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors font-bold cursor-pointer"
                     >
                       <Camera className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                      <span>{language === 'bn' ? '📷 প্রোফাইল ছবি আপলোড / পরিবর্তন' : '📷 Change / Upload Photo'}</span>
+                      <span>{language === 'bn' ? 'প্রোফাইল ছবি আপলোড / পরিবর্তন' : 'Change / Upload Photo'}</span>
                     </button>
                   </div>
 
                   <div className="py-1">
                     <button
-                      id="profile-dropdown-teacher-app-btn"
+                      id="profile-dropdown-cloud-vault-btn"
                       onClick={() => {
                         setIsProfileOpen(false);
-                        onNavigate && onNavigate('/teacher-app');
+                        setIsCloudModalOpen(true);
                       }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors font-semibold"
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors font-semibold"
                     >
-                      <Smartphone className="w-4 h-4 text-emerald-600" />
-                      <span>📱 সহকারী শিক্ষক অ্যাপ</span>
-                    </button>
-
-                    <button
-                      id="profile-dropdown-guardian-app-btn"
-                      onClick={() => {
-                        setIsProfileOpen(false);
-                        onNavigate && onNavigate('/guardian-app');
-                      }}
-                      className="w-full flex items-center gap-2.5 px-4 py-2 text-xs text-blue-800 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors font-semibold"
-                    >
-                      <Heart className="w-4 h-4 text-blue-600" />
-                      <span>👨‍👩‍👧 অভিভাবক অ্যাপ</span>
+                      <CloudCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                      <span>{language === 'bn' ? 'ক্লাউড ব্যাকআপ ও ভল্ট' : 'Cloud Backup & Vault'}</span>
                     </button>
 
                     <button

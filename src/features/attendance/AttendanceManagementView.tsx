@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CalendarCheck,
   Users,
@@ -51,6 +51,10 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isTvModalOpen, setIsTvModalOpen] = useState(initialOpenTvModal);
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIsTvModalOpen(initialOpenTvModal);
+  }, [initialOpenTvModal]);
 
   const {
     targetType,
@@ -164,7 +168,12 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
 
               <button
                 type="button"
-                onClick={() => setTargetType('teacher')}
+                onClick={() => {
+                  setTargetType('teacher');
+                  if (activeTab === 'all-classes') {
+                    setActiveTab('sheet');
+                  }
+                }}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                   targetType === 'teacher'
                     ? 'bg-emerald-600 text-white shadow-xs'
@@ -256,6 +265,16 @@ export const AttendanceManagementView: React.FC<AttendanceManagementViewProps> =
             {isBn ? 'নির্বাচিত তারিখ:' : 'Selected Date:'}{' '}
             <strong className="text-emerald-700 dark:text-emerald-400 font-mono">{date}</strong>
           </div>
+        </div>
+
+        {/* Step-by-step Quick Attendance Guide */}
+        <div className="mt-4 p-3 rounded-2xl bg-emerald-50/70 dark:bg-emerald-950/30 border border-emerald-200/70 dark:border-emerald-800/50 text-[11px] sm:text-xs text-emerald-900 dark:text-emerald-200 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+          <span className="font-bold text-emerald-800 dark:text-emerald-300">
+            {isBn ? '📌 হাজিরা করার সহজ নিয়ম:' : '📌 How to take attendance:'}
+          </span>
+          <span>{isBn ? '১. নিচের শ্রেণি কার্ডে "হাজিরা নিন" বা "শ্রেণিভিত্তিক রোল-কল" ট্যাবে যান' : '1. Open a class or Roll-Call tab'}</span>
+          <span>{isBn ? '২. উপস্থিত / অনুপস্থিত / বিলম্ব বাটনে চাপ দিন' : '2. Tap Present / Absent / Late'}</span>
+          <span>{isBn ? '৩. শেষে "হাজিরা সংরক্ষণ করুন" বাটনে ক্লিক করুন' : '3. Click Save Attendance'}</span>
         </div>
       </div>
 

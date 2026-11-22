@@ -9,7 +9,6 @@ import {
   Gift,
   Sparkles,
   Receipt,
-  ArrowLeft,
   ShieldCheck,
   CheckCircle2,
   Printer,
@@ -169,17 +168,8 @@ export const DonationSupportPageView: React.FC<DonationSupportPageViewProps> = (
 
   return (
     <div className="space-y-4 max-w-4xl mx-auto pb-16">
-      {/* Top Navigation Bar with Back Button */}
-      <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors cursor-pointer shadow-xs"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{isBn ? 'ড্যাশবোর্ডে ফিরুন' : 'Back to Dashboard'}</span>
-        </button>
-
+      {/* Verified Badge Strip */}
+      <div className="flex items-center justify-end">
         <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold border border-emerald-200 dark:border-emerald-800">
           <BadgeCheck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           <span>{isBn ? 'স্বীকৃত ও নিরাপদ অনুদান পোর্টাল' : 'Verified Donation Portal'}</span>

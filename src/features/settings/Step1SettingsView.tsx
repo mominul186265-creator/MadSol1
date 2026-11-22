@@ -63,10 +63,26 @@ export const Step1SettingsView: React.FC = () => {
   const [showNewPass, setShowNewPass] = useState(false);
   const [isSavingPass, setIsSavingPass] = useState(false);
 
-  // DB Reset Dialog
+  // DB Reset & Cloud Restore Dialogs
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [isRestoreDialogOpen, setIsRestoreDialogOpen] = useState(false);
   // Profile Photo Upload Modal
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+
+  const handleCloudRestore = async () => {
+    setIsCloudSyncing(true);
+    const res = await cloudSync.pullAndRestore(user?.email, user?.institution_id);
+    setIsCloudSyncing(false);
+    if (res.success && res.restored) {
+      refreshData();
+      showToast(
+        res.message || (language === 'bn' ? 'ক্লাউড থেকে সফলভাবে পুনরুদ্ধার হয়েছে!' : 'Restored successfully!'),
+        'success'
+      );
+    } else {
+      showToast(res.message || 'No backup found', 'info');
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -574,27 +590,7 @@ export const Step1SettingsView: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={async () => {
-                    const confirmRestore = window.confirm(
-                      language === 'bn'
-                        ? 'আপনি কি ক্লাউড সার্ভার থেকে সর্বশেষ সংরক্ষিত সব ডেটা ও ফাইল পুনরুদ্ধার করতে চান?'
-                        : 'Restore all data and documents from cloud server?'
-                    );
-                    if (!confirmRestore) return;
-
-                    setIsCloudSyncing(true);
-                    const res = await cloudSync.pullAndRestore(user?.email, user?.institution_id);
-                    setIsCloudSyncing(false);
-                    if (res.success && res.restored) {
-                      refreshData();
-                      showToast(
-                        res.message || (language === 'bn' ? 'ক্লাউড থেকে সফলভাবে পুনরুদ্ধার হয়েছে!' : 'Restored successfully!'),
-                        'success'
-                      );
-                    } else {
-                      showToast(res.message || 'No backup found', 'info');
-                    }
-                  }}
+                  onClick={() => setIsRestoreDialogOpen(true)}
                   isLoading={isCloudSyncing}
                   leftIcon={<CloudDownload className="w-4 h-4" />}
                 >
@@ -694,7 +690,7 @@ export const Step1SettingsView: React.FC = () => {
         </div>
       )}
 
-      {/* Confirmation Dialog */}
+      {/* Confirmation Dialogs */}
       <ConfirmationDialog
         isOpen={isResetDialogOpen}
         onClose={() => setIsResetDialogOpen(false)}
@@ -706,7 +702,20 @@ export const Step1SettingsView: React.FC = () => {
             : 'Are you sure you want to reset the database to default seed data?'
         }
         confirmText={language === 'bn' ? 'হ্যাঁ, রিসেট করুন' : 'Yes, Reset'}
-        variant="danger"
+        isDestructive={true}
+      />
+
+      <ConfirmationDialog
+        isOpen={isRestoreDialogOpen}
+        onClose={() => setIsRestoreDialogOpen(false)}
+        onConfirm={handleCloudRestore}
+        title={language === 'bn' ? 'ক্লাউড রিস্টোর নিশ্চিতকরণ' : 'Confirm Cloud Restore'}
+        message={
+          language === 'bn'
+            ? 'আপনি কি ক্লাউড সার্ভার থেকে সর্বশেষ সংরক্ষিত সব ডেটা ও ফাইল পুনরুদ্ধার করতে চান?'
+            : 'Restore all data and documents from the cloud server?'
+        }
+        confirmText={language === 'bn' ? 'হ্যাঁ, রিস্টোর করুন' : 'Yes, Restore'}
       />
 
       {/* Profile Photo Upload Modal */}

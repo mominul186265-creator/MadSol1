@@ -4234,9 +4234,7 @@ class MadSolDatabase {
     let secId = '';
 
     if (targetType === 'student') {
-      const students = this.getItem<DbStudent[]>(STORAGE_KEYS.STUDENTS, SEED_STUDENTS).filter(
-        (s) => s.institution_id === institutionId && !s.deleted_at
-      );
+      const students = this.getAllStudentsList(institutionId).filter((s) => !s.deleted_at);
       const student = students.find(
         (s) =>
           s.id === trimmed ||

@@ -8,7 +8,6 @@ import {
   Phone,
   MessageSquare,
   Sparkles,
-  ArrowLeft,
   CheckCircle2,
   AlertCircle,
   Clock,
@@ -125,15 +124,6 @@ export const GuardianSubApp: React.FC<GuardianSubAppProps> = ({
               </p>
             </div>
           </div>
-          {onBackToMain && (
-            <button
-              onClick={onBackToMain}
-              className="shrink-0 px-3 py-1.5 bg-white text-blue-900 rounded-xl text-xs font-bold hover:bg-blue-50 transition-all flex items-center gap-1.5 shadow-sm"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>মোহতামিম প্যানেলে ফিরুন</span>
-            </button>
-          )}
         </div>
       )}
 

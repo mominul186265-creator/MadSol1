@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { LanguageProvider } from './context/LanguageContext';
+import { ArrowLeft } from 'lucide-react';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ToastProvider } from './context/ToastContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -49,7 +50,6 @@ import { AiAssistantView } from './features/ai/AiAssistantView';
 import { AiStudentPerformanceView } from './features/ai/AiStudentPerformanceView';
 import { AiHifzAnalysisView } from './features/ai/AiHifzAnalysisView';
 import { AiReportsView } from './features/ai/AiReportsView';
-import { GuardianCommunicationView } from './features/communication/GuardianCommunicationView';
 import { InternalMessagesView } from './features/communication/InternalMessagesView';
 import { SupportTicketsView } from './features/support/SupportTicketsView';
 import { DocumentManagementView } from './features/documents/DocumentManagementView';
@@ -65,15 +65,55 @@ import { CommunicationProvider } from './context/CommunicationContext';
 
 function MainAppContent() {
   const { isAuthenticated, user } = useAuth();
+  const { language } = useLanguage();
 
   const [currentPath, setCurrentPath] = useState<string>('/dashboard');
+  const [pathHistory, setPathHistory] = useState<string[]>([]);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
   const [isSecretAdminOpen, setIsSecretAdminOpen] = useState(false);
 
+  const isHomePath = currentPath === '/dashboard' || currentPath === '/home';
+
+  const navigateTo = (nextPath: string) => {
+    if (nextPath === currentPath) return;
+    if (nextPath === '/dashboard' || nextPath === '/home') {
+      setPathHistory([]);
+    } else {
+      setPathHistory((prev) => [...prev, currentPath]);
+    }
+    setCurrentPath(nextPath);
+    if (typeof document !== 'undefined') {
+      document.getElementById('main-content-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const goBack = () => {
+    setPathHistory((prev) => {
+      if (prev.length > 0) {
+        const nextHistory = [...prev];
+        const previousPath = nextHistory.pop() || '/dashboard';
+        setCurrentPath(previousPath);
+        return nextHistory;
+      }
+      setCurrentPath('/dashboard');
+      return [];
+    });
+    if (typeof document !== 'undefined') {
+      document.getElementById('main-content-scroll')?.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   // If user is not logged in, render the Login Screen
   if (!isAuthenticated) {
-    return <LoginScreen onSuccess={() => setCurrentPath('/dashboard')} />;
+    return (
+      <LoginScreen
+        onSuccess={() => {
+          setPathHistory([]);
+          setCurrentPath('/dashboard');
+        }}
+      />
+    );
   }
 
   // RBAC Permission Check for Step 1 Routes
@@ -91,20 +131,20 @@ function MainAppContent() {
   // Content Router
   const renderCurrentView = () => {
     // If teacher accesses root dashboard, take directly to Teacher Sub-App
-    if (user?.role_id === 'teacher' && (currentPath === '/dashboard' || currentPath === '/home')) {
-      return <TeacherSubApp onBackToMain={() => setCurrentPath('/dashboard')} isDirectorViewing={false} />;
+    if (user?.role_id === 'teacher' && isHomePath) {
+      return <TeacherSubApp onBackToMain={goBack} isDirectorViewing={false} />;
     }
 
     // If guardian accesses root dashboard, take directly to Guardian Sub-App
-    if (user?.role_id === 'guardian' && (currentPath === '/dashboard' || currentPath === '/home')) {
-      return <GuardianSubApp onBackToMain={() => setCurrentPath('/dashboard')} isDirectorViewing={false} />;
+    if (user?.role_id === 'guardian' && isHomePath) {
+      return <GuardianSubApp onBackToMain={goBack} isDirectorViewing={false} />;
     }
 
     switch (currentPath) {
       case '/teacher-app':
         return (
           <TeacherSubApp
-            onBackToMain={() => setCurrentPath('/dashboard')}
+            onBackToMain={goBack}
             isDirectorViewing={user?.role_id !== 'teacher'}
           />
         );
@@ -112,14 +152,14 @@ function MainAppContent() {
       case '/guardian-app':
         return (
           <GuardianSubApp
-            onBackToMain={() => setCurrentPath('/dashboard')}
+            onBackToMain={goBack}
             isDirectorViewing={user?.role_id !== 'guardian'}
           />
         );
 
       case '/dashboard':
       case '/home':
-        return <Step1DashboardView onNavigate={setCurrentPath} />;
+        return <Step1DashboardView onNavigate={navigateTo} />;
 
       case '/hifz':
       case '/hifz_boys':
@@ -151,10 +191,10 @@ function MainAppContent() {
         return <RoutineManagementView />;
 
       case '/attendance':
-        return <AttendanceManagementView />;
+        return <AttendanceManagementView key="attendance-view" />;
 
       case '/live_tv':
-        return <AttendanceManagementView initialOpenTvModal={true} />;
+        return <AttendanceManagementView key="live-tv-view" initialOpenTvModal={true} />;
 
       case '/automation':
         return <CommunicationHubView />;
@@ -188,13 +228,13 @@ function MainAppContent() {
         return <OnlineAdmissionView />;
 
       case '/guardians':
-        return <GuardianManagementView onSelectStudent={() => setCurrentPath('/students')} />;
+        return <GuardianManagementView onSelectStudent={() => navigateTo('/students')} />;
 
       case '/fees':
         return <FeeManagementView />;
 
       case '/dues':
-        return <DueManagementView onNavigateToCollection={() => setCurrentPath('/fees')} />;
+        return <DueManagementView onNavigateToCollection={() => navigateTo('/fees')} />;
 
       case '/accounts':
         return <AccountsDashboardView />;
@@ -213,7 +253,7 @@ function MainAppContent() {
 
       case '/donation-support':
       case '/support':
-        return <DonationSupportPageView onBack={() => setCurrentPath('/dashboard')} />;
+        return <DonationSupportPageView onBack={goBack} />;
 
       case '/chanda':
         return <MonthlyChandaView />;
@@ -293,9 +333,11 @@ function MainAppContent() {
         return <SuperAdminDashboardView />;
 
       default:
-        return <Step1DashboardView onNavigate={setCurrentPath} />;
+        return <Step1DashboardView onNavigate={navigateTo} />;
     }
   };
+
+  const canGoBack = !isHomePath;
 
   return (
     <div className="h-full w-full max-w-full overflow-hidden bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-200 relative">
@@ -305,7 +347,7 @@ function MainAppContent() {
       {/* Top Header */}
       <Header
         onToggleSidebar={() => setIsMobileDrawerOpen(true)}
-        onNavigate={setCurrentPath}
+        onNavigate={navigateTo}
       />
 
       {/* Main Body Area: Sidebar + Active View */}
@@ -313,7 +355,7 @@ function MainAppContent() {
         {/* Desktop Sidebar */}
         <Sidebar
           currentPath={currentPath}
-          onNavigate={setCurrentPath}
+          onNavigate={navigateTo}
           isCollapsed={isSidebarCollapsed}
           onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
           onOpenSecretAdmin={() => setIsSecretAdminOpen(true)}
@@ -324,7 +366,7 @@ function MainAppContent() {
           isOpen={isMobileDrawerOpen}
           onClose={() => setIsMobileDrawerOpen(false)}
           currentPath={currentPath}
-          onNavigate={setCurrentPath}
+          onNavigate={navigateTo}
           onOpenSecretAdmin={() => setIsSecretAdminOpen(true)}
         />
 
@@ -335,11 +377,28 @@ function MainAppContent() {
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="max-w-7xl mx-auto w-full min-w-0">
+            {/* Compact Top-Left Back Arrow below the navbar on all sub-options */}
+            {canGoBack && (
+              <div className="mb-2 flex items-center">
+                <button
+                  id="page-back-btn"
+                  type="button"
+                  onClick={goBack}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/95 dark:bg-slate-900/95 hover:bg-emerald-50 dark:hover:bg-slate-800 text-emerald-700 dark:text-emerald-400 border border-slate-200 dark:border-slate-700/80 shadow-2xs text-[11px] font-bold transition-all active:scale-95 cursor-pointer"
+                  aria-label={language === 'bn' ? 'পিছনে ফিরুন' : 'Go back'}
+                  title={language === 'bn' ? 'পিছনে ফিরুন' : 'Go back'}
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+                  <span>{language === 'bn' ? 'ফিরুন' : 'Back'}</span>
+                </button>
+              </div>
+            )}
+
             {renderCurrentView()}
 
             {/* Donation & Support Card shown at the bottom of all main pages */}
             {currentPath !== '/donation-support' && currentPath !== '/live_tv' && (
-              <DashboardDonationSupportCard onNavigate={setCurrentPath} />
+              <DashboardDonationSupportCard onNavigate={navigateTo} />
             )}
           </div>
         </main>
@@ -349,7 +408,7 @@ function MainAppContent() {
       <SecretAdminModal
         isOpen={isSecretAdminOpen}
         onClose={() => setIsSecretAdminOpen(false)}
-        onNavigate={setCurrentPath}
+        onNavigate={navigateTo}
       />
     </div>
   );

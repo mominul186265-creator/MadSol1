@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { Modal } from './Modal';
 import { Button } from './Button';
+import { ConfirmationDialog } from './ConfirmationDialog';
 import { cloudSync, CloudSyncStatus } from '../../lib/cloudSync';
 import { useLanguage } from '../../context/LanguageContext';
 import { useToast } from '../../context/ToastContext';
@@ -33,6 +34,7 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({ isOpen, onClose 
   const [syncStatus, setSyncStatus] = useState<CloudSyncStatus>(cloudSync.getStatus());
   const [isPushing, setIsPushing] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
+  const [isRestoreConfirmOpen, setIsRestoreConfirmOpen] = useState(false);
   const [fileInputRef, setFileInputRef] = useState<HTMLInputElement | null>(null);
 
   const isBn = language === 'bn';
@@ -52,14 +54,11 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({ isOpen, onClose 
     }
   };
 
-  const handleManualRestore = async () => {
-    const confirmRestore = window.confirm(
-      isBn
-        ? 'আপনি কি ক্লাউড সার্ভার থেকে সংরক্ষিত সকল ডকুমেন্ট ও ডেটা পুনরুদ্ধার করতে চান?'
-        : 'Do you want to restore all saved documents and data from the cloud server?'
-    );
-    if (!confirmRestore) return;
+  const handleManualRestore = () => {
+    setIsRestoreConfirmOpen(true);
+  };
 
+  const executeManualRestore = async () => {
     setIsPulling(true);
     const res = await cloudSync.pullAndRestore(user?.email, user?.institution_id);
     setIsPulling(false);
@@ -246,6 +245,19 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = ({ isOpen, onClose 
           </Button>
         </div>
       </div>
+
+      <ConfirmationDialog
+        isOpen={isRestoreConfirmOpen}
+        onClose={() => setIsRestoreConfirmOpen(false)}
+        onConfirm={executeManualRestore}
+        title={isBn ? 'ক্লাউড রিস্টোর নিশ্চিতকরণ' : 'Confirm Cloud Restore'}
+        message={
+          isBn
+            ? 'আপনি কি ক্লাউড সার্ভার থেকে সংরক্ষিত সকল ডকুমেন্ট ও ডেটা পুনরুদ্ধার করতে চান?'
+            : 'Do you want to restore all saved documents and data from the cloud server?'
+        }
+        confirmText={isBn ? 'হ্যাঁ, রিস্টোর করুন' : 'Yes, Restore'}
+      />
     </Modal>
   );
 };

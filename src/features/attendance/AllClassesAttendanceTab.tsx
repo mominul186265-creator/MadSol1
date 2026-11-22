@@ -164,16 +164,30 @@ export const AllClassesAttendanceTab: React.FC<AllClassesAttendanceTabProps> = (
               <span>{isBn ? 'সব শ্রেণিতে সবাইকে উপস্থিত করুন' : 'Mark All Present (All Classes)'}</span>
             </button>
 
-            {hasUnsavedChanges && (
-              <button
-                type="button"
-                disabled={isSaving}
-                onClick={onSave}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-amber-400 text-amber-950 hover:bg-amber-300 font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer animate-pulse"
-              >
-                <span>{isSaving ? (isBn ? 'সংরক্ষণ হচ্ছে...' : 'Saving...') : isBn ? '💾 পরিবর্তন সংরক্ষণ করুন' : '💾 Save Changes'}</span>
-              </button>
-            )}
+            <button
+              type="button"
+              disabled={!canRecord || isSaving || allRows.length === 0}
+              onClick={onSave}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm shadow-md transition-all active:scale-95 cursor-pointer disabled:opacity-50 ${
+                hasUnsavedChanges
+                  ? 'bg-amber-400 text-amber-950 hover:bg-amber-300 animate-pulse'
+                  : 'bg-emerald-500 text-white hover:bg-emerald-400 border border-emerald-300/40'
+              }`}
+            >
+              <span>
+                {isSaving
+                  ? isBn
+                    ? 'সংরক্ষণ হচ্ছে...'
+                    : 'Saving...'
+                  : hasUnsavedChanges
+                  ? isBn
+                    ? '💾 পরিবর্তন সংরক্ষণ করুন'
+                    : '💾 Save Changes'
+                  : isBn
+                  ? '💾 হাজিরা সংরক্ষণ করুন'
+                  : '💾 Save Attendance'}
+              </span>
+            </button>
           </div>
         </div>
 

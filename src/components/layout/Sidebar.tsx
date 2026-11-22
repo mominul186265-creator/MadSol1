@@ -1,26 +1,28 @@
 import React, { useState, useRef } from 'react';
 import {
-  LayoutDashboard,
-  GraduationCap,
   Building2,
   Users,
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  UserCheck,
-  CalendarCheck,
   Calendar,
-  Smartphone,
-  Heart,
   Award,
-  Utensils,
-  Tv,
-  Radio,
-  Sparkles,
-  Receipt,
+  Settings,
+  FileText,
+  Layers,
+  Wallet,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
+  Banknote,
+  Gift,
+  HeartHandshake,
+  CreditCard,
+  QrCode,
   MessageSquare,
-  BookMarked,
-  BookOpen,
+  LifeBuoy,
+  ShieldAlert,
+  Sliders,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useLanguage } from '../../context/LanguageContext';
@@ -41,7 +43,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   onOpenSecretAdmin,
 }) => {
-  const { user, hasPermission } = useAuth();
+  const { user } = useAuth();
   const { language } = useLanguage();
 
   const [headerClicks, setHeaderClicks] = useState(0);
@@ -96,6 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   interface NavItem {
     id: string;
     path: string;
+    matchPaths?: string[];
     labelBn: string;
     labelEn: string;
     icon: React.ComponentType<{ className?: string }>;
@@ -104,142 +107,186 @@ export const Sidebar: React.FC<SidebarProps> = ({
     badgeColor?: string;
   }
 
-  // STEP 2: Core + Student Management
+  const role = user?.role_id;
+  const isAdminOrPrincipal = role === 'super_admin' || role === 'institution_admin' || role === 'principal';
+
   const NAV_ITEMS: NavItem[] = [
     {
-      id: 'nav-dashboard',
-      path: '/dashboard',
-      labelBn: 'ড্যাশবোর্ড',
-      labelEn: 'Dashboard',
-      icon: LayoutDashboard,
-      allowed: true, // Everyone with login
+      id: 'nav-admissions',
+      path: '/admissions',
+      labelBn: 'অনলাইন ভর্তি আবেদন',
+      labelEn: 'Online Admission',
+      icon: FileText,
+      allowed: isAdminOrPrincipal,
     },
     {
-      id: 'nav-teacher-app',
-      path: '/teacher-app',
-      labelBn: '১. সহকারী শিক্ষক অ্যাপ',
-      labelEn: '1. Teacher App',
-      icon: Smartphone,
-      allowed: true,
-    },
-    {
-      id: 'nav-guardian-app',
-      path: '/guardian-app',
-      labelBn: '২. অভিভাবক অ্যাপ',
-      labelEn: '2. Guardian App',
-      icon: Heart,
-      allowed: true,
-    },
-    {
-      id: 'nav-hifz',
-      path: '/hifz',
-      labelBn: 'হিফজুল কুরআন (ছাত্র)',
-      labelEn: 'Hifz (Boys)',
-      icon: BookMarked,
-      allowed: true,
-      badge: 'সবক',
-      badgeColor: 'bg-emerald-600 text-white',
-    },
-    {
-      id: 'nav-qawmi',
-      path: '/qawmi',
-      labelBn: 'ক্বওমী নেসাব (কিতাব বিভাগ)',
-      labelEn: 'Qawmi Curriculum',
-      icon: BookOpen,
-      allowed: true,
-      badge: 'ক্বওমী',
-      badgeColor: 'bg-indigo-600 text-white',
-    },
-    {
-      id: 'nav-exams',
-      path: '/exams',
-      labelBn: 'পরীক্ষা ও প্রবেশপত্র',
-      labelEn: 'Exams & Admit Card',
-      icon: Award,
-      allowed: true,
-    },
-    {
-      id: 'nav-live-tv',
-      path: '/live_tv',
-      labelBn: 'টিভি হাজিরা মনিটর',
-      labelEn: 'Live TV Attendance',
-      icon: Tv,
-      allowed: true,
-    },
-    {
-      id: 'nav-boarding',
-      path: '/boarding',
-      labelBn: 'ছাত্রাবাস ও মিল খাতা',
-      labelEn: 'Boarding & Meals',
-      icon: Utensils,
-      allowed: hasPermission('boarding.view') || user?.role_id !== 'guardian',
-    },
-    {
-      id: 'nav-automation',
-      path: '/automation',
-      labelBn: 'অটোমেশন ও যোগাযোগ',
-      labelEn: 'Automation & Broadcast',
-      icon: Radio,
-      allowed: user?.role_id !== 'guardian',
-    },
-    {
-      id: 'nav-students',
-      path: '/students',
-      labelBn: 'শিক্ষার্থী তালিকা',
-      labelEn: 'Students',
-      icon: GraduationCap,
-      // Accessible to Super Admin, Institution Admin, Principal, Teacher, Accountant
-      allowed: hasPermission('students.view') || user?.role_id !== 'guardian',
-    },
-    {
-      id: 'nav-fees',
-      path: '/fees',
-      labelBn: 'শিক্ষার্থী ফি ও বেতন',
-      labelEn: 'Student Fees',
-      icon: Receipt,
-      allowed: user?.role_id !== 'guardian' && user?.role_id !== 'student',
-    },
-    {
-      id: 'nav-teachers',
-      path: '/teachers',
-      labelBn: 'শিক্ষক ও স্টাফ',
-      labelEn: 'Teachers',
-      icon: UserCheck,
-      allowed: hasPermission('teachers.view') || user?.role_id !== 'guardian',
+      id: 'nav-guardians',
+      path: '/guardians',
+      labelBn: 'অভিভাবক তালিকা',
+      labelEn: 'Guardians Directory',
+      icon: Users,
+      allowed: isAdminOrPrincipal || role === 'teacher',
     },
     {
       id: 'nav-routines',
       path: '/routines',
+      matchPaths: ['/routines', '/routine'],
       labelBn: 'ক্লাস রুটিন',
       labelEn: 'Class Routine',
       icon: Calendar,
-      allowed: true, // Everyone (students, teachers, admins, guardians) can view routine
+      allowed: true,
     },
     {
-      id: 'nav-attendance',
-      path: '/attendance',
-      labelBn: 'ডিজিটাল হাজিরা খাতা',
-      labelEn: 'Attendance Sheet',
-      icon: CalendarCheck,
-      allowed: hasPermission('attendance.view') || user?.role_id !== 'guardian',
+      id: 'nav-academic-setup',
+      path: '/academic_setup',
+      labelBn: 'বিভাগ ও জামাত সেটআপ',
+      labelEn: 'Academic Setup',
+      icon: Layers,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'nav-accounts',
+      path: '/accounts',
+      labelBn: 'হিসাব ড্যাশবোর্ড ও খতিয়ান',
+      labelEn: 'Accounts & Ledger',
+      icon: Wallet,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-dues',
+      path: '/dues',
+      labelBn: 'বকেয়া ফি ও তাগাদা',
+      labelEn: 'Student Dues',
+      icon: AlertCircle,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-income',
+      path: '/income',
+      labelBn: 'আয় ব্যবস্থাপনা',
+      labelEn: 'Income Ledger',
+      icon: TrendingUp,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-expenses',
+      path: '/expenses',
+      labelBn: 'ব্যয় ও বিল ভাউচার',
+      labelEn: 'Expense Management',
+      icon: TrendingDown,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-salaries',
+      path: '/salaries',
+      labelBn: 'শিক্ষক বেতন ও পেরোল',
+      labelEn: 'Staff Payroll',
+      icon: Banknote,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-donations',
+      path: '/donations',
+      labelBn: 'দান ও অনুদান খতিয়ান',
+      labelEn: 'Donations Registry',
+      icon: Gift,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-chanda',
+      path: '/chanda',
+      labelBn: 'মাসিক চাঁদা আদায়',
+      labelEn: 'Monthly Chanda',
+      icon: HeartHandshake,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-funds',
+      path: '/funds',
+      labelBn: 'স্বতন্ত্র তহবিল',
+      labelEn: 'Special Funds',
+      icon: Layers,
+      allowed: isAdminOrPrincipal || role === 'accountant',
+    },
+    {
+      id: 'nav-id-cards',
+      path: '/id_cards',
+      labelBn: 'স্মার্ট আইডি কার্ড',
+      labelEn: 'Smart ID Cards',
+      icon: CreditCard,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'nav-certificates',
+      path: '/certificates',
+      labelBn: 'সনদপত্র ও প্রশংসাপত্র',
+      labelEn: 'Certificates & Sanad',
+      icon: Award,
+      allowed: isAdminOrPrincipal || role === 'teacher',
+    },
+    {
+      id: 'nav-documents',
+      path: '/documents',
+      labelBn: 'ডকুমেন্ট ভল্ট ও নথিপত্র',
+      labelEn: 'Document Vault',
+      icon: FileText,
+      allowed: isAdminOrPrincipal || role === 'teacher',
+    },
+    {
+      id: 'nav-qr-verify',
+      path: '/qr_verify',
+      labelBn: 'কিউআর (QR) যাচাইকরণ',
+      labelEn: 'QR Verification',
+      icon: QrCode,
+      allowed: true,
+    },
+    {
+      id: 'nav-internal-messages',
+      path: '/internal_messages',
+      labelBn: 'অভ্যন্তরীণ বার্তা',
+      labelEn: 'Internal Messages',
+      icon: MessageSquare,
+      allowed: role !== 'guardian' && role !== 'student',
+    },
+    {
+      id: 'nav-support-tickets',
+      path: '/support_tickets',
+      labelBn: 'সাপোর্ট ও হেল্পডেস্ক',
+      labelEn: 'Support Tickets',
+      icon: LifeBuoy,
+      allowed: true,
     },
     {
       id: 'nav-institution',
       path: '/institution',
       labelBn: 'প্রতিষ্ঠান ব্যবস্থাপনা',
-      labelEn: 'Institution',
+      labelEn: 'Institution Management',
       icon: Building2,
-      // Super Admin, Institution Admin and Principal
-      allowed: user?.role_id === 'super_admin' || user?.role_id === 'institution_admin' || user?.role_id === 'principal',
+      allowed: isAdminOrPrincipal,
     },
     {
-      id: 'nav-users',
-      path: '/users',
-      labelBn: 'ব্যবহারকারী পরিচালনা',
-      labelEn: 'Users',
-      icon: Users,
-      // Super Admin and Institution Admin have full user management
-      allowed: user?.role_id === 'super_admin' || user?.role_id === 'institution_admin',
+      id: 'nav-super-admin',
+      path: '/super_admin',
+      labelBn: 'সুপার এডমিন প্যানেল',
+      labelEn: 'Super Admin Panel',
+      icon: ShieldAlert,
+      allowed: role === 'super_admin',
+    },
+    {
+      id: 'nav-advanced-settings',
+      path: '/advanced_settings',
+      labelBn: 'ব্র্যান্ডিং ও অ্যাডভান্সড সেটিংস',
+      labelEn: 'Advanced Settings',
+      icon: Sliders,
+      allowed: isAdminOrPrincipal,
+    },
+    {
+      id: 'nav-settings',
+      path: '/settings',
+      labelBn: 'সেটিংস ও নিরাপত্তা',
+      labelEn: 'Settings & Security',
+      icon: Settings,
+      allowed: true,
     },
   ];
 
@@ -289,7 +336,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {permittedItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPath === item.path;
+          const isActive = item.matchPaths ? item.matchPaths.includes(currentPath) : currentPath === item.path;
 
           return (
             <button

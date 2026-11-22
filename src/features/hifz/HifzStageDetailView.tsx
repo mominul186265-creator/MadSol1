@@ -31,6 +31,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { HifzStudentProfileModal } from './HifzStudentProfileModal';
 import { SabakEntryModal } from './SabakEntryModal';
+import { DailyEvaluationModal } from './DailyEvaluationModal';
 import { AddHifzStudentModal } from './AddHifzStudentModal';
 
 interface HifzStageDetailViewProps {
@@ -60,14 +61,16 @@ export const HifzStageDetailView: React.FC<HifzStageDetailViewProps> = ({
   const [activeStatFilter, setActiveStatFilter] = useState<'all' | 'completed_today' | 'pending_today' | 'alert'>('all');
   const [selectedStudentForProfile, setSelectedStudentForProfile] = useState<HifzStudent | null>(null);
   const [selectedStudentForRecord, setSelectedStudentForRecord] = useState<HifzStudent | null>(null);
+  const [sabakInitialTab, setSabakInitialTab] = useState<'sabak' | 'saat_sabak' | 'amukhta'>('sabak');
+  const [selectedStudentForEval, setSelectedStudentForEval] = useState<HifzStudent | null>(null);
   const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
 
   const handleQuickSabakEntry = () => {
     if (stageStudents.length === 0) {
       showToast('এই স্তরে কোনো শিক্ষার্থী নেই। অনুগ্রহ করে প্রথমে শিক্ষার্থী ভর্তি করুন।', 'error');
       return;
     }
+    setSabakInitialTab('sabak');
     setSelectedStudentForRecord(stageStudents[0]);
   };
 
@@ -452,9 +455,14 @@ export const HifzStageDetailView: React.FC<HifzStageDetailViewProps> = ({
           student={selectedStudentForProfile}
           isOpen={!!selectedStudentForProfile}
           onClose={() => setSelectedStudentForProfile(null)}
-          onEditRecord={(student) => {
+          onOpenSabakModal={(student, tab = 'sabak') => {
             setSelectedStudentForProfile(null);
+            setSabakInitialTab(tab);
             setSelectedStudentForRecord(student);
+          }}
+          onOpenEvalModal={(student) => {
+            setSelectedStudentForProfile(null);
+            setSelectedStudentForEval(student);
           }}
         />
       )}
@@ -464,7 +472,15 @@ export const HifzStageDetailView: React.FC<HifzStageDetailViewProps> = ({
           student={selectedStudentForRecord}
           isOpen={!!selectedStudentForRecord}
           onClose={() => setSelectedStudentForRecord(null)}
-          initialTab="sabak"
+          initialTab={sabakInitialTab}
+        />
+      )}
+
+      {selectedStudentForEval && (
+        <DailyEvaluationModal
+          student={selectedStudentForEval}
+          isOpen={!!selectedStudentForEval}
+          onClose={() => setSelectedStudentForEval(null)}
         />
       )}
 

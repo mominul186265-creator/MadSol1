@@ -22,6 +22,7 @@ import { DbInstitution, InstitutionType, InstitutionStatus } from '../../types/s
 import { Button } from '../../components/common/Button';
 import { Input } from '../../components/common/Input';
 import { Modal } from '../../components/common/Modal';
+import { ConfirmationDialog } from '../../components/common/ConfirmationDialog';
 
 export const InstitutionManagementView: React.FC = () => {
   const { user, institution, switchInstitution, refreshData } = useAuth();
@@ -32,6 +33,7 @@ export const InstitutionManagementView: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingInst, setEditingInst] = useState<DbInstitution | null>(null);
+  const [institutionPendingDelete, setInstitutionPendingDelete] = useState<DbInstitution | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -51,21 +53,21 @@ export const InstitutionManagementView: React.FC = () => {
   };
 
   const handleDeleteInstitution = (inst: DbInstitution) => {
-    const confirmMsg =
+    setInstitutionPendingDelete(inst);
+  };
+
+  const confirmDeleteInstitution = () => {
+    if (!institutionPendingDelete) return;
+    madsolDb.deleteInstitution(institutionPendingDelete.id);
+    showToast(
       language === 'bn'
-        ? `আপনি কি নিশ্চিতভাবে [${inst.name}] প্রতিষ্ঠানটি মুছে ফেলতে চান?`
-        : `Are you sure you want to delete ${inst.name}?`;
-    if (window.confirm(confirmMsg)) {
-      madsolDb.deleteInstitution(inst.id);
-      showToast(
-        language === 'bn'
-          ? `[${inst.name}] সফলভাবে মুছে ফেলা হয়েছে।`
-          : `Deleted ${inst.name} successfully.`,
-        'success'
-      );
-      loadInstitutions();
-      refreshData();
-    }
+        ? `[${institutionPendingDelete.name}] সফলভাবে মুছে ফেলা হয়েছে।`
+        : `Deleted ${institutionPendingDelete.name} successfully.`,
+      'success'
+    );
+    setInstitutionPendingDelete(null);
+    loadInstitutions();
+    refreshData();
   };
 
   useEffect(() => {
@@ -447,6 +449,22 @@ export const InstitutionManagementView: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      <ConfirmationDialog
+        isOpen={!!institutionPendingDelete}
+        onClose={() => setInstitutionPendingDelete(null)}
+        onConfirm={confirmDeleteInstitution}
+        title={language === 'bn' ? 'প্রতিষ্ঠান মুছে ফেলার নিশ্চিতকরণ' : 'Delete Institution'}
+        message={
+          institutionPendingDelete
+            ? language === 'bn'
+              ? `আপনি কি নিশ্চিতভাবে [${institutionPendingDelete.name}] প্রতিষ্ঠানটি মুছে ফেলতে চান?`
+              : `Are you sure you want to delete ${institutionPendingDelete.name}?`
+            : ''
+        }
+        confirmText={language === 'bn' ? 'হ্যাঁ, মুছে ফেলুন' : 'Delete'}
+        isDestructive={true}
+      />
     </div>
   );
 };

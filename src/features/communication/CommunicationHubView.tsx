@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Send,
@@ -45,6 +45,10 @@ export const CommunicationHubView: React.FC<CommunicationHubViewProps> = ({
   const [activeTab, setActiveTab] = useState<CommunicationActiveTab>(initialTab);
   const [selectedDetailMessage, setSelectedDetailMessage] = useState<CommunicationMessage | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const handleViewMessage = (msg: CommunicationMessage) => {
     setSelectedDetailMessage(msg);

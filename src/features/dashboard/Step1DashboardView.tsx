@@ -2,20 +2,15 @@ import React, { useState, useEffect } from 'react';
 import {
   MapPin,
   ChevronDown,
-  BookMarked,
-  BookOpen,
-  GraduationCap,
-  Bot,
+  ChevronRight,
   Users,
-  Smartphone,
-  Heart,
   CalendarCheck,
   Receipt,
   UserCheck,
   Award,
   Tv,
   Utensils,
-  ArrowRight,
+  GraduationCap,
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -33,11 +28,14 @@ const toBengaliNumber = (num: string | number) => {
 
 export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }) => {
   const { language } = useLanguage();
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const isBn = language === 'bn';
+  const role = user?.role_id;
+  const isAdminOrPrincipal =
+    role === 'super_admin' || role === 'institution_admin' || role === 'principal';
 
   // Sort districts alphabetically based on language
-  const sortedDistricts = [...BD_DISTRICTS].sort((a, b) => 
+  const sortedDistricts = [...BD_DISTRICTS].sort((a, b) =>
     isBn ? a.nameBn.localeCompare(b.nameBn) : a.nameEn.localeCompare(b.nameEn)
   );
 
@@ -166,7 +164,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
 
     const day = date.getDate();
     const month = date.getMonth();
-    let year = date.getFullYear();
+    const year = date.getFullYear();
 
     let m = month + 1;
     let y = year;
@@ -178,15 +176,6 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     const a = Math.floor(y / 100);
     const b = 2 - a + Math.floor(a / 4);
     const jd = Math.floor(365.25 * (y + 4716)) + Math.floor(30.6001 * (m + 1)) + day + b - 1524;
-    let b1 = 0;
-    if (jd > 2299160) {
-      const a1 = Math.floor((jd - 1867216.25) / 36524.25);
-      b1 = 1 + a1 - Math.floor(a1 / 4);
-    }
-    const bb = jd + b1 + 1524;
-    const cc = Math.floor((bb - 122.1) / 365.25);
-    const dd = Math.floor(365.25 * cc);
-    const ee = Math.floor((bb - dd) / 30.6001);
 
     const l = jd - 1948440 + 10632;
     const n = Math.floor((l - 1) / 10631);
@@ -208,91 +197,103 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
     }
   };
 
-  // Primary 6 Navigation Cards (সহজ ২ কলাম বিশিষ্ট গ্রিডে অর্ধেক অর্ধেক শেইপে)
+  // Primary 6 Department Cards — Clean Editorial Typographic Cards (Icon-free & Premium Compact Model)
   const PRIMARY_2COL_CARDS = [
     {
       id: 'hifz',
+      index: '01',
+      tagBn: 'হিফজ',
+      tagEn: 'HIFZ',
       titleBn: 'হিফজুল কুরআন বিভাগ',
       titleEn: 'Hifz Department',
       subtitleBn: 'দৈনিক ছবক, সাত ছবক ও আমপারা',
       subtitleEn: 'Daily Sabaq & Ampara tracker',
       path: '/hifz',
-      icon: BookMarked,
-      color: 'from-emerald-600 to-teal-700',
-      badge: 'হিফজ',
-      badgeColor: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300',
+      accentBar: 'from-emerald-500/80 to-teal-500/30',
+      tagTone: 'text-emerald-700 dark:text-emerald-400',
+      allowed: role !== 'guardian',
     },
     {
       id: 'qawmi',
+      index: '02',
+      tagBn: 'ক্বওমী',
+      tagEn: 'QAWMI',
       titleBn: 'ক্বওমী নেসাব ও জামাত',
-      titleEn: 'Qawmi Curriculum & Classes',
-      subtitleBn: '১০টি জামাত, কিতাব ও পরীক্ষার কাঠামো',
-      subtitleEn: '10 classes, Befaq syllabus & books',
+      titleEn: 'Qawmi Curriculum',
+      subtitleBn: '১০টি জামাত, কিতাব ও পরীক্ষা',
+      subtitleEn: '10 classes, Befaq syllabus',
       path: '/qawmi',
-      icon: BookOpen,
-      color: 'from-blue-600 to-indigo-700',
-      badge: 'ক্বওমী',
-      badgeColor: 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300',
+      accentBar: 'from-sky-500/80 to-indigo-500/30',
+      tagTone: 'text-sky-700 dark:text-sky-400',
+      allowed: role !== 'guardian',
     },
     {
       id: 'academic',
+      index: '03',
+      tagBn: 'নূরানী',
+      tagEn: 'NOORANI',
       titleBn: 'নূরানী ও প্রাক-প্রাথমিক',
-      titleEn: 'Noorani & Primary Wing',
-      subtitleBn: 'প্লে থেকে ৫ম শ্রেণী ও ৩ সাময়িক সিলেবাস',
-      subtitleEn: 'Play to Grade 5 & board exams',
+      titleEn: 'Noorani & Primary',
+      subtitleBn: 'প্লে থেকে ৫ম শ্রেণী ও সাময়িক',
+      subtitleEn: 'Play to Grade 5 & exams',
       path: '/academic',
-      icon: GraduationCap,
-      color: 'from-amber-600 to-orange-700',
-      badge: 'নূরানী',
-      badgeColor: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300',
+      accentBar: 'from-amber-500/80 to-orange-500/30',
+      tagTone: 'text-amber-700 dark:text-amber-400',
+      allowed: role !== 'guardian',
     },
     {
       id: 'automation',
+      index: '04',
+      tagBn: 'স্মার্ট',
+      tagEn: 'SMART',
       titleBn: 'স্মার্ট অটোমেশন সেন্টার',
-      titleEn: 'Smart Automation Center',
-      subtitleBn: 'স্বয়ংক্রিয় নোটিফিকেশন ও ফি রিমাইন্ডার',
-      subtitleEn: 'Automated SMS & alert triggers',
+      titleEn: 'Automation Center',
+      subtitleBn: 'স্বয়ংক্রিয় বার্তা ও ফি রিমাইন্ডার',
+      subtitleEn: 'Automated SMS & fee alerts',
       path: '/automation',
-      icon: Bot,
-      color: 'from-purple-600 to-indigo-800',
-      badge: 'স্মার্ট',
-      badgeColor: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300',
+      accentBar: 'from-violet-500/80 to-purple-500/30',
+      tagTone: 'text-violet-700 dark:text-violet-400',
+      allowed: role !== 'guardian' && role !== 'student',
     },
     {
       id: 'teacher-app',
+      index: '05',
+      tagBn: 'শিক্ষক',
+      tagEn: 'FACULTY',
       titleBn: 'সহকারী শিক্ষক অ্যাপ',
       titleEn: 'Teacher Sub-App',
-      subtitleBn: 'উস্তায পোর্টাল, ছবক ডায়রি ও হাজিরা',
+      subtitleBn: 'উস্তায পোর্টাল, ছবক ও হাজিরা',
       subtitleEn: 'Faculty portal & daily sabak',
       path: '/teacher-app',
-      icon: Smartphone,
-      color: 'from-teal-600 to-emerald-800',
-      badge: 'শিক্ষক',
-      badgeColor: 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300',
+      accentBar: 'from-teal-500/80 to-emerald-500/30',
+      tagTone: 'text-teal-700 dark:text-teal-400',
+      allowed: isAdminOrPrincipal || role === 'accountant',
     },
     {
       id: 'guardian-app',
+      index: '06',
+      tagBn: 'অভিভাবক',
+      tagEn: 'PARENT',
       titleBn: 'অভিভাবক অ্যাপ পোর্টাল',
-      titleEn: 'Guardian Parent Portal',
-      subtitleBn: 'সন্তানের উপস্থিতি, অগ্রগতি ও ফি পেমেন্ট',
-      subtitleEn: 'Child attendance & fee invoice',
+      titleEn: 'Guardian Portal',
+      subtitleBn: 'সন্তানের উপস্থিতি ও ফি পেমেন্ট',
+      subtitleEn: 'Child attendance & invoices',
       path: '/guardian-app',
-      icon: Heart,
-      color: 'from-rose-600 to-pink-700',
-      badge: 'অভিভাবক',
-      badgeColor: 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300',
+      accentBar: 'from-rose-500/80 to-pink-500/30',
+      tagTone: 'text-rose-700 dark:text-rose-400',
+      allowed: isAdminOrPrincipal || role === 'accountant',
     },
   ];
 
-  // Quick Action Administrative Shortcuts
+  // Quick Action Administrative Shortcuts (Balanced 8-item grid: 2x4 mobile, 4x2 desktop)
   const QUICK_ACTIONS = [
     {
-      id: 'users',
-      titleBn: 'ইউজার ও রোল',
-      titleEn: 'User & Roles',
-      path: '/users',
-      icon: Users,
-      bgColor: 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800/60',
+      id: 'students',
+      titleBn: 'শিক্ষার্থী তালিকা',
+      titleEn: 'Students Directory',
+      path: '/students',
+      icon: GraduationCap,
+      allowed: hasPermission('students.view') || (role !== 'guardian' && role !== 'student'),
     },
     {
       id: 'attendance',
@@ -300,7 +301,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Daily Attendance',
       path: '/attendance',
       icon: CalendarCheck,
-      bgColor: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800/60',
+      allowed: hasPermission('attendance.view') || role !== 'guardian',
     },
     {
       id: 'fees',
@@ -308,7 +309,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Fees Collection',
       path: '/fees',
       icon: Receipt,
-      bgColor: 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800/60',
+      allowed: role !== 'guardian' && role !== 'student',
     },
     {
       id: 'teachers',
@@ -316,7 +317,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Teachers List',
       path: '/teachers',
       icon: UserCheck,
-      bgColor: 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800/60',
+      allowed: hasPermission('teachers.view') || role !== 'guardian',
     },
     {
       id: 'exams',
@@ -324,7 +325,7 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Exams & Results',
       path: '/exams',
       icon: Award,
-      bgColor: 'bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800/60',
+      allowed: true,
     },
     {
       id: 'boarding',
@@ -332,7 +333,15 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Hostel & Food',
       path: '/boarding',
       icon: Utensils,
-      bgColor: 'bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-800/60',
+      allowed: hasPermission('boarding.view') || (role !== 'guardian' && role !== 'student'),
+    },
+    {
+      id: 'users',
+      titleBn: 'ইউজার ও রোল',
+      titleEn: 'User & Roles',
+      path: '/users',
+      icon: Users,
+      allowed: isAdminOrPrincipal || role === 'teacher',
     },
     {
       id: 'live_tv',
@@ -340,52 +349,49 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
       titleEn: 'Live TV Monitor',
       path: '/live_tv',
       icon: Tv,
-      bgColor: 'bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800/60',
+      allowed: role !== 'guardian',
     },
   ];
 
+  const visibleCards = PRIMARY_2COL_CARDS.filter((item) => item.allowed);
+  const visibleQuickActions = QUICK_ACTIONS.filter((action) => action.allowed);
+
   return (
-    <div className="space-y-4 w-full max-w-full min-w-0 pb-6">
-      {/* 1. Header Banner: Live Time on Left, Dates in Center, District Selector on Right */}
-      <div className="w-full">
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#004d3b] via-[#005743] to-[#00382b] text-white px-3 py-2.5 sm:px-4 sm:py-3 shadow-md border-t-2 border-emerald-400">
-          <div className="relative z-10 flex items-center justify-between gap-1.5 sm:gap-2">
-            {/* Left: Live Running Time Shape on Top, Weekday & Date Below */}
-            <div className="flex flex-col items-start justify-center gap-0.5 shrink-0">
-              <div className="px-2 py-0.5 sm:py-1 rounded-lg sm:rounded-xl bg-black/25 border border-white/20 shadow-inner flex items-center gap-1.5 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                <span className="text-[11px] sm:text-sm font-bold tabular-nums tracking-tight text-white whitespace-nowrap">
-                  {formatLiveTime(currentTime)}
-                </span>
-              </div>
-              <div className="text-[9px] sm:text-[10px] pl-1 tracking-tight flex items-center gap-1 whitespace-nowrap">
-                <span className="font-bold text-white">{getWeekdayName(currentTime)},</span>
-                <span className="text-emerald-200/90 font-medium">{formatDigits(currentTime.toLocaleDateString('en-GB'))}</span>
-              </div>
+    <div className="space-y-5 w-full max-w-full min-w-0 pb-4">
+      {/* 1. Executive Date & Live Clock Strip */}
+      <section aria-label="Date and time summary" className="w-full">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#04392c] via-[#064e3b] to-[#022c22] text-white px-3.5 py-3 sm:px-5 sm:py-3.5 shadow-sm border border-emerald-500/25">
+          <div className="relative z-10 flex items-center justify-between gap-2 sm:gap-4">
+            {/* Left: Live Tabular Clock & Gregorian Date */}
+            <div className="flex flex-col items-start justify-center shrink-0">
+              <span className="text-[13px] sm:text-base font-bold tabular-nums tracking-tight text-white whitespace-nowrap leading-tight">
+                {formatLiveTime(currentTime)}
+              </span>
+              <span className="text-[10px] sm:text-xs text-emerald-100/80 font-medium tabular-nums whitespace-nowrap mt-0.5">
+                {getWeekdayName(currentTime)}, {formatDigits(currentTime.toLocaleDateString('en-GB'))}
+              </span>
             </div>
 
-            {/* Center: তারিখ ও হিজরি সাল */}
-            <div className="flex-1 flex flex-col items-center justify-center px-1 text-center min-w-0">
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 text-[10px] sm:text-xs text-white font-bold leading-tight">
-                <span className="bg-white/10 px-2 py-0.5 rounded-md border border-white/10 whitespace-nowrap">
-                  {getBanglaDate(currentTime, false)}
-                </span>
-                <span className="hidden sm:inline text-emerald-300">•</span>
-                <span className="bg-emerald-500/20 px-2 py-0.5 rounded-md border border-emerald-400/30 text-emerald-200 whitespace-nowrap">
-                  {getHijriDate(currentTime, false)}
-                </span>
-              </div>
+            {/* Center: Bangla & Hijri Dates */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center min-w-0 px-1 border-x border-white/10">
+              <span className="text-[11px] sm:text-xs font-semibold text-white/95 truncate max-w-full">
+                {getBanglaDate(currentTime, false)}
+              </span>
+              <span className="text-[10px] sm:text-[11px] font-medium text-amber-300/95 truncate max-w-full mt-0.5">
+                {getHijriDate(currentTime, false)}
+              </span>
             </div>
 
-            {/* Right: District Selector (Compact width) */}
-            <div className="relative w-[85px] sm:w-[110px] shrink-0">
-              <div className="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-300 pointer-events-none">
-                <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+            {/* Right: District Selector */}
+            <div className="relative w-[92px] sm:w-[122px] shrink-0">
+              <div className="absolute left-2 top-1/2 -translate-y-1/2 text-emerald-300/90 pointer-events-none">
+                <MapPin className="w-3 h-3" />
               </div>
               <select
                 value={selectedDistrictId}
                 onChange={(e) => setSelectedDistrictId(e.target.value)}
-                className="w-full appearance-none bg-white/10 hover:bg-white/15 border border-white/20 text-white text-[11px] sm:text-xs font-semibold rounded-xl pl-5 sm:pl-6 pr-5 py-1 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 transition-all cursor-pointer backdrop-blur-xs truncate"
+                aria-label={isBn ? 'জেলা নির্বাচন করুন' : 'Select district'}
+                className="w-full min-h-[36px] appearance-none bg-white/10 hover:bg-white/15 border border-white/15 text-white text-[11px] sm:text-xs font-semibold rounded-xl pl-6 pr-6 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-400/50 transition-colors cursor-pointer truncate"
               >
                 {sortedDistricts.map((dist) => (
                   <option key={dist.id} value={dist.id} className="text-slate-900 font-medium">
@@ -393,93 +399,98 @@ export const Step1DashboardView: React.FC<Step1DashboardProps> = ({ onNavigate }
                   </option>
                 ))}
               </select>
-              <div className="absolute right-1.5 sm:right-2 top-1/2 -translate-y-1/2 text-emerald-200 pointer-events-none">
-                <ChevronDown className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 text-emerald-200/80 pointer-events-none">
+                <ChevronDown className="w-3 h-3" />
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* 2. Main Navigation Options on Home - দুই ভাগে/দুই কলামে বিভক্ত অর্ধেক সাইজের শেপ (Red Boxes Layout) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-sm sm:text-base font-extrabold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-            <span className="w-2 h-4 rounded bg-emerald-600 inline-block" />
-            <span>{isBn ? 'প্রধান বিভাগ ও ব্যবস্থাপনা' : 'Main Departments & Modules'}</span>
+      {/* 2. Main Department Modules — Clean Icon-Free Premium Compact Cards */}
+      <section className="space-y-2.5">
+        <div className="flex items-baseline justify-between px-0.5">
+          <h2 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            {isBn ? 'প্রধান বিভাগ ও ব্যবস্থাপনা' : 'Departments & Portals'}
           </h2>
-          <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
-            {isBn ? 'সরাসরি প্রবেশ করুন' : 'Quick Access'}
+          <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">
+            {isBn ? `${toBengaliNumber(visibleCards.length)}টি বিভাগ` : `${visibleCards.length} Modules`}
           </span>
         </div>
 
-        {/* 2-Column Responsive Grid (অর্ধেক করে পাশাপাশি দুটি শেইপ) */}
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
-          {PRIMARY_2COL_CARDS.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => onNavigate(item.path)}
-                className="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-3 sm:p-4 text-left shadow-xs hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px]"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-1.5 mb-2">
-                    <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br ${item.color} text-white flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
-                      <Icon className="w-5 h-5 stroke-[2]" />
-                    </div>
-                    <span className={`text-[9px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full ${item.badgeColor} shrink-0`}>
-                      {item.badge}
-                    </span>
-                  </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3.5">
+          {visibleCards.map((item, idx) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => onNavigate(item.path)}
+              className="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/45 dark:hover:border-emerald-500/45 px-3.5 py-3.5 sm:px-4.5 sm:py-4 text-left shadow-[0_1px_2px_rgba(15,23,42,0.03)] hover:shadow-[0_10px_24px_-8px_rgba(6,95,70,0.14)] dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.03)] transition-all duration-200 active:scale-[0.985] cursor-pointer flex flex-col justify-between min-h-[98px] sm:min-h-[112px]"
+            >
+              {/* Subtle top hairline accent */}
+              <div
+                className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${item.accentBar} opacity-75 group-hover:opacity-100 transition-opacity`}
+              />
 
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-snug line-clamp-2">
-                    {isBn ? item.titleBn : item.titleEn}
-                  </h3>
-                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-1">
-                    {isBn ? item.subtitleBn : item.subtitleEn}
-                  </p>
-                </div>
+              {/* Eyebrow Metadata Row */}
+              <div className="flex items-center justify-between gap-2 mb-1.5">
+                <span className={`text-[10px] sm:text-[11px] font-bold tracking-wider uppercase ${item.tagTone}`}>
+                  {isBn ? item.tagBn : item.tagEn}
+                </span>
+                <span className="text-[10px] font-semibold tabular-nums text-slate-300 dark:text-slate-600 group-hover:text-emerald-600/70 dark:group-hover:text-emerald-400/70 transition-colors">
+                  {isBn ? toBengaliNumber(String(idx + 1).padStart(2, '0')) : String(idx + 1).padStart(2, '0')}
+                </span>
+              </div>
 
-                <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                  <span className="truncate">{isBn ? 'বিভাগে যান' : 'Open'}</span>
-                  <ArrowRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </button>
-            );
-          })}
+              {/* Clean Title & Full Unclipped Subtitle */}
+              <div className="min-w-0">
+                <h3 className="text-[13px] sm:text-[15px] font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors leading-snug">
+                  {isBn ? item.titleBn : item.titleEn}
+                </h3>
+                <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">
+                  {isBn ? item.subtitleBn : item.subtitleEn}
+                </p>
+              </div>
+            </button>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* 3. Quick Administrative Shortcuts Grid */}
-      <div className="space-y-2 pt-1">
-        <div className="flex items-center justify-between px-1">
-          <h2 className="text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-            <span className="w-1.5 h-3 rounded bg-amber-500 inline-block" />
-            <span>{isBn ? 'অন্যান্য গুরুত্বপূর্ণ অপশন' : 'More Core Options'}</span>
+      {/* 3. Quick Administrative Console Shortcuts */}
+      <section className="space-y-2.5 pt-0.5">
+        <div className="flex items-baseline justify-between px-0.5">
+          <h2 className="text-sm sm:text-base font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            {isBn ? 'অন্যান্য গুরুত্বপূর্ণ অপশন' : 'Core Operations'}
           </h2>
+          <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 tabular-nums">
+            {isBn ? `${toBengaliNumber(visibleQuickActions.length)}টি শর্টকাট` : `${visibleQuickActions.length} Shortcuts`}
+          </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
-          {QUICK_ACTIONS.map((action) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+          {visibleQuickActions.map((action) => {
             const Icon = action.icon;
             return (
               <button
                 key={action.id}
+                type="button"
                 onClick={() => onNavigate(action.path)}
-                className={`flex items-center gap-2 p-2.5 rounded-xl border transition-all hover:scale-[1.02] cursor-pointer shadow-2xs ${action.bgColor}`}
+                className="group flex items-center justify-between gap-2 p-2.5 sm:p-3 min-h-[48px] rounded-xl bg-white dark:bg-slate-900/95 border border-slate-200/90 dark:border-slate-800 hover:border-emerald-500/45 dark:hover:border-emerald-500/45 text-left shadow-[0_1px_2px_rgba(15,23,42,0.02)] hover:shadow-sm transition-all duration-150 active:scale-[0.985] cursor-pointer"
               >
-                <div className="p-1.5 rounded-lg bg-white dark:bg-slate-900/80 shrink-0 shadow-2xs">
-                  <Icon className="w-4 h-4" />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800/90 text-emerald-700 dark:text-emerald-400 group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/60 flex items-center justify-center shrink-0 transition-colors">
+                    <Icon className="w-4 h-4 stroke-[1.9]" />
+                  </div>
+                  <span className="text-xs sm:text-[13px] font-semibold text-slate-800 dark:text-slate-200 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 truncate transition-colors">
+                    {isBn ? action.titleBn : action.titleEn}
+                  </span>
                 </div>
-                <span className="text-xs font-bold truncate">
-                  {isBn ? action.titleBn : action.titleEn}
-                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-slate-300 dark:text-slate-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 shrink-0 hidden sm:block transition-colors" />
               </button>
             );
           })}
         </div>
-      </div>
+      </section>
     </div>
   );
 };
+
